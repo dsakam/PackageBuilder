@@ -1,6 +1,6 @@
 ﻿######## LICENSE ####################################################################################################################################
 <#
- # Copyright (c) 2013, Daiki Sakamoto
+ # Copyright (c) 2013-2014, Daiki Sakamoto
  # All rights reserved.
  #
  # Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -885,7 +885,7 @@ Function Get-PrivateProfileString {
             {
                 if (((($texts[$i] -split "\[")[1]) -split "\]")[0].Trim() -eq $Section)
                 {
-                    for ($j = $i + 1; ([string[]]$texts).Count; $j = $j +1)
+                    for ($j = $i + 1; $j -lt ([string[]]$texts).Count; $j = $j +1)
                     {
                         if (($texts[$j] -split "=")[0].Trim() -eq $Key)
                         {

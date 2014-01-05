@@ -1,6 +1,6 @@
 ﻿######## LICENSE ####################################################################################################################################
 <#
- # Copyright (c) 2013, Daiki Sakamoto
+ # Copyright (c) 2013-2014, Daiki Sakamoto
  # All rights reserved.
  #
  # Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -41,7 +41,7 @@ Shutdown the computer.
 
 
 .DESCRIPTION
-PC をシャットダウンします。
+    PC をシャットダウンします。
 
 
 .PARAMETER ComputerName
@@ -134,5 +134,161 @@ PC をシャットダウンします。
                 }
             }
         }
+    }
+}
+
+#####################################################################################################################################################
+Function Reboot-Computer {
+
+<#
+.SYNOPSIS
+Shutdown the computer.
+
+
+.DESCRIPTION
+    PC を再起動します。
+
+
+.PARAMETER ComputerName
+    Type: System.String
+    If omitted, this computer may be shut down.
+
+
+.PARAMETER UserName
+    Type: System.String
+    If omitted, shutdown is tryed by your privilege.
+
+
+.PARAMETER Password
+    Type: System.String
+    Password of those who tries to shut down the computer.
+
+
+.INPUTS
+    System.String
+
+
+.OUTPUTS
+    None
+
+
+.NOTES
+    Shutdown Computer Cmdlet
+    
+
+.EXAMPLE
+(None)
+
+
+.LINK
+(None)
+#>
+
+    [CmdletBinding ()]
+    Param (
+        [Parameter (Mandatory=$false, Position=0, ValueFromPipeline=$true)][string]$ComputerName = $env:COMPUTERNAME,
+        [Parameter (Mandatory=$false, Position=1)][string]$UserName = $env:USERNAME,
+        [Parameter (Mandatory=$false, Position=2)][string]$Password,
+        [Parameter (Mandatory=$false)] [switch]$Silent,
+        [Parameter (Mandatory=$false)] [switch]$Force
+    )
+
+    Process
+    {
+        # Confirmation
+        $result = [System.Windows.Forms.DialogResult]::OK
+        if (-not $Silent)
+        {
+            $result = Show-Message `
+                -Text "Are you sure you want to reboot the computer '$ComputerName' now?" `
+                -Caption $MyInvocation.MyCommand.Name `
+                -Buttons ([system.windows.forms.messageboxbuttons]::OKCancel)
+        }
+
+        if ($result -eq [System.Windows.Forms.DialogResult]::OK)
+        {
+            if ($Password)
+            {
+                # w/ Credential        
+                $credential = New-Object System.Management.Automation.PSCredential $UserName, (ConvertTo-SecureString $Password -AsPlainText -Force)
+
+                if ($Force)
+                {
+                    Restart-Computer -ComputerName $ComputerName -Credential $credential -Force
+                }
+                else
+                {
+                    Restart-Computer -ComputerName $ComputerName -Credential $credential
+                }
+            }
+            else
+            {
+                # w/o Credential
+                if ($Force)
+                {
+                    Restart-Computer -ComputerName $ComputerName -Force
+                }
+                else
+                {
+                    Restart-Computer -ComputerName $ComputerName
+                }
+            }
+        }
+    }
+}
+
+#####################################################################################################################################################
+Function Reboot-Computer {
+
+<#
+.SYNOPSIS
+
+
+.DESCRIPTION
+    Wake on LAN
+
+
+.PARAMETER ComputerName
+    Type: System.String
+    If omitted, this computer may be shut down.
+
+
+.PARAMETER UserName
+    Type: System.String
+    If omitted, shutdown is tryed by your privilege.
+
+
+.PARAMETER Password
+    Type: System.String
+    Password of those who tries to shut down the computer.
+
+
+.INPUTS
+    System.String
+
+
+.OUTPUTS
+    None
+
+
+.NOTES
+    Shutdown Computer Cmdlet
+    
+
+.EXAMPLE
+(None)
+
+
+.LINK
+(None)
+#>
+
+    [CmdletBinding ()]
+    Param (
+        [Parameter (Mandatory=$true, Position=0, ValueFromPipeline=$true)][string]$MacAddress
+    )
+
+    Process
+    {
     }
 }
