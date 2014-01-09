@@ -222,7 +222,7 @@ Function Write-Title {
         [int]$Padding = 0,
 
         [Parameter(Mandatory=$false, Position=5)]
-        [ValidateRange(1,3)]
+        [ValidateRange(1,5)]
         [int]$ColumnWidth = 2,
 
         [Parameter(Mandatory=$false, Position=6)]
@@ -230,7 +230,7 @@ Function Write-Title {
         [int]$MinWidth = 64,
 
         [Parameter(Mandatory=$false, Position=7)]
-        [ValidateRange(0,512)]
+        [ValidateRange(0,1024)]
         [int]$MaxWidth = 200
     )
 
@@ -249,8 +249,9 @@ Function Write-Title {
 
         $hr = New-HR -Char $Char -Length $Width
         $side = "$Char" * $ColumnWidth
+        $pad = $side + (" " * ($hr.Length - ($side.Length * 2))) + $side
 
-
+        # Brerak Line
         Write-Host
 
         # Head
@@ -259,7 +260,7 @@ Function Write-Title {
         # Padding
         for ($i = 0; $i -lt $Padding; $i++)
         {
-            Write-Host ($pad = $side + (" " * ($hr.Length - ($side.Length * 2))) + $side) -ForegroundColor $Color
+            Write-Host $pad -ForegroundColor $Color
         }
 
         # Main
@@ -574,6 +575,7 @@ Function Get-FileVersionInfo {
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
         [ValidateScript ( {
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
+            elseif ((Get-Item -Path $_).GetType() -ne [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
             return $true
         } )]
         [string]$Path,
@@ -808,13 +810,12 @@ Function Get-HTMLString {
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
         [ValidateScript ( {
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
+            elseif ((Get-Item -Path $_).GetType() -ne [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
             return $true
         } )]
         [string]$Path,
 
-        [Parameter(Mandatory=$true, Position=1)]
-        [ValidateNotNullOrEmpty()]
-        [string]$Tag
+        [Parameter(Mandatory=$true, Position=1)][string]$Tag
     )
 
     Process
@@ -867,6 +868,7 @@ Function Get-PrivateProfileString {
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
         [ValidateScript ( {
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
+            elseif ((Get-Item -Path $_).GetType() -ne [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
             return $true
         } )]
         [string]$Path,
@@ -934,24 +936,19 @@ Function Update-Content {
 
     [CmdletBinding()]
     Param (
-        [Parameter(Mandatory=$true, Position=0, ParameterSetName="line")]
-        [ValidateScript ( {
-            if (($_ -le 0) -and ($_ -gt $InputObject.Count)) { throw New-Object System.IndexOutOfRangeException }
-            return $true
-         } )]
-        [int]$Line,
-
-        [Parameter(Mandatory=$true, Position=0, ParameterSetName="word")]
-        [ValidateNotNullOrEmpty()]
-        [string]$SearchText,
-
-        [Parameter(Mandatory=$true, Position=1)]
-        [ValidateNotNullOrEmpty()]
-        [string]$UpdateText,
-
-        [Parameter(Mandatory=$true, Position=2, ValueFromPipeline=$true)]
-        [string[]]$InputObject
+        [Parameter(Mandatory=$true, Position=0, ParameterSetName="line")][int]$Line,
+        [Parameter(Mandatory=$true, Position=0, ParameterSetName="word")][string]$SearchText,
+        [Parameter(Mandatory=$true, Position=1)][string]$UpdateText,
+        [Parameter(Mandatory=$true, Position=2, ValueFromPipeline=$true)][string[]]$InputObject
     )
+
+    Begin
+    {
+        if ($PSCmdlet.ParameterSetName -eq "line")
+        {
+            if ($Line -le 0) { throw New-Object System.ArgumentOutOfRangeException }
+        }
+    }
 
     Process
     {
@@ -963,15 +960,17 @@ Function Update-Content {
             }
             default #("Word")
             {
-                return (($texts = $InputObject) -replace $SearchText, $UpdateText)
+                return ($InputObject -replace $SearchText, $UpdateText)
             }
         }
     }
 
-    end
+    End
     {
         if ($PSCmdlet.ParameterSetName -eq "line")
         {
+            if ($Line -ge $texts.Count) { throw New-Object System.ArgumentOutOfRangeException }
+
             $texts[$Line - 1] = $UpdateText
             return $texts
         }
@@ -1062,61 +1061,28 @@ Function Send-Mail {
 
     [CmdletBinding()]
     Param (
-        [Parameter(Mandatory=$true, Position=0)]
-        [ValidateScript ( {
-            if ([string]::IsNullOrEmpty($_)) { throw New-Object System.ArgumentException }
-            else { return $true }
-        } )]
-        [string]$From,
+        [Parameter(Mandatory=$true, Position=0)][string[]]$To,
+        [Parameter(Mandatory=$true, Position=1)][string]$From,
+        [Parameter(Mandatory=$true, Position=2)][string]$Host,
 
-        [Parameter(Mandatory=$true, Position=1)]
-        [ValidateScript ( {
-            if (([string[]]$_).Count -le 0) { throw New-Object System.ArgumentException }
-            $_ | % { if ([string]::IsNullOrEmpty($_)) { throw New-Object System.ArgumentException } }
-            return $true
-        } )]
-        [string[]]$To,
+        [Parameter(Mandatory=$false, Position=3)][string]$Subject = [string]::Empty,
+        [Parameter(Mandatory=$false, Position=4)][string]$Body = [string]::Empty,
 
-        [Parameter(Mandatory=$false, Position=2)][string]$Subject,
-        [Parameter(Mandatory=$false, Position=3)][string]$Body,
-
-        [Parameter(Mandatory=$true, Position=4)]
-        [ValidateScript ( {
-            if ([string]::IsNullOrEmpty($_)) { throw New-Object System.ArgumentException }
-            else { return $true }
-        } )]
-        [string]$UserName,
-
-        [Parameter(Mandatory=$true, Position=5)]
-        [ValidateScript ( {
-            if ([string]::IsNullOrEmpty($_)) { throw New-Object System.ArgumentException }
-            else { return $true }
-        } )]
-        [string]$Password,
-
-        [Parameter(Mandatory=$false, Position=6)][string]$Domain,
-
-        [Parameter(Mandatory=$true, Position=7)]
-        [ValidateScript ( {
-            if ([string]::IsNullOrEmpty($_)) { throw New-Object System.ArgumentException }
-            else { return $true }
-        } )]
-        [string]$Host,
+        [Parameter(Mandatory=$false, Position=5)][string]$UserName = $env:USERNAME,
+        [Parameter(Mandatory=$false, Position=6)][string]$Password = [string]::Empty,
+        [Parameter(Mandatory=$false, Position=7)][string]$Domain,
 
         [Parameter(Mandatory=$false, Position=8)][int]$Port
     )
 
     Process
     {
-        if (-not $Subject) { $Subject = [string]::Empty }
-        if (-not $Body) { $Body = [string]::Empty }
-
-        # Mail
+        # MailMessage
         $mail = New-Object System.Net.Mail.MailMessage
-        $mail.From = $From
-        $To | % { $mail.To.Add($_) }
         $mail.Subject = $Subject
         $mail.Body = $Body
+        $mail.From = $From
+        $To | % { $mail.To.Add($_) }
 
         # Credential
         $cred = New-Object System.Net.NetworkCredential($UserName, $Password)

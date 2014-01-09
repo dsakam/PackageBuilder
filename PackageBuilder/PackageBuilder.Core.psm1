@@ -24,7 +24,7 @@
  # Package Builder Toolkit for PowerShell
  #
  #  2013/09/02  Version 0.0.0.1
- #
+ #  2014/01/07  Version 1.0.0.0
  #>
 #####################################################################################################################################################
 
@@ -72,21 +72,6 @@ Function Start-Command {
 .LINK
     [MS-ERREF] Windows Error Codes    
     http://msdn.microsoft.com/en-us/library/cc231196.aspx
-
-    2.1 HRESULT
-    http://msdn.microsoft.com/en-us/library/cc231198.aspx
-
-    2.1.1 HRESULT Values
-    http://msdn.microsoft.com/en-us/library/cc704587.aspx
-
-    2.2 Win32 Error Codes
-    http://msdn.microsoft.com/en-us/library/cc231199.aspx
-
-    2.3 NTSTATUS
-    http://msdn.microsoft.com/en-us/library/cc231200.aspx
-
-    2.3.1 NTSTATUS values
-    http://msdn.microsoft.com/en-us/library/cc704588.aspx
 #>
 
     [CmdletBinding()]
@@ -288,6 +273,7 @@ Function Get-CheckSum {
         [Parameter (Mandatory=$true, Position=0, ValueFromPipeline=$true)]
         [ValidateScript ( {
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
+            elseif ((Get-Item -Path $_).GetType() -ne [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
             return $true
         } )]
         [string]$InputObject,
@@ -447,29 +433,23 @@ Function New-ISOImageFile {
         } )]
         [string]$InputObject,
 
-        [Parameter(Mandatory=$true, Position=1)]
+        [Parameter(Mandatory=$false, Position=1)]
         [ValidateScript ( {
             if (-not ($_ | Split-Path -Parent | Test-Path)) { throw New-Object System.IO.DirectoryNotFoundException }
             return $true
         } )]
         [string]$Path = ($InputObject | Resolve-Path | Split-Path -Parent),
 
-        [Parameter(Mandatory=$false, Position=2)]
-        [ValidateScript ( {
-            if (-not ($_ | Resolve-Path | Join-Path -ChildPath "genisoimage.exe" | Test-Path)) { throw New-Object System.IO.FileNotFoundException }
-            return $true
-        } )]
-        [string]$BinPath,
+        [Parameter(Mandatory=$false, Position=2)][string]$VolumeID,
+        [Parameter(Mandatory=$false, Position=3)][string]$Publisher,
+        [Parameter(Mandatory=$false, Position=4)][string]$ApplicationID,
+        [Parameter(Mandatory=$false, Position=5)][string[]]$ArgumentList,
 
-        [Parameter(Mandatory=$true)][string]$VolumeID,
-        [Parameter(Mandatory=$false)][string]$Publisher,
-        [Parameter(Mandatory=$false)][string]$ApplicationID,
-        [Parameter(Mandatory=$false)][string[]]$ArgumentList,
+        [Parameter(Mandatory=$false, Position=6)][string]$BinPath,
+        [Parameter(Mandatory=$false, Position=7)][string]$FCIVBinPath,
 
         [Parameter(Mandatory=$false)][switch]$RedirectStandardError,
-        [Parameter(Mandatory=$false)][switch]$Recommended,
-
-        [Parameter(Mandatory=$false)][string]$FCIVBinPath
+        [Parameter(Mandatory=$false)][switch]$Recommended
     )
 
     Process
