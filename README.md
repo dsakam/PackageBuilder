@@ -1,11 +1,14 @@
 PackageBuilder
 ==============
 
-Package Builder Toolkit for PowerShell Version **0.3.0.0** (*Pre-Release*)
+Package Builder Toolkit for PowerShell Version **0.4.0.0** (*Pre-Release*)
 
 
 履歴
 ----
+
+**V0.4.0.0** (2014/01/16)  
+Pre-Release
 
 **V0.3.0.0** (2014/01/10)  
 Pre-Release
