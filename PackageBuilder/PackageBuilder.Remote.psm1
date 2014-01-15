@@ -25,9 +25,7 @@
  #
  #  2013/08/17  Create
  #  2013/09/02  Version 0.0.0.1
- #              Update
- #  2013/09/04  Update
- #  2013/10/24  Update
+ #  2014/01/16  Version 0.4.0.0
  #
  #>
 #####################################################################################################################################################
@@ -37,11 +35,10 @@ Function Shutdown-Computer {
 
 <#
 .SYNOPSIS
-Shutdown the computer.
+    PC をシャットダウンします。
 
 
 .DESCRIPTION
-    PC をシャットダウンします。
 
 
 .PARAMETER ComputerName
@@ -57,6 +54,12 @@ Shutdown the computer.
 .PARAMETER Password
     Type: System.String
     Password of those who tries to shut down the computer.
+
+
+.PARAMETER Silent
+
+
+.PARAMETER Force
 
 
 .INPUTS
@@ -107,31 +110,39 @@ Shutdown the computer.
 
         if ($result -eq [System.Windows.Forms.DialogResult]::OK)
         {
-            if ($Password)
+            try
             {
-                # w/ Credential        
-                $credential = New-Object System.Management.Automation.PSCredential $UserName, (ConvertTo-SecureString $Password -AsPlainText -Force)
-
-                if ($Force)
+                if ($Password)
                 {
-                    Stop-Computer -ComputerName $ComputerName -Credential $credential -Force
+                    # w/ Credential        
+                    $credential = New-Object System.Management.Automation.PSCredential $UserName, (ConvertTo-SecureString $Password -AsPlainText -Force)
+
+                    if ($Force)
+                    {
+                        Stop-Computer -ComputerName $ComputerName -Credential $credential -ErrorAction Stop -Force
+                    }
+                    else
+                    {
+                        Stop-Computer -ComputerName $ComputerName -Credential $credential -ErrorAction Stop
+                    }
                 }
                 else
                 {
-                    Stop-Computer -ComputerName $ComputerName -Credential $credential
+                    # w/o Credential
+                    if ($Force)
+                    {
+                        Stop-Computer -ComputerName $ComputerName -ErrorAction Stop -Force
+                    }
+                    else
+                    {
+                        Stop-Computer -ComputerName $ComputerName -ErrorAction Stop
+                    }
                 }
             }
-            else
+            catch
             {
-                # w/o Credential
-                if ($Force)
-                {
-                    Stop-Computer -ComputerName $ComputerName -Force
-                }
-                else
-                {
-                    Stop-Computer -ComputerName $ComputerName
-                }
+                if ($Silent) { throw }
+                else { [void](Show-Message -Text $_ -Caption $MyInvocation.MyCommand.Name) }
             }
         }
     }
@@ -142,11 +153,10 @@ Function Reboot-Computer {
 
 <#
 .SYNOPSIS
-Shutdown the computer.
+    PC を再起動します。
 
 
 .DESCRIPTION
-    PC を再起動します。
 
 
 .PARAMETER ComputerName
@@ -162,6 +172,11 @@ Shutdown the computer.
 .PARAMETER Password
     Type: System.String
     Password of those who tries to shut down the computer.
+
+.PARAMETER Silent
+
+
+.PARAMETER Force
 
 
 .INPUTS
@@ -207,60 +222,62 @@ Shutdown the computer.
 
         if ($result -eq [System.Windows.Forms.DialogResult]::OK)
         {
-            if ($Password)
+            try
             {
-                # w/ Credential        
-                $credential = New-Object System.Management.Automation.PSCredential $UserName, (ConvertTo-SecureString $Password -AsPlainText -Force)
-
-                if ($Force)
+                if ($Password)
                 {
-                    Restart-Computer -ComputerName $ComputerName -Credential $credential -Force
+                    # w/ Credential        
+                    $credential = New-Object System.Management.Automation.PSCredential $UserName, (ConvertTo-SecureString $Password -AsPlainText -Force)
+
+                    if ($Force)
+                    {
+                        Restart-Computer -ComputerName $ComputerName -Credential $credential -ErrorAction Stop -Force
+                    }
+                    else
+                    {
+                        Restart-Computer -ComputerName $ComputerName -Credential $credential -ErrorAction Stop
+                    }
                 }
                 else
                 {
-                    Restart-Computer -ComputerName $ComputerName -Credential $credential
+                    # w/o Credential
+                    if ($Force)
+                    {
+                        Restart-Computer -ComputerName $ComputerName -ErrorAction Stop -Force
+                    }
+                    else
+                    {
+                        Restart-Computer -ComputerName $ComputerName -ErrorAction Stop
+                    }
                 }
             }
-            else
+            catch
             {
-                # w/o Credential
-                if ($Force)
-                {
-                    Restart-Computer -ComputerName $ComputerName -Force
-                }
-                else
-                {
-                    Restart-Computer -ComputerName $ComputerName
-                }
+                if ($Silent) { throw }
+                else { [void](Show-Message -Text $_ -Caption $MyInvocation.MyCommand.Name) }
             }
         }
     }
 }
 
 #####################################################################################################################################################
-Function Reboot-Computer {
+Function Start-Computer {
 
 <#
 .SYNOPSIS
-
-
-.DESCRIPTION
     Wake on LAN
 
 
-.PARAMETER ComputerName
-    Type: System.String
-    If omitted, this computer may be shut down.
+.DESCRIPTION
 
 
-.PARAMETER UserName
-    Type: System.String
-    If omitted, shutdown is tryed by your privilege.
+.PARAMETER MacAddress
 
 
-.PARAMETER Password
-    Type: System.String
-    Password of those who tries to shut down the computer.
+.PARAMETER Port
+
+
+.PARAMETER Retry
 
 
 .INPUTS
@@ -280,15 +297,35 @@ Function Reboot-Computer {
 
 
 .LINK
-(None)
+
+    方法 16 進文字列と数値型の間で変換する (C# プログラミング ガイド)
+    http://msdn.microsoft.com/ja-jp/library/bb311038.aspx
 #>
 
     [CmdletBinding ()]
     Param (
-        [Parameter (Mandatory=$true, Position=0, ValueFromPipeline=$true)][string]$MacAddress
+        [Parameter (Mandatory=$true, Position=0, ValueFromPipeline=$true)][string]$MacAddress,
+        [Parameter (Mandatory=$false, Position=1)][int]$Port = 2304,
+        [Parameter (Mandatory=$false, Position=2)][int]$Retry = 3
     )
 
     Process
     {
+        [string[]]$mac = $MacAddress -split ":"
+        [byte[]]$packet = [byte[]]0xFF * 6
+
+        0..15 | % {
+            $mac | % { $packet += [System.Convert]::ToInt32($_, 16) }
+        }
+
+        $udp = New-Object System.Net.Sockets.UdpClient
+        foreach ($i in 0..($Retry - 1))
+        {
+            $sent = $udp.Send($packet, $packet.Count, (New-Object System.Net.IPEndPoint -ArgumentList ([System.Net.IPAddress]::Broadcast, $Port)))
+            Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "] $sent Bytes were sent... ($i)")
+            Start-Sleep -Seconds 1
+        }
     }
 }
+
+#####################################################################################################################################################

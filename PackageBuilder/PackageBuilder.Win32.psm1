@@ -1,6 +1,6 @@
 ﻿######## LICENSE ####################################################################################################################################
 <#
- # Copyright (c) 2013, Daiki Sakamoto
+ # Copyright (c) 2013-2014, Daiki Sakamoto
  # All rights reserved.
  #
  # Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -24,6 +24,7 @@
  # Package Builder Toolkit for PowerShell
  #
  #  2013/11/02  Version 0.0.0.1
+ #  2014/01/16  Version 0.4.0.0
  #
  #>
 #####################################################################################################################################################
@@ -64,7 +65,7 @@ Function Invoke-LoadLibrary {
 
 <#
 .SYNOPSIS
-    Get command path.
+    LoadLibrary()
 
 
 .DESCRIPTION
@@ -98,6 +99,7 @@ Function Invoke-LoadLibrary {
         [Parameter(Mandatory=$true, Position=0)]
         [ValidateScript ( {
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
+            elseif ((Get-Item -Path $_).GetType() -ne [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
             return $true
         } )]
         [string]$lpFileName
@@ -121,11 +123,10 @@ Function Invoke-LoadLibraryEx {
 
 <#
 .SYNOPSIS
-    Get command path.
+    LoadLibraryEx()
 
 
 .DESCRIPTION
-    ファイルを実行します。
 
 
 .PARAMETER Path
@@ -155,6 +156,7 @@ Function Invoke-LoadLibraryEx {
         [Parameter(Mandatory=$true, Position=0)]
         [ValidateScript ( {
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
+            elseif ((Get-Item -Path $_).GetType() -ne [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
             return $true
         } )]
         [string]$lpLibFileName,
@@ -184,11 +186,10 @@ Function Invoke-FreeLibrary {
 
 <#
 .SYNOPSIS
-    Get command path.
+    FreeLibrary()
 
 
 .DESCRIPTION
-    ファイルを実行します。
 
 
 .PARAMETER Path
@@ -238,11 +239,10 @@ Function Invoke-LoadString {
 
 <#
 .SYNOPSIS
-    Get command path.
+    LoadString()
 
 
 .DESCRIPTION
-    ファイルを実行します。
 
 
 .PARAMETER Path
@@ -304,11 +304,10 @@ Function Get-ResourceString {
 
 <#
 .SYNOPSIS
-    Get command path.
+    文字列リソースを取得します。
 
 
 .DESCRIPTION
-    ファイルを実行します。
 
 
 .PARAMETER Path
@@ -338,6 +337,7 @@ Function Get-ResourceString {
         [Parameter(Mandatory=$true, Position=0)]
         [ValidateScript ( {
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
+            elseif ((Get-Item -Path $_).GetType() -ne [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
             return $true
         } )]
         [string]$Path,
@@ -370,11 +370,10 @@ Function Invoke-HtmlHelp {
 
 <#
 .SYNOPSIS
-    Open HTML Help.
+    HTML ヘルプを開きます。
 
 
 .DESCRIPTION
-    HTML ヘルプを開きます。
 
 
 .PARAMETER Path
@@ -417,6 +416,7 @@ Function Invoke-HtmlHelp {
         [Parameter(Mandatory=$true, Position=0)]
         [ValidateScript ( {
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
+            elseif ((Get-Item -Path $_).GetType() -ne [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
             return $true
         } )]
         [string]$Path,

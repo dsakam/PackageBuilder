@@ -25,9 +25,7 @@
  #
  #  2013/03/28  Create
  #  2013/09/02  Version 0.0.0.1
- #  2013/09/03  Get-CommandPath -> Run-Command
- #  2013/09/09  Update
- #  2013/09/16  Update
+ #  2014/01/16  Version 0.4.0.0
  #
  #>
 #####################################################################################################################################################
@@ -69,7 +67,7 @@ Function MESSAGE {
 }
 
 
-Function MAIN_TITLE { Write-Title -Text $args[0] -Padding 1 }
+Function MAIN_TITLE { Write-Title -Text $args[0] -Padding 1 -MaxWidth 128 }
 Function TITLE { Write-Title -Text $args[0] }
 
 Function TRUE_FALSE { Write-Boolean -TestObject $args[0] -Green "True" -Red "False" }
@@ -81,14 +79,10 @@ Function New-GUID {
 
 <#
 .SYNOPSIS
-    Get command path.
-
-
-.DESCRIPTION
     GUID を生成します。
 
 
-.PARAMETER Path
+.DESCRIPTION
 
 
 .INPUTS
@@ -100,11 +94,11 @@ Function New-GUID {
 
 
 .NOTES
-    (None)
 
 
 .EXAMPLE
-    (None)
+    $guid = New-GUID
+    GUID を生成し、String 型の文字列として取得します。
 
 
 .LINK
@@ -124,19 +118,18 @@ Function New-HR {
 
 <#
 .SYNOPSIS
-    Write Horizontal Ruled Line.
-
-
-.DESCRIPTION
     水平線を出力します。
 
 
+.DESCRIPTION
+
+
 .PARAMETER Char
-    Type: System.Char
+    デフォルトは '-'
 
 
 .PARAMETER Length
-    Type: System.Int
+    デフォルトは (コンソールの幅 - 1)
 
 
 .INPUTS
@@ -174,27 +167,49 @@ Function Write-Title {
 
 <#
 .SYNOPSIS
-    Write Horizontal Ruled Line.
+    コンソールにタイトルを表示します。
 
 
 .DESCRIPTION
-    水平線を出力します。
+
+
+.PARAMETER Text
 
 
 .PARAMETER Char
-    Type: System.Char
+    デフォルトは '#'
 
 
-.PARAMETER Length
-    Type: System.Int
+.PARAMETER Width
+    デフォルトは (コンソールの幅 - 1)
+
+
+.PARAMETER Color
+    デフォルトは白
+
+
+.PARAMETER 
+    デフォルトは 0
+
+
+.PARAMETER ColumnWidth
+    デフォルトは 2
+
+
+.PARAMETER MinWidth
+    デフォルトは 64
+
+
+.PARAMETER MaxWidth
+    デフォルトは 256
 
 
 .INPUTS
-    System.Char
+    System.String
 
 
 .OUTPUTS
-    System.String
+    None
 
 
 .NOTES
@@ -231,14 +246,14 @@ Function Write-Title {
 
         [Parameter(Mandatory=$false, Position=7)]
         [ValidateRange(0,1024)]
-        [int]$MaxWidth = 200
+        [int]$MaxWidth = 256
     )
 
     Process
     {
         # Validations
-        if ($Width -lt $MinWidth) { $Length = $MinWidth }
-        if ($Width -gt $MaxWidth) { $Length = $MaxWidth }
+        if ($Width -lt $MinWidth) { $Width = $MinWidth }
+        if ($Width -gt $MaxWidth) { $Width = $MaxWidth }
 
         $Text | % {
             if ($_.Length -gt ($maxLength = $Width - 2 - ($ColumnWidth * 2)))
@@ -285,26 +300,27 @@ Function Write-Boolean {
 
 <#
 .SYNOPSIS
-    Write Horizontal Ruled Line.
+    入力が真の場合は緑、偽の場合は赤でコンソールに文字列を表示します。
 
 
 .DESCRIPTION
 
 
-.PARAMETER Char
-    Type: System.Char
+.PARAMETER TestObject
+    
+
+.PARAMETER Green
 
 
-.PARAMETER Length
-    Type: System.Int
+.PARAMETER Red
 
 
 .INPUTS
-    System.Char
+    System.Boolean
 
 
 .OUTPUTS
-    System.String
+    None
 
 
 .NOTES
@@ -336,21 +352,22 @@ Function Show-Message {
 
 <#
 .SYNOPSIS
-    Show MessageBox
-
-
-.DESCRIPTION
     指定したテキストとキャプションを表示するメッセージ ボックスを表示します。 
 
 
+.DESCRIPTION
+    System.Windows.Forms.MessageBox.Show()
+
+
 .PARAMETER Text
-    Type: System.String
-    メッセージ ボックスに表示するテキスト。
+    メッセージ ボックスに表示するテキストを指定します。
 
 
 .PARAMETER Caption
-    Type: System.String
-    メッセージ ボックスのタイトル バーに表示するテキスト。
+    メッセージ ボックスのタイトル バーに表示するテキストを指定します。
+
+
+.PARAMETER Buttons
 
 
 .INPUTS
@@ -368,7 +385,8 @@ Function Show-Message {
 
 
 .LINK
-    (None)
+    MessageBox クラス (System.Windows.Forms)
+    http://msdn.microsoft.com/library/system.windows.forms.messagebox.aspx
 #>
 
     [CmdletBinding()]
@@ -398,20 +416,19 @@ Function Get-DateString {
 
 <#
 .SYNOPSIS
-    Get date string using CultureInfo and format.
-
-
-.DESCRIPTION
     ロケール ID (LCID) および 標準またはカスタムの日時書式指定文字列 を使用して、日付文字列を取得します。
 
 
+.DESCRIPTION
+
+
 .PARAMETER Date
-    Type: System.DateTime
-    If omitted, today is used.
+    表示する日付を指定します。
+    デフォルトは本日です。
 
 
 .PARAMETER LCID
-    Locale ID.
+    ロケール ID (LCID) を指定します。
 
     This parameter is argument of System.Globalization.CultureInfo Constructor (String). 
     Type: System.String
@@ -421,6 +438,9 @@ Function Get-DateString {
 
 
 .PARAMETER Format
+    書式指定文字列を指定します。
+    デフォルトは "D" です。
+
     This parameter is 1st argument of System.DateTime.ToString Method (String, IFormatProvider).
     Type: System.String
     A standard or custom date and time format string. 
@@ -496,16 +516,13 @@ Function Get-FileVersionInfo {
 
 <#
 .SYNOPSIS
-    Get version information for a physical file on disk.
-
-
-.DESCRIPTION
     ディスク上の物理ファイルのバージョン情報を取得します。
 
 
+.DESCRIPTION
+
+
 .PARAMETER Path
-    File Path of target file.
-    Type: System.String
 
 
 .PARAMETER ProductName
@@ -514,7 +531,7 @@ Function Get-FileVersionInfo {
 .PARAMETER FileDescription
 
 
-.PARAMETER VersionInfo
+.PARAMETER FileVersion
     If specified, File Version is acquired.
 
 
@@ -649,12 +666,22 @@ Function Get-ProductName {
 
 <#
 .SYNOPSIS
-    Get Product Name of FileInfo.
+    ファイルの製品名を取得します。
 
 
 .DESCRIPTION
-    ファイルの製品名を取得します。
     Get-FileVersionInfo -ProductName のエイリアスです。
+
+
+.PARAMETER Path
+
+
+.INPUTS
+    System.String
+
+
+.OUTPUTS
+    System.String
 
 
 .LINK
@@ -678,12 +705,22 @@ Function Get-FileDescription {
 
 <#
 .SYNOPSIS
-    Get File Description of FileInfo.
+    ファイルの説明を取得します。
 
 
 .DESCRIPTION
-    ファイルの説明を取得します。
     Get-FileVersionInfo -FiletDescription のエイリアスです。
+
+
+.PARAMETER Path
+
+
+.INPUTS
+    System.String
+
+
+.OUTPUTS
+    System.String
 
 
 .LINK
@@ -707,12 +744,22 @@ Function Get-FileVersion {
 
 <#
 .SYNOPSIS
-    Get File Version of FileInfo.
+    ファイルのファイルバージョンを取得します。
 
 
 .DESCRIPTION
-    ファイルのファイルバージョンを取得します。
     Get-FileVersionInfo -FiletVersion のエイリアスです。
+
+
+.PARAMETER Path
+
+
+.INPUTS
+    System.String
+
+
+.OUTPUTS
+    System.String
 
 
 .LINK
@@ -736,12 +783,22 @@ Function Get-ProductVersion {
 
 <#
 .SYNOPSIS
-    Get Product Version of FileInfo.
+    ファイルの製品バージョンを取得します。
 
 
 .DESCRIPTION
-    ファイルの製品バージョンを取得します。
     Get-FileVersionInfo -ProductVersion のエイリアスです。
+
+
+.PARAMETER Path
+
+
+.INPUTS
+    System.String
+
+
+.OUTPUTS
+    System.String
 
 
 .LINK
@@ -765,21 +822,16 @@ Function Get-HTMLString {
 
 <#
 .SYNOPSIS
-    Get HTML element from HTML file.
-
-
-.DESCRIPTION
     HTML ファイルから HTML 要素を取得します。
 
 
+.DESCRIPTION
+
+
 .PARAMETER Path
-    File Path of target file.
-    Type: System.String
 
 
 .PARAMETER Tag
-    Tag name of HTML element.
-    Type: System.String
 
 
 .INPUTS
@@ -829,16 +881,19 @@ Function Get-PrivateProfileString {
 
 <#
 .SYNOPSIS
-    Get string from .ini file.
-
-
-.DESCRIPTION
     指定された .ini ファイル（初期化ファイル）の指定されたセクション内にある、指定されたキーに関連付けられている文字列を取得します。
 
 
+.DESCRIPTION
+
+
 .PARAMETER Path
-    File Path of target file.
-    Type: System.String
+
+
+.PARAMETER Section
+
+
+.PARAMETER Key
 
 
 .INPUTS
@@ -906,14 +961,19 @@ Function Update-Content {
 
 <#
 .SYNOPSIS
+    ファイルの内容を更新します。
 
 
 .DESCRIPTION
 
 
-.PARAMETER Path
-    File Path of target file.
-    Type: System.String
+.PARAMETER Line
+
+.PARAMETER SearchText
+
+.PARAMETER UpdateText
+
+.PARAMETER InputObject
 
 
 .INPUTS
@@ -982,23 +1042,23 @@ Function Get-WindowHandler {
 
 <#
 .SYNOPSIS
-    Get Window Handler.
+    指定したプロセス ID に対応するウィンドウのウィンドウ ハンドル (HWND) を取得します。
 
 
 .DESCRIPTION
     
 
 
-.PARAMETER Path
-    None
+.PARAMETER PID
+    デフォルトはコンソールのプロセス ID ($PID)
 
 
 .INPUTS
-    None
+    System.Int32
 
 
 .OUTPUTS
-    IntPtr
+    System.IntPtr
 
 
 .NOTES
@@ -1025,22 +1085,118 @@ Function Get-WindowHandler {
 }
 
 #####################################################################################################################################################
+Function New-Struct {
+
+<#
+.SYNOPSIS
+    構造体の配列ようなをコンテナを作成します。
+
+
+.DESCRIPTION
+
+
+.PARAMETER Members
+
+
+.PARAMETER Count
+
+
+.INPUTS
+    System.String[]
+
+
+.OUTPUTS
+    System.String
+
+
+.NOTES
+    (None)
+
+
+.EXAMPLE
+    (None)
+
+
+.LINK
+    (None)
+#>
+
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)][string[]]$Members,
+        [Parameter(Mandatory=$false, Position=1)][int]$Count = 1
+    )
+
+    Process
+    {
+        $obj = New-Object -TypeName psobject[] -ArgumentList $Count
+
+        for ($i = 0; $i -lt $Count; $i++)
+        {
+            # Add NoteProperty ($Members)
+            $obj[$i] = New-Object -TypeName psobject
+            $Members | % { Add-Member -InputObject $obj[$i] -MemberType NoteProperty -Name ($_ -split '=')[0] -Value ($_ -split '=')[1] -Force }
+
+            # Add ScriptMethod
+            Add-Member `
+                -InputObject $obj[$i] `
+                -MemberType ScriptMethod `
+                -Name ToString `
+                -Force `
+                -Value {
+                    
+                    # Parameters
+                    Param ([string]$Table=[string]::Empty, [string]$Item="TR", [string]$Name="TH", [string]$Value="TD")
+
+                    # Process
+
+                    [string]$text = [string]::Empty
+
+                    # Head
+                    if ($Table -ne [string]::Empty) { $text += "<$Table>" }
+                    # Body
+                    $this | Get-Member -MemberType NoteProperty | % {
+                        $text += "<$Item>"
+                        $text += ("<$Name>" + ([Microsoft.PowerShell.Commands.MemberDefinition]$_).Name + "</$_Name>")
+                        $text += ("<$Value>" + (([Microsoft.PowerShell.Commands.MemberDefinition]$_).Definition -split "=")[1] + "</$Value>")
+                        $text += "</$Item>"
+                    }
+                    # Tail
+                    if ($Table -ne [string]::Empty) { $text += "</" + ($Table -split " ")[0] + ">" }
+
+                    return $text
+                }
+        }
+
+        return $obj
+    }
+}
+
+#####################################################################################################################################################
 Function Send-Mail {
 
 <#
 .SYNOPSIS
-    Eメールを送信します。
+    E メールを送信します。
 
 
 .DESCRIPTION
     Send-MailMessage コマンドレットを使用してください。
 
 
-.PARAMETER Path
+.PARAMETER To
+.PARAMETER From
+.PARAMETER Host
+.PARAMETER Subject
+.PARAMETER Body
+.PARAMETER UserName
+.PARAMETER Password
+.PARAMETER Domain
+.PARAMETER Port
 
 
 .INPUTS
-    None
+    System.String
 
 
 .OUTPUTS
@@ -1066,7 +1222,7 @@ Function Send-Mail {
         [Parameter(Mandatory=$true, Position=2)][string]$Host,
 
         [Parameter(Mandatory=$false, Position=3)][string]$Subject = [string]::Empty,
-        [Parameter(Mandatory=$false, Position=4)][string]$Body = [string]::Empty,
+        [Parameter(Mandatory=$false, Position=4, ValueFromPipeline=$true)][string]$Body = [string]::Empty,
 
         [Parameter(Mandatory=$false, Position=5)][string]$UserName = $env:USERNAME,
         [Parameter(Mandatory=$false, Position=6)][string]$Password = [string]::Empty,

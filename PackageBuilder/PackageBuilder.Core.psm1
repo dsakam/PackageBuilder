@@ -1,6 +1,6 @@
 ﻿######## LICENSE ####################################################################################################################################
 <#
- # Copyright (c) 2013, Daiki Sakamoto
+ # Copyright (c) 2013-2014, Daiki Sakamoto
  # All rights reserved.
  #
  # Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -24,7 +24,7 @@
  # Package Builder Toolkit for PowerShell
  #
  #  2013/09/02  Version 0.0.0.1
- #  2014/01/07  Version 1.0.0.0
+ #  2014/01/16  Version 0.4.0.0
  #>
 #####################################################################################################################################################
 
@@ -50,7 +50,28 @@ Function Start-Command {
     Start-Process コマンドレットのラッパーです。
 
 
-.PARAMETER Path
+.PARAMETER FilePath
+
+
+.PARAMETER ArgumentList
+
+
+.PARAMETER WorkingDirectory
+
+
+.PARAMETER Retry
+
+
+.PARAMETER Interval
+
+
+.PARAMETER WindowStyle
+
+
+.PARAMETER NoNewWindow
+
+
+.PARAMETER Async
 
 
 .INPUTS
@@ -62,11 +83,9 @@ Function Start-Command {
 
 
 .NOTES
-    (None)
 
 
 .EXAMPLE
-    (None)
 
 
 .LINK
@@ -235,15 +254,26 @@ Function Get-CheckSum {
 
 <#
 .SYNOPSIS
-    Get Checksum.
+    チェックサムを取得します。
+
 
 .DESCRIPTION
-    ファイルのチェックサムを取得します。
+    Microsoft の FCIV (File Checksum Integrity Verifier / version 2.05) を実行します。
+    FCIV は、別途ご用意してください。
 
 
-.PARAMETER Path
-    File Path of target file.
-    Type: System.String
+.PARAMETER InputObject
+
+
+.PARAMETER BinPath
+    fciv.exe が保存されているフォルダーのパスを指定します。
+    省略すると、C:\FCIV を検索します。
+    あるいは、環境変数の PATH に保存されていても実行可能です。
+
+.PARAMETER MD5
+
+
+.PARAMETER SHA1
 
 
 .INPUTS
@@ -265,7 +295,8 @@ Function Get-CheckSum {
 
 
 .LINK
-
+    Availability and description of the File Checksum Integrity Verifier utility
+    http://support.microsoft.com/kb/841290
 #>
 
     [CmdletBinding()]
@@ -273,7 +304,6 @@ Function Get-CheckSum {
         [Parameter (Mandatory=$true, Position=0, ValueFromPipeline=$true)]
         [ValidateScript ( {
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            elseif ((Get-Item -Path $_).GetType() -ne [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
             return $true
         } )]
         [string]$InputObject,
@@ -315,15 +345,20 @@ Function Test-SameFile {
 
 <#
 .SYNOPSIS
-    Test difference of two files.
+    2 つのファイルが同じかどうかをテストします。
 
 .DESCRIPTION
-    2つのオブジェクトに違いがあるかをテストします。
+    Get-CheckSum
 
 
-.PARAMETER Path
-    File Path of target file.
-    Type: System.String
+.PARAMETER ReferenceObject
+
+
+.PARAMETER DifferenceObject
+
+
+.PARAMETER BinPath
+    fciv.exe が保存されているフォルダーのパスを指定します。
 
 
 .INPUTS
@@ -331,7 +366,7 @@ Function Test-SameFile {
 
 
 .OUTPUTS
-    System.String
+    System.Boolean
 
 
 .NOTES
@@ -394,15 +429,39 @@ Function New-ISOImageFile {
 
 <#
 .SYNOPSIS
-    Generate ISO Image File.
+    ISO イメージファイルを作成します。
 
 .DESCRIPTION
-    ISO イメージファイルを作成します。
+
+
+.PARAMETER InputObject
 
 
 .PARAMETER Path
-    File Path of target file.
-    Type: System.String
+
+
+.PARAMETER VolumeID
+
+
+.PARAMETER Publisher
+
+
+.PARAMETER ApplicationID
+
+
+.PARAMETER ArgumentList
+
+
+.PARAMETER BinPath
+
+
+.PARAMETER FCIVBinPath
+
+
+.PARAMETER RedirectStandardError
+
+
+.PARAMETER Recommended
 
 
 .INPUTS
@@ -420,7 +479,11 @@ Function New-ISOImageFile {
 
 
 .LINK
+    Cygwin
+    http://www.cygwin.com/
 
+    cdrkit - portable command-line CD-DVD recorder software (for genisoimage.exe)
+    http://www.cdrkit.org/
 #>
 
     [CmdletBinding()]
@@ -438,11 +501,12 @@ Function New-ISOImageFile {
             if (-not ($_ | Split-Path -Parent | Test-Path)) { throw New-Object System.IO.DirectoryNotFoundException }
             return $true
         } )]
-        [string]$Path = ($InputObject | Resolve-Path | Split-Path -Parent),
+        [string]$Path = ($InputObject + ".iso"),
 
         [Parameter(Mandatory=$false, Position=2)][string]$VolumeID,
         [Parameter(Mandatory=$false, Position=3)][string]$Publisher,
         [Parameter(Mandatory=$false, Position=4)][string]$ApplicationID,
+
         [Parameter(Mandatory=$false, Position=5)][string[]]$ArgumentList,
 
         [Parameter(Mandatory=$false, Position=6)][string]$BinPath,
@@ -481,8 +545,8 @@ Function New-ISOImageFile {
         [string[]]$arg_list = @()
 
         $arg_list += "-output " + "`"" + (CygPath($output_path)) + "`""
-        $arg_list += "-volid `"" + $VolumeID +"`""
 
+        if ($VolumeID) { $arg_list += "-volid `"" + $VolumeID +"`"" }
         if ($Publisher) { $arg_list += "-publisher `"" + $Publisher +"`"" }
         if ($ApplicationID) { $arg_list += "-appid `"" + $ApplicationID +"`"" }
 
