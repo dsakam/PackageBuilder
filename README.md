@@ -7,6 +7,9 @@ Package Builder Toolkit for PowerShell Version **0.4.0.0** (*Pre-Release*)
 履歴
 ----
 
+**V0.5.0.0** (2014/02/27)  
+Pre-Release
+
 **V0.4.0.0** (2014/01/16)  
 Pre-Release
 
