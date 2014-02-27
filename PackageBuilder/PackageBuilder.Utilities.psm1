@@ -26,6 +26,7 @@
  #  2013/03/28  Create
  #  2013/09/02  Version 0.0.0.1
  #  2014/01/16  Version 0.4.0.0
+ #  2014/01/17  Version 0.5.0.0
  #
  #>
 #####################################################################################################################################################
@@ -35,16 +36,16 @@
 Function LINE { return ("`r`n" + (New-HR)) }
 Function VERBOSE_LINE {
 
-    if ((Get-Host).CurrentCulture -eq (New-Object System.Globalization.CultureInfo "ja-JP"))
+    if ((Get-Host).CurrentCulture -eq (New-Object System.Globalization.CultureInfo 'ja-JP'))
     {
-        $header_Length = ([System.Text.Encoding]::Unicode).GetByteCount("詳細") + ": ".Length
+        $header_Length = ([System.Text.Encoding]::Unicode).GetByteCount('詳細') + ': '.Length
     }
-    else { $header_Length = "VERBOSE: ".Length }
+    else { $header_Length = 'VERBOSE: '.Length }
 
     return (New-HR -Length ((Get-Host).UI.RawUI.BufferSize.Width - $header_Length - 1))
 }
 
-Function PRINT { return ("[" + (Get-Date).ToString("yyyy/MM/dd HH:mm:ss") + "]" + " " + $args[0]) }
+Function PRINT { return ('[' + (Get-Date).ToString('yyyy/MM/dd HH:mm:ss') + ']' + ' ' + $args[0]) }
 
 Function MESSAGE {
     Param ([Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)][string[]]$Texts)
@@ -54,13 +55,13 @@ Function MESSAGE {
         for ($i=1; $i -lt $Texts.Count; $i++)
         {
             # Head
-            if ($i -eq 1) { $text += " (" }
+            if ($i -eq 1) { $text += ' (' }
 
             $text += $Texts[$i]
 
             # Tail
-            if ($i -lt $Texts.Count - 1) { $text += ", " }
-            else { $text += ")" }
+            if ($i -lt $Texts.Count - 1) { $text += ', ' }
+            else { $text += ')' }
         }
         return $text
     }
@@ -70,9 +71,9 @@ Function MESSAGE {
 Function MAIN_TITLE { Write-Title -Text $args[0] -Padding 1 -MaxWidth 128 }
 Function TITLE { Write-Title -Text $args[0] }
 
-Function TRUE_FALSE { Write-Boolean -TestObject $args[0] -Green "True" -Red "False" }
-Function PASS_FAIL { Write-Boolean -TestObject $args[0] -Green "Pass" -Red "Fail" }
-Function YES_NO { Write-Boolean -TestObject $args[0] -Green "Yes" -Red "No" }
+Function TRUE_FALSE { Write-Boolean -TestObject $args[0] -Green 'True' -Red 'False' }
+Function PASS_FAIL { Write-Boolean -TestObject $args[0] -Green 'Pass' -Red 'Fail' }
+Function YES_NO { Write-Boolean -TestObject $args[0] -Green 'Yes' -Red 'No' }
 
 #####################################################################################################################################################
 Function New-GUID {
@@ -152,7 +153,7 @@ Function New-HR {
 
     [CmdletBinding()]
     Param (
-        [Parameter(Mandatory=$false, Position=0, ValueFromPipeline=$true)][char]$Char = "-",
+        [Parameter(Mandatory=$false, Position=0, ValueFromPipeline=$true)][char]$Char = '-',
         [Parameter(Mandatory=$false, Position=2)][int]$Length = (Get-Host).UI.RawUI.BufferSize.Width - 1
     )
 
@@ -228,7 +229,7 @@ Function Write-Title {
         [AllowEmptyString()]
         [string[]]$Text,
 
-        [Parameter(Mandatory=$false, Position=1)][char]$Char = "#",
+        [Parameter(Mandatory=$false, Position=1)][char]$Char = '#',
         [Parameter(Mandatory=$false, Position=2)][int]$Width = (Get-Host).UI.RawUI.BufferSize.Width - 1,
         [Parameter(Mandatory=$false, Position=3)][System.ConsoleColor]$Color = [System.ConsoleColor]::White,
 
@@ -258,13 +259,13 @@ Function Write-Title {
         $Text | % {
             if ($_.Length -gt ($maxLength = $Width - 2 - ($ColumnWidth * 2)))
             {
-                $_ = $_.Substring(0, $maxLength - 2 - "...".Length) + "..."
+                $_ = $_.Substring(0, $maxLength - 2 - '...'.Length) + '...'
             }
         }
 
         $hr = New-HR -Char $Char -Length $Width
         $side = "$Char" * $ColumnWidth
-        $pad = $side + (" " * ($hr.Length - ($side.Length * 2))) + $side
+        $pad = $side + (' ' * ($hr.Length - ($side.Length * 2))) + $side
 
         # Brerak Line
         Write-Host
@@ -283,7 +284,7 @@ Function Write-Title {
             if ([string]::IsNullOrEmpty($_)) { Write-Host $pad -ForegroundColor $Color }
             else
             {
-                Write-Host ($side + (" " * 2) + $_ + (" " * ($hr.Length - $_.Length - 2 - ($side.Length * 2))) + $side) -ForegroundColor $Color
+                Write-Host ($side + (' ' * 2) + $_ + (' ' * ($hr.Length - $_.Length - 2 - ($side.Length * 2))) + $side) -ForegroundColor $Color
             }
         }
 
@@ -336,8 +337,8 @@ Function Write-Boolean {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)][bool]$TestObject,
-        [Parameter(Mandatory=$false, Position=1)][string]$Green = "TRUE",
-        [Parameter(Mandatory=$false, Position=2)][string]$Red = "FALSE"
+        [Parameter(Mandatory=$false, Position=1)][string]$Green = 'TRUE',
+        [Parameter(Mandatory=$false, Position=2)][string]$Red = 'FALSE'
     )
 
     Process
@@ -400,10 +401,10 @@ Function Show-Message {
     {
         # Load Assembly
         try {
-            [void][System.Reflection.Assembly]::Load("System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
+            [void][System.Reflection.Assembly]::Load('System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089')
         }
         catch {
-            [void][System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms.dll")
+            [void][System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms.dll')
         }
 
         if ($Buttons) { return [System.Windows.Forms.MessageBox]::Show($Text, $Caption, $Buttons) }
@@ -472,7 +473,7 @@ Function Get-DateString {
 
 
 .EXAMPLE 
-    Get-DateString -LCID "ja-JP" -Format "m"
+    Get-DateString -LCID 'ja-JP' -Format 'm'
 
 
 .LINK
@@ -502,7 +503,7 @@ Function Get-DateString {
     Param (
         [Parameter(Mandatory=$false, Position=0, ValueFromPipeline=$true)][System.DateTime]$Date = (Get-Date),
         [Parameter(Mandatory=$false, Position=1)][string]$LCID = (Get-Culture).ToString(),
-        [Parameter(Mandatory=$false, Position=2)][string]$Format = "D"
+        [Parameter(Mandatory=$false, Position=2)][string]$Format = 'D'
     )
 
     Process
@@ -598,37 +599,37 @@ Function Get-FileVersionInfo {
         [string]$Path,
 
 
-        [Parameter(Mandatory=$true, ParameterSetName="name")]
+        [Parameter(Mandatory=$true, ParameterSetName='name')]
         [switch]$ProductName,
 
-        [Parameter(Mandatory=$true, ParameterSetName="description")]
+        [Parameter(Mandatory=$true, ParameterSetName='description')]
         [switch]$FileDescription,
 
-        [Parameter(Mandatory=$true, ParameterSetName="file")]
+        [Parameter(Mandatory=$true, ParameterSetName='file')]
         [switch]$FileVersion,
 
-        [Parameter(Mandatory=$true, ParameterSetName="product")]
+        [Parameter(Mandatory=$true, ParameterSetName='product')]
         [switch]$ProductVersion,
 
 
-        [Parameter(Mandatory=$false, ParameterSetName="file")]
-        [Parameter(Mandatory=$false, ParameterSetName="product")]
+        [Parameter(Mandatory=$false, ParameterSetName='file')]
+        [Parameter(Mandatory=$false, ParameterSetName='product')]
         [switch]$Major,
 
-        [Parameter(Mandatory=$false, ParameterSetName="file")]
-        [Parameter(Mandatory=$false, ParameterSetName="product")]
+        [Parameter(Mandatory=$false, ParameterSetName='file')]
+        [Parameter(Mandatory=$false, ParameterSetName='product')]
         [switch]$Minor,
 
-        [Parameter(Mandatory=$false, ParameterSetName="file")]
-        [Parameter(Mandatory=$false, ParameterSetName="product")]
+        [Parameter(Mandatory=$false, ParameterSetName='file')]
+        [Parameter(Mandatory=$false, ParameterSetName='product')]
         [switch]$Build,
 
-        [Parameter(Mandatory=$false, ParameterSetName="file")]
-        [Parameter(Mandatory=$false, ParameterSetName="product")]
+        [Parameter(Mandatory=$false, ParameterSetName='file')]
+        [Parameter(Mandatory=$false, ParameterSetName='product')]
         [switch]$Private,
 
-        [Parameter(Mandatory=$false, ParameterSetName="file")]
-        [Parameter(Mandatory=$false, ParameterSetName="product")]
+        [Parameter(Mandatory=$false, ParameterSetName='file')]
+        [Parameter(Mandatory=$false, ParameterSetName='product')]
         [switch]$Composite
     )
 
@@ -638,18 +639,18 @@ Function Get-FileVersionInfo {
 
         switch ($PSCmdlet.ParameterSetName) 
         {
-            "name" { return $info.ProductName }
-            "description" { return $info.FileDescription }
-            "file" {
-                if ($Composite) { return [string]::Join(".", ($info.FileMajorPart, $info.FileMinorPart, $info.FileBuildPart, $info.FilePrivatePart)) }
+            'name' { return $info.ProductName }
+            'description' { return $info.FileDescription }
+            'file' {
+                if ($Composite) { return [string]::Join('.', ($info.FileMajorPart, $info.FileMinorPart, $info.FileBuildPart, $info.FilePrivatePart)) }
                 elseif ($Major) { return $info.FileMajorPart }
                 elseif ($Minor) { return $info.FileMinorPart }
                 elseif ($Build) { return $info.FileBuildPart }
                 elseif ($Private) { return $info.FilePrivatePart }
                 else { return $info.FileVersion.Trim() }
             }
-            "product" {
-                if ($Composite) { return [string]::Join(".", ($info.ProductMajorPart, $info.ProductMinorPart, $info.ProductBuildPart, $info.ProductPrivatePart)) }
+            'product' {
+                if ($Composite) { return [string]::Join('.', ($info.ProductMajorPart, $info.ProductMinorPart, $info.ProductBuildPart, $info.ProductPrivatePart)) }
                 elseif ($Major) { return $info.ProductMajorPart }
                 elseif ($Minor) { return $info.ProductMinorPart }
                 elseif ($Build) { return $info.ProductBuildPart }
@@ -872,7 +873,7 @@ Function Get-HTMLString {
 
     Process
     {
-        return ((Get-Content -Path $Path) -as [string]) -split "<" | ? { ($_ -split ">").Trim() -eq $Tag.Trim() } | % { (($_ -split ">")[1]).Trim() }
+        return ((Get-Content -Path $Path) -as [string]) -split '<' | ? { ($_ -split '>').Trim() -eq $Tag.Trim() } | % { (($_ -split '>')[1]).Trim() }
     }
 }
 
@@ -938,15 +939,15 @@ Function Get-PrivateProfileString {
 
         for ($i = 0; $i -lt ([string[]]$texts).Count; $i = $i + 1)
         {
-            if (($texts[$i].Trim()[0] -eq "[") -and (($texts[$i] -as [char[]]) -contains "]"))
+            if (($texts[$i].Trim()[0] -eq '[') -and (($texts[$i] -as [char[]]) -contains ']'))
             {
-                if (((($texts[$i] -split "\[")[1]) -split "\]")[0].Trim() -eq $Section)
+                if (((($texts[$i] -split '\[')[1]) -split '\]')[0].Trim() -eq $Section)
                 {
                     for ($j = $i + 1; $j -lt ([string[]]$texts).Count; $j = $j +1)
                     {
-                        if (($texts[$j] -split "=")[0].Trim() -eq $Key)
+                        if (($texts[$j] -split '=')[0].Trim() -eq $Key)
                         {
-                            return (($texts[$j] -split "=")[1] -split ";")[0].Trim()
+                            return (($texts[$j] -split '=')[1] -split ';')[0].Trim()
                         }
                     }
                 }
@@ -996,15 +997,15 @@ Function Update-Content {
 
     [CmdletBinding()]
     Param (
-        [Parameter(Mandatory=$true, Position=0, ParameterSetName="line")][int]$Line,
-        [Parameter(Mandatory=$true, Position=0, ParameterSetName="word")][string]$SearchText,
+        [Parameter(Mandatory=$true, Position=0, ParameterSetName='line')][int]$Line,
+        [Parameter(Mandatory=$true, Position=0, ParameterSetName='word')][string]$SearchText,
         [Parameter(Mandatory=$true, Position=1)][string]$UpdateText,
         [Parameter(Mandatory=$true, Position=2, ValueFromPipeline=$true)][string[]]$InputObject
     )
 
     Begin
     {
-        if ($PSCmdlet.ParameterSetName -eq "line")
+        if ($PSCmdlet.ParameterSetName -eq 'line')
         {
             if ($Line -le 0) { throw New-Object System.ArgumentOutOfRangeException }
         }
@@ -1014,11 +1015,11 @@ Function Update-Content {
     {
         switch ($PSCmdlet.ParameterSetName)
         {
-            "line"
+            'line'
             {
                 [string[]]$texts += $InputObject
             }
-            default #("Word")
+            default #('Word')
             {
                 return ($InputObject -replace $SearchText, $UpdateText)
             }
@@ -1027,7 +1028,7 @@ Function Update-Content {
 
     End
     {
-        if ($PSCmdlet.ParameterSetName -eq "line")
+        if ($PSCmdlet.ParameterSetName -eq 'line')
         {
             if ($Line -ge $texts.Count) { throw New-Object System.ArgumentOutOfRangeException }
 
@@ -1146,7 +1147,7 @@ Function New-Struct {
                 -Value {
                     
                     # Parameters
-                    Param ([string]$Table=[string]::Empty, [string]$Item="TR", [string]$Name="TH", [string]$Value="TD")
+                    Param ([string]$Table=[string]::Empty, [string]$Item='TR', [string]$Name='TH', [string]$Value='TD')
 
                     # Process
 
@@ -1158,11 +1159,11 @@ Function New-Struct {
                     $this | Get-Member -MemberType NoteProperty | % {
                         $text += "<$Item>"
                         $text += ("<$Name>" + ([Microsoft.PowerShell.Commands.MemberDefinition]$_).Name + "</$_Name>")
-                        $text += ("<$Value>" + (([Microsoft.PowerShell.Commands.MemberDefinition]$_).Definition -split "=")[1] + "</$Value>")
+                        $text += ("<$Value>" + (([Microsoft.PowerShell.Commands.MemberDefinition]$_).Definition -split '=')[1] + "</$Value>")
                         $text += "</$Item>"
                     }
                     # Tail
-                    if ($Table -ne [string]::Empty) { $text += "</" + ($Table -split " ")[0] + ">" }
+                    if ($Table -ne [string]::Empty) { $text += '</' + ($Table -split ' ')[0] + '>' }
 
                     return $text
                 }

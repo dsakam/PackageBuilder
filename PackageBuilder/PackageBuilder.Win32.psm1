@@ -25,6 +25,7 @@
  #
  #  2013/11/02  Version 0.0.0.1
  #  2014/01/16  Version 0.4.0.0
+ #  2014/01/17  Version 0.5.0.0
  #
  #>
 #####################################################################################################################################################
@@ -58,7 +59,16 @@
 
 #####################################################################################################################################################
 # Variables
-$script:Win32Namespace = "BUILDLet.PowerShell.PackageBuilder"
+$script:Win32Namespace = 'BUILDLet.PowerShell.PackageBuilder'
+
+$global:HTMLHelpCommand = @{
+    HH_DISPLAY_TOPIC  = 0x0000;
+    HH_DISPLAY_TOC    = 0x0001;
+    HH_DISPLAY_INDEX  = 0x0002;
+    HH_DISPLAY_SEARCH = 0x0003;
+    HH_HELP_CONTEXT   = 0x000F;
+    HH_CLOSE_ALL      = 0x0012;
+}
 
 #####################################################################################################################################################
 Function Invoke-LoadLibrary {
@@ -107,14 +117,14 @@ Function Invoke-LoadLibrary {
 
     Process
     {
-        $signature = @"
+        $signature = @'
 [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
 public static extern IntPtr LoadLibrary(
     string lpFileName // モジュールのファイル名
 );
-"@
+'@
         # LoadLibrary
-        return (Add-Type -MemberDefinition $signature -Name "Win32LoadLibrary" -Namespace $script:Win32Namespace -PassThru)::LoadLibrary($lpFileName)
+        return (Add-Type -MemberDefinition $signature -Name 'Win32LoadLibrary' -Namespace $script:Win32Namespace -PassThru)::LoadLibrary($lpFileName)
     }
 }
 
@@ -166,17 +176,18 @@ Function Invoke-LoadLibraryEx {
 
     Process
     {
-        $signature = @"
+        $signature = @'
 [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
 public static extern IntPtr LoadLibraryEx(
     string lpLibFileName,  // 実行可能モジュール名へのポインタ
     IntPtr hFile,          // 予約されています。NULL を指定してください
     uint dwFlags           // エントリポイント実行フラグ
 );
-"@
-        # LoadLibraryEx
-        $win32 = Add-Type -MemberDefinition $signature -Name "Win32LoadLibraryEx" -Namespace $script:Win32Namespace -PassThru
+'@
 
+        $win32 = Add-Type -MemberDefinition $signature -Name 'Win32LoadLibraryEx' -Namespace $script:Win32Namespace -PassThru
+
+        # LoadLibraryEx
         return $win32::LoadLibraryEx($lpLibFileName, [IntPtr]::Zero, $dwFlags)
     }
 }
@@ -223,14 +234,14 @@ Function Invoke-FreeLibrary {
 
     Process
     {
-        $signature = @"
+        $signature = @'
 [DllImport("kernel32.dll")]
 public static extern bool FreeLibrary(
     IntPtr hModule        // DLL モジュールのハンドル
 );
-"@
+'@
         # FreeLibrary
-        return (Add-Type -MemberDefinition $signature -Name "Win32FreeLibrary" -Namespace $script:Win32Namespace -PassThru)::FreeLibrary($hModule)
+        return (Add-Type -MemberDefinition $signature -Name 'Win32FreeLibrary' -Namespace $script:Win32Namespace -PassThru)::FreeLibrary($hModule)
     }
 }
 
@@ -279,7 +290,7 @@ Function Invoke-LoadString {
 
     Process
     {
-        $signature = @"
+        $signature = @'
 [DllImport("user32.dll", CharSet = CharSet.Unicode)]
 public static extern int LoadString(
     IntPtr hInstance,                    // リソースモジュールのハンドル
@@ -288,8 +299,8 @@ public static extern int LoadString(
     System.Text.StringBuilder lpBuffer,  // リソースが格納されるバッファ
     int nBufferMax                       // バッファのサイズ
 );
-"@
-        $win32 = Add-Type -MemberDefinition $signature -Name "Win32LoadString" -Namespace $script:Win32Namespace -PassThru
+'@
+        $win32 = Add-Type -MemberDefinition $signature -Name 'Win32LoadString' -Namespace $script:Win32Namespace -PassThru
         $lpBuffer = New-Object -TypeName System.Text.StringBuilder($nBufferMax)
 
         # LoadString
@@ -428,23 +439,16 @@ Function Invoke-HtmlHelp {
 
     Process
     {
-        $signature = @"
+        $signature = @'
 [DllImport("hhctrl.ocx")]
 public static extern IntPtr HtmlHelp(IntPtr hwndCaller, string pszFile, uint uCommand, int dwData);
-"@
-
-        $HTMLHelpCommand = @{
-            HH_DISPLAY_TOPIC = 0;
-            HH_DISPLAY_TOC = 1;
-            HH_DISPLAY_INDEX = 2;
-            HH_DISPLAY_SEARCH = 3;
-            HH_HELP_CONTEXT = 0x000F;
-            HH_CLOSE_ALL = 0x0012;
-        }
+'@
         
-        if (-not $uCommand) { $uCommand = $HTMLHelpCommand.HH_DISPLAY_TOC }
+        if (-not $uCommand) { $uCommand = $global:HTMLHelpCommand.HH_DISPLAY_TOC }
 
-        $win32 = Add-Type -MemberDefinition $signature -Name "Win32HtmlHelp" -Namespace $script:Win32Namespace -PassThru
+        $win32 = Add-Type -MemberDefinition $signature -Name 'Win32HtmlHelp' -Namespace $script:Win32Namespace -PassThru
+
+        # HtmlHelp
         $win32::HtmlHelp($hwndCaller, $Path, $uCommand, $dwData)
     }
 }

@@ -25,18 +25,24 @@
  #
  #  2013/09/02  Version 0.0.0.1
  #  2014/01/16  Version 0.4.0.0
+ #  2014/01/17  Version 0.5.0.0
+ #
  #>
 #####################################################################################################################################################
 
 #####################################################################################################################################################
 # Variables
-$script:CygwinBinPath = "C:\cygwin\bin"
-$script:Cygwin64BinPath = "C:\cygwin64\bin"
-$script:FCIVBinPath = "C:\FCIV"
+$script:BinPath_Cygwin   = 'C:\cygwin\bin'
+$script:BinPath_Cygwin64 = 'C:\cygwin64\bin'
+$script:BinPath_FCIV     = 'C:\FCIV'
+
+$script:FCIV_FileName        ='fciv.exe'
+$script:genisoimage_FileName ='genisoimage.exe'
+
 
 #####################################################################################################################################################
 # Aliases
-Function CygPath { return ("/cygdrive/" + ($args[0] -replace "\\","/").Remove(1,1))  }
+Function CygPath { return ('/cygdrive/' + ($args[0] -replace '\\', '/').Remove(1, 1))  }
 
 #####################################################################################################################################################
 Function Start-Command {
@@ -104,7 +110,11 @@ Function Start-Command {
 
         [Parameter(Mandatory=$false, Position=5)][System.Diagnostics.ProcessWindowStyle]$WindowStyle,
         [Parameter(Mandatory=$false)][switch]$NoNewWindow,
-        [Parameter(Mandatory=$false)][switch]$Async
+
+        [Parameter(Mandatory=$false)][switch]$Async,
+
+        [Parameter(Mandatory=$false, Position=6)][Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding]$OutputEncoding `
+            = [Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding]::UTF8
     )
 
     Process
@@ -115,9 +125,9 @@ Function Start-Command {
             # Current Directory
             $FilePath = $exe_filepath
         }
-        elseif (Test-Path -Path ($exe_filepath += ".exe"))
+        elseif (Test-Path -Path ($exe_filepath += '.exe'))
         {
-            # Current Directory + ".exe"
+            # Current Directory + '.exe'
             $FilePath = $exe_filepath
         }
         elseif (Test-Path -Path ($exe_filepath = ($PSCommandPath | Split-Path -Parent | Join-Path -ChildPath $FilePath)))
@@ -125,40 +135,40 @@ Function Start-Command {
             # Module Path
             $FilePath = $exe_filepath
         }
-        elseif (Test-Path -Path ($exe_filepath += ".exe"))
+        elseif (Test-Path -Path ($exe_filepath += '.exe'))
         {
             # Module Path + ".exe"
             $FilePath = $exe_filepath
         }
-        [string]$commandline_base = "Start-Process -FilePath `"$FilePath`""
+        [string]$commandline_base = "Start-Process -FilePath '" + $FilePath + "'"
 
 
         # -ArgumentList
         if ($ArgumentList)
         {
-            $commandline_base += " -ArgumentList"
+            $commandline_base += ' -ArgumentList'
             for ($i = 0; $i -lt $ArgumentList.Count ; $i ++)
             {
                 $commandline_base += " '" + $ArgumentList[$i] + "'"
-                if ($i -lt $ArgumentList.Count - 1) { $commandline_base += "," }
+                if ($i -lt $ArgumentList.Count - 1) { $commandline_base += ',' }
             }
         }
 
 
         # -WorkingDirectory / -WindowStyle / -NoNewWindow
-        if ($WorkingDirectory) { $commandline_base += " -WorkingDirectory" + " `"" + (Resolve-Path -Path $WorkingDirectory) + "`"" }
+        if ($WorkingDirectory) { $commandline_base += " -WorkingDirectory '" + (Resolve-Path -Path $WorkingDirectory) + "'" }
         if ($WindowStyle) { $commandline_base += " -WindowStyle $WindowStyle" }
-        if ($NoNewWindow) { $commandline_base += " -NoNewWindow" }
+        if ($NoNewWindow) { $commandline_base += ' -NoNewWindow' }
 
 
         # -PassThru
-        $commandline_base += " -PassThru"
+        $commandline_base += ' -PassThru'
 
 
         # Not Asynchronous (-Wait)
         if (-not $Async)
         {
-            $commandline_base += " -Wait"
+            $commandline_base += ' -Wait'
 
             if ($WorkingDirectory)
             {
@@ -170,9 +180,9 @@ Function Start-Command {
             }
 
             $output_filepath = ($output_filepath | Join-Path -ChildPath (`
-                (Get-Date).ToString("yyyy-MM-dd-HH-mm-ss.FFFFFF") `
-                + "_" + $MyInvocation.MyCommand.Name `
-                + "_" + (Split-Path -Path $FilePath -Leaf)))
+                (Get-Date).ToString('yyyy-MM-dd-HH-mm-ss.FFFFFF') `
+                + '_' + $MyInvocation.MyCommand.Name `
+                + '_' + (Split-Path -Path $FilePath -Leaf)))
         }
 
 
@@ -186,12 +196,12 @@ Function Start-Command {
                 $stdout_filepath = "$output_filepath($i).out"
                 $stderr_filepath = "$output_filepath($i).err"
 
-                $commandline += " -RedirectStandardOutput" + " `"" + $stdout_filepath + "`""
-                $commandline += " -RedirectStandardError" + " `"" + $stderr_filepath + "`""
+                $commandline += " -RedirectStandardOutput '$stdout_filepath'"
+                $commandline += " -RedirectStandardError '$stderr_filepath'"
             }
 
             # Verbose
-            Write-Verbose ("[" + $MyInvocation.MyCommand.Name + "] " + $commandline)
+            Write-Verbose ('[' + $MyInvocation.MyCommand.Name + ']' + " $commandline")
 
             try
             {
@@ -208,15 +218,15 @@ Function Start-Command {
                     # Output Standard Output
                     if (Test-Path -Path $stdout_filepath)
                     {
-                        Get-Content -Path $stdout_filepath -Encoding UTF8 | Write-Output
-                        if ($DebugPreference -eq "SilentlyContinue") { Remove-Item -Path $stdout_filepath -Force }
+                        Get-Content -Path $stdout_filepath -Encoding $OutputEncoding | Write-Output
+                        if ($DebugPreference -eq 'SilentlyContinue') { Remove-Item -Path $stdout_filepath -Force }
                     }
 
                     # Output Standard Error
                     if (Test-Path -Path $stderr_filepath)
                     {
-                        Get-Content -Path $stderr_filepath -Encoding UTF8 | Write-Warning
-                        if ($DebugPreference -eq "SilentlyContinue") { Remove-Item -Path $stderr_filepath -Force }
+                        Get-Content -Path $stderr_filepath -Encoding $OutputEncoding | Write-Warning
+                        if ($DebugPreference -eq 'SilentlyContinue') { Remove-Item -Path $stderr_filepath -Force }
                     }
                 }
             }
@@ -230,14 +240,15 @@ Function Start-Command {
                     # 失敗 (終了コードが 0 ではない)
 
                     # Error Message
-                    Write-Warning ("[" + $MyInvocation.MyCommand.Name + "] Exit Code: " + "0x" + $proc.ExitCode.ToString("x8"))
+                    Write-Warning ('[' + $MyInvocation.MyCommand.Name + ']' + ' Exit Code = 0x' + $proc.ExitCode.ToString('x8'))
 
                     if ($i -lt ($Retry-1))
                     {
-                        Write-Warning ("[" + $MyInvocation.MyCommand.Name + "] Retry Count(" + ($i+1) + "): Waiting " + $Interval + " Seconds...")
+                        Write-Warning ('[' + $MyInvocation.MyCommand.Name + ']' + ' Retry Count = ' + ($i+1))
+                        Write-Warning ('[' + $MyInvocation.MyCommand.Name + ']' + " Waiting $Interval Seconds...")
                         Start-Sleep -Seconds $Interval
                     }
-                    else { throw New-Object System.Runtime.InteropServices.ExternalException("0x" + $proc.ExitCode.ToString("x8")) }
+                    else { throw New-Object System.Runtime.InteropServices.ExternalException('0x' + $proc.ExitCode.ToString('x8')) }
                 }
             }
             else
@@ -318,19 +329,19 @@ Function Get-CheckSum {
         # Exception
         trap { break }
 
-        if ($BinPath) { $command = ($BinPath | Resolve-Path | Join-Path -ChildPath "fciv.exe") }
+        if ($BinPath) { $command = ($BinPath | Resolve-Path | Join-Path -ChildPath $script:FCIV_FileName) }
         else
         {
-            if (-not (($command = ($script:FCIVBinPath | Join-Path -ChildPath "fciv.exe")) | Test-Path)) { $command = "fciv.exe" }
+            if (-not (($command = ($script:BinPath_FCIV | Join-Path -ChildPath $script:FCIV_FileName)) | Test-Path)) { $command = $script:FCIV_FileName }
         }
 
         if($SHA1)
         {
-            [string[]]$out = (Start-Command -FilePath $command -ArgumentList ("`"" + $InputObject + "`""), "-sha1" -WindowStyle Hidden) -as [string[]]
+            [string[]]$out = (Start-Command -FilePath $command -ArgumentList ('"' + $InputObject + '"'), '-sha1' -WindowStyle Hidden) -as [string[]]
         }
         else
         {
-            [string[]]$out = (Start-Command -FilePath $command -ArgumentList ("`"" + $InputObject + "`"") -WindowStyle Hidden) -as [string[]]
+            [string[]]$out = (Start-Command -FilePath $command -ArgumentList ('"' + $InputObject + '"') -WindowStyle Hidden) -as [string[]]
         }
 
         for ($i=3; $i -lt $out.Count; $i++)
@@ -501,7 +512,7 @@ Function New-ISOImageFile {
             if (-not ($_ | Split-Path -Parent | Test-Path)) { throw New-Object System.IO.DirectoryNotFoundException }
             return $true
         } )]
-        [string]$Path = ($InputObject + ".iso"),
+        [string]$Path = ($InputObject + '.iso'),
 
         [Parameter(Mandatory=$false, Position=2)][string]$VolumeID,
         [Parameter(Mandatory=$false, Position=3)][string]$Publisher,
@@ -521,15 +532,15 @@ Function New-ISOImageFile {
         # Command Path (genisoimage)
         if ($BinPath)
         {
-            $command = ($BinPath | Resolve-Path | Join-Path -ChildPath "genisoimage.exe")
+            $command = ($BinPath | Resolve-Path | Join-Path -ChildPath $script:genisoimage_FileName)
         }
         else
         {
-            if (-not (($command = ($script:Cygwin64BinPath | Join-Path -ChildPath "genisoimage.exe")) | Test-Path))
+            if (-not (($command = ($script:BinPath_Cygwin64 | Join-Path -ChildPath $script:genisoimage_FileName)) | Test-Path))
             {
-                if (-not (($command = ($script:CygwinBinPath | Join-Path -ChildPath "genisoimage.exe")) | Test-Path))
+                if (-not (($command = ($script:BinPath_Cygwin | Join-Path -ChildPath $script:genisoimage_FileName)) | Test-Path))
                 {
-                    $command = "genisoimage.exe"
+                    $command = $script:genisoimage_FileName
                 }
             }
         }
@@ -544,37 +555,37 @@ Function New-ISOImageFile {
         # ArgumentList
         [string[]]$arg_list = @()
 
-        $arg_list += "-output " + "`"" + (CygPath($output_path)) + "`""
+        $arg_list += '-output "' + (CygPath($output_path)) + '"'
 
-        if ($VolumeID) { $arg_list += "-volid `"" + $VolumeID +"`"" }
-        if ($Publisher) { $arg_list += "-publisher `"" + $Publisher +"`"" }
-        if ($ApplicationID) { $arg_list += "-appid `"" + $ApplicationID +"`"" }
+        if ($VolumeID) { $arg_list += '-volid "' + $VolumeID + '"' }
+        if ($Publisher) { $arg_list += '-publisher "' + $Publisher + '"' }
+        if ($ApplicationID) { $arg_list += '-appid "' + $ApplicationID + '"' }
 
-        if ($VerbosePreference -ne "SilentlyContinue") { $arg_list += "-verbose" }
-        if ($DebugPreference -ne "SilentlyContinue") { $arg_list += "-debug" }
+        if ($VerbosePreference -ne 'SilentlyContinue') { $arg_list += '-verbose' }
+        if ($DebugPreference -ne 'SilentlyContinue') { $arg_list += '-debug' }
 
 
         # RedirectStandardError
         if ($RedirectStandardError)
         {
             $log_filepath = $MyInvocation.MyCommand.Name `
-                + "_" + (Get-Date).ToString("yyyy-MM-dd-HHmmss") `
-                + "_" + ([System.IO.FileInfo]$Path).BaseName + ".tmp"
+                + '_' + (Get-Date).ToString('yyyy-MM-dd-HHmmss') `
+                + '_' + ([System.IO.FileInfo]$Path).BaseName + '.tmp'
             $log_filepath = (Get-Location | Join-Path -ChildPath $log_filepath)
 
-            $arg_list += "-log-file `"/cygdrive/" + ($log_filepath -replace "\\","/").Remove(1,1) + "`""
+            $arg_list += '-log-file "/cygdrive/' + ($log_filepath -replace '\\', '/').Remove(1,1) + '"'
         }
 
 
         # Recommended
         if ($Recommended)
         {
-            $arg_list += "-input-charset utf-8"
-            $arg_list += "-output-charset utf-8"
-            $arg_list += "-rational-rock"
-            $arg_list += "-joliet"
-            $arg_list += "-joliet-long"
-            $arg_list += "-jcharset utf-8"
+            $arg_list += '-input-charset utf-8'
+            $arg_list += '-output-charset utf-8'
+            $arg_list += '-rational-rock'
+            $arg_list += '-joliet'
+            $arg_list += '-joliet-long'
+            $arg_list += '-jcharset utf-8'
         }
 
 
@@ -587,7 +598,7 @@ Function New-ISOImageFile {
                 for ($i = 0; $i -lt $arg_list.Count; $i++)
                 {
                     # Check if additional parameter is already defined
-                    if (($_.Trim() -split " ")[0] -eq ($arg_list[$i].Trim() -split " ")[0])
+                    if (($_.Trim() -split ' ')[0] -eq ($arg_list[$i].Trim() -split ' ')[0])
                     {
                         # Overwrite aditional parameter
                         $arg_list[$i] = $_
@@ -602,8 +613,8 @@ Function New-ISOImageFile {
 
 
         # Last entry of ArgumentList (file directory)
-        $arg_list += ("`"" + (CygPath($input_path)) + "`"")
-        if ($DebugPreference -ne "SilentlyContinue")
+        $arg_list += ('"' + (CygPath($input_path)) + '"')
+        if ($DebugPreference -ne 'SilentlyContinue')
         {
             #####################################################################################
             Start-Command -FilePath $command -ArgumentList $arg_list -WindowStyle Hidden -Debug
@@ -626,7 +637,7 @@ Function New-ISOImageFile {
                 Get-Content -Path $log_filepath -Encoding UTF8 | Write-Output
 
                 # remove log-file
-                if ($DebugPreference -eq "SilentlyContinue") { Remove-Item $log_filepath }
+                if ($DebugPreference -eq 'SilentlyContinue') { Remove-Item $log_filepath }
             }
         }
 
@@ -643,7 +654,7 @@ Function New-ISOImageFile {
                 return Get-CheckSum -InputObject $Path
             }
         }
-        catch { Write-Warning ("[" + $MyInvocation.MyCommand.Name + "] Get-CheckSum: " + $_.ToString()) }
+        catch { Write-Warning ('[' + $MyInvocation.MyCommand.Name + ']' + ' Get-CheckSum: ' + $_.ToString()) }
     }
 }
 
