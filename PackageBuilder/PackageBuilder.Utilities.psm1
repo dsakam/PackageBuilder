@@ -1086,7 +1086,7 @@ Function Get-WindowHandler {
 }
 
 #####################################################################################################################################################
-Function New-Struct {
+Function New-StructArray {
 
 <#
 .SYNOPSIS
@@ -1170,88 +1170,6 @@ Function New-Struct {
         }
 
         return $obj
-    }
-}
-
-#####################################################################################################################################################
-Function Send-Mail {
-
-<#
-.SYNOPSIS
-    E メールを送信します。
-
-
-.DESCRIPTION
-    Send-MailMessage コマンドレットを使用してください。
-
-
-.PARAMETER To
-.PARAMETER From
-.PARAMETER Host
-.PARAMETER Subject
-.PARAMETER Body
-.PARAMETER UserName
-.PARAMETER Password
-.PARAMETER Domain
-.PARAMETER Port
-
-
-.INPUTS
-    System.String
-
-
-.OUTPUTS
-    System.String
-
-
-.NOTES
-    (None)
-
-
-.EXAMPLE
-    (None)
-
-
-.LINK
-    (None)
-#>
-
-    [CmdletBinding()]
-    Param (
-        [Parameter(Mandatory=$true, Position=0)][string[]]$To,
-        [Parameter(Mandatory=$true, Position=1)][string]$From,
-        [Parameter(Mandatory=$true, Position=2)][string]$Host,
-
-        [Parameter(Mandatory=$false, Position=3)][string]$Subject = [string]::Empty,
-        [Parameter(Mandatory=$false, Position=4, ValueFromPipeline=$true)][string]$Body = [string]::Empty,
-
-        [Parameter(Mandatory=$false, Position=5)][string]$UserName = $env:USERNAME,
-        [Parameter(Mandatory=$false, Position=6)][string]$Password = [string]::Empty,
-        [Parameter(Mandatory=$false, Position=7)][string]$Domain,
-
-        [Parameter(Mandatory=$false, Position=8)][int]$Port
-    )
-
-    Process
-    {
-        # MailMessage
-        $mail = New-Object System.Net.Mail.MailMessage
-        $mail.Subject = $Subject
-        $mail.Body = $Body
-        $mail.From = $From
-        $To | % { $mail.To.Add($_) }
-
-        # Credential
-        $cred = New-Object System.Net.NetworkCredential($UserName, $Password)
-        if ($Domain) {$cred.Domain = $Domain }
-
-        # SMTP Client
-        $client = New-Object System.Net.Mail.SmtpClient($Host)
-        $client.Credentials = $cred
-        if ($Port) { $client.Port = $Port }
-
-        # Send
-        $client.Send($mail)
     }
 }
 

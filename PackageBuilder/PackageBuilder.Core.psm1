@@ -26,23 +26,136 @@
  #  2013/09/02  Version 0.0.0.1
  #  2014/01/16  Version 0.4.0.0
  #  2014/01/17  Version 0.5.0.0
+ #  2014/03/01  Version 0.6.0.0
+ #
+ #>
+#####################################################################################################################################################
+
+######## NOTE #######################################################################################################################################
+<#
+ # 引用符使用のガイドライン
+ #
+ # 下記にはシングルクォーテーション ('') を使用する。
+ #
+ #    1. 単語
+ #    2. PATH
+ #
+ #
+ # 下記にはダブルクォーテーション ("") を使用する。
+ #
+ #    1. メッセージ
+ #    2. 内部で変数等を使用している
  #
  #>
 #####################################################################################################################################################
 
 #####################################################################################################################################################
 # Variables
-$script:BinPath_Cygwin   = 'C:\cygwin\bin'
-$script:BinPath_Cygwin64 = 'C:\cygwin64\bin'
-$script:BinPath_FCIV     = 'C:\FCIV'
+$Script:BinPath_Cygwin   = 'C:\cygwin\bin'
+$Script:BinPath_Cygwin64 = 'C:\cygwin64\bin'
 
-$script:FCIV_FileName        ='fciv.exe'
-$script:genisoimage_FileName ='genisoimage.exe'
+
+
+$Script:BinPath_signtool_WOW64_WDK8_1_x86 = 'C:\Program Files (x86)\Windows Kits\8.1\bin\x86'
+
+$Script:BinPath_signtool_WOW64_WDK8_1_x64 = 'C:\Program Files (x86)\Windows Kits\8.1\bin\x64'
+$Script:BinPath_signtool_WOW64_WDK8_1_x86 = 'C:\Program Files (x86)\Windows Kits\8.1\bin\x86'
+$Script:BinPath_signtool_WOW64_WDK8_0_x64 = 'C:\Program Files (x86)\Windows Kits\8.0\bin\x64'
+$Script:BinPath_signtool_WOW64_WDK8_0_x86 = 'C:\Program Files (x86)\Windows Kits\8.0\bin\x86'
+$Script:BinPath_signtool_WOW64_WDK7_1     = 'C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin'
+$Script:BinPath_signtool_WOW64_WDK7_0     = 'C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Bin'
+
+$Script:BinPath_signtool_WDK8_1_x64 = 'C:\Program Files\Windows Kits\8.1\bin\x64'
+$Script:BinPath_signtool_WDK8_1_x86 = 'C:\Program Files\Windows Kits\8.1\bin\x86'
+$Script:BinPath_signtool_WDK8_0_x64 = 'C:\Program Files\Windows Kits\8.0\bin\x64'
+$Script:BinPath_signtool_WDK8_0_x86 = 'C:\Program Files\Windows Kits\8.0\bin\x86'
+$Script:BinPath_signtool_WDK7_1     = 'C:\Program Files\Microsoft SDKs\Windows\v7.1A\Bin'
+$Script:BinPath_signtool_WDK7_0     = 'C:\Program Files\Microsoft SDKs\Windows\v7.0A\Bin'
+
+
+
+
+$Script:genisoimage_FileName = 'genisoimage.exe'
+$Script:signtool_FileName    = 'signtool.exe'
 
 
 #####################################################################################################################################################
 # Aliases
-Function CygPath { return ('/cygdrive/' + ($args[0] -replace '\\', '/').Remove(1, 1))  }
+Function CYGPATH { return ('/cygdrive/' + ($args[0] -replace '\\', '/').Remove(1, 1))  }
+
+#####################################################################################################################################################
+Function Get-MD5 {
+
+<#
+.SYNOPSIS
+    ファイルの MD5 チェックサムを取得します。
+
+
+.DESCRIPTION
+
+
+.PARAMETER InputObject
+
+
+.INPUTS
+    System.String
+
+
+.OUTPUTS
+    System.String
+
+
+.NOTES
+
+
+.EXAMPLE
+
+
+.LINK
+
+#>
+
+    [CmdletBinding(DefaultParameterSetName=$false)]
+    Param (
+        [Parameter (Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+        [ValidateScript ( {
+            $_ | % { if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException } }
+            return $true
+        } )]
+        [string[]]$Path,
+
+        [Parameter (Mandatory=$false, Position=1, ParameterSetName='file')]
+        [switch]$FileName,
+
+        [Parameter (Mandatory=$false, Position=1, ParameterSetName='full')]
+        [switch]$FullName
+    )
+
+    Process
+    {
+        # Exception
+        trap { break }
+
+        $md5 = [System.Security.Cryptography.MD5]::Create()
+
+        $Path | Convert-Path | Get-ChildItem -Recurse -Force -File | % {
+
+            $file = [System.IO.FileInfo]$_
+            $inputStream = (New-Object System.IO.StreamReader (Convert-Path -Path $file.FullName)).BaseStream
+            $hash = [System.BitConverter]::ToString($md5.ComputeHash($inputStream)) -replace '-', ''
+
+            switch ($PSCmdlet.ParameterSetName)
+            {
+                'file'  { $text = $hash + "`t'" + $file.Name + "'" }
+                'full'  { $text = $hash + "`t'" + $file.FullName + "'" }
+                default { $text = $hash }
+            }
+
+            # Output
+            Write-Output $text
+        }
+    }
+}
 
 #####################################################################################################################################################
 Function Start-Command {
@@ -114,7 +227,7 @@ Function Start-Command {
         [Parameter(Mandatory=$false)][switch]$Async,
 
         [Parameter(Mandatory=$false, Position=6)][Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding]$OutputEncoding `
-            = [Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding]::UTF8
+            = [Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding]::Default
     )
 
     Process
@@ -256,97 +369,6 @@ Function Start-Command {
                 # return Process ID when Asyncronouns
                 return $proc.Id
             }
-        }
-    }
-}
-
-#####################################################################################################################################################
-Function Get-CheckSum {
-
-<#
-.SYNOPSIS
-    チェックサムを取得します。
-
-
-.DESCRIPTION
-    Microsoft の FCIV (File Checksum Integrity Verifier / version 2.05) を実行します。
-    FCIV は、別途ご用意してください。
-
-
-.PARAMETER InputObject
-
-
-.PARAMETER BinPath
-    fciv.exe が保存されているフォルダーのパスを指定します。
-    省略すると、C:\FCIV を検索します。
-    あるいは、環境変数の PATH に保存されていても実行可能です。
-
-.PARAMETER MD5
-
-
-.PARAMETER SHA1
-
-
-.INPUTS
-    System.String
-
-
-.OUTPUTS
-    System.String
-
-
-.NOTES
-
-    //
-    // File Checksum Integrity Verifier version 2.05.
-    //
-    ffffffffffffffffffffffffffffffff test.txt
-
-.EXAMPLE
-
-
-.LINK
-    Availability and description of the File Checksum Integrity Verifier utility
-    http://support.microsoft.com/kb/841290
-#>
-
-    [CmdletBinding()]
-    Param (
-        [Parameter (Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-        [ValidateScript ( {
-            if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            return $true
-        } )]
-        [string]$InputObject,
-
-        [Parameter (Mandatory=$false, Position=1)][string]$BinPath,
-        [Parameter (Mandatory=$false)][switch]$MD5,
-        [Parameter (Mandatory=$false)][switch]$SHA1
-    )
-
-    Process
-    {
-        # Exception
-        trap { break }
-
-        if ($BinPath) { $command = ($BinPath | Resolve-Path | Join-Path -ChildPath $script:FCIV_FileName) }
-        else
-        {
-            if (-not (($command = ($script:BinPath_FCIV | Join-Path -ChildPath $script:FCIV_FileName)) | Test-Path)) { $command = $script:FCIV_FileName }
-        }
-
-        if($SHA1)
-        {
-            [string[]]$out = (Start-Command -FilePath $command -ArgumentList ('"' + $InputObject + '"'), '-sha1' -WindowStyle Hidden) -as [string[]]
-        }
-        else
-        {
-            [string[]]$out = (Start-Command -FilePath $command -ArgumentList ('"' + $InputObject + '"') -WindowStyle Hidden) -as [string[]]
-        }
-
-        for ($i=3; $i -lt $out.Count; $i++)
-        {
-            Write-Output ($out[$i] -split ' ')[0]
         }
     }
 }
@@ -532,15 +554,15 @@ Function New-ISOImageFile {
         # Command Path (genisoimage)
         if ($BinPath)
         {
-            $command = ($BinPath | Resolve-Path | Join-Path -ChildPath $script:genisoimage_FileName)
+            $command = ($BinPath | Resolve-Path | Join-Path -ChildPath $Script:genisoimage_FileName)
         }
         else
         {
-            if (-not (($command = ($script:BinPath_Cygwin64 | Join-Path -ChildPath $script:genisoimage_FileName)) | Test-Path))
+            if (-not (($command = ($Script:BinPath_Cygwin64 | Join-Path -ChildPath $Script:genisoimage_FileName)) | Test-Path))
             {
-                if (-not (($command = ($script:BinPath_Cygwin | Join-Path -ChildPath $script:genisoimage_FileName)) | Test-Path))
+                if (-not (($command = ($Script:BinPath_Cygwin | Join-Path -ChildPath $Script:genisoimage_FileName)) | Test-Path))
                 {
-                    $command = $script:genisoimage_FileName
+                    $command = $Script:genisoimage_FileName
                 }
             }
         }
@@ -555,7 +577,7 @@ Function New-ISOImageFile {
         # ArgumentList
         [string[]]$arg_list = @()
 
-        $arg_list += '-output "' + (CygPath($output_path)) + '"'
+        $arg_list += '-output "' + (CYGPATH($output_path)) + '"'
 
         if ($VolumeID) { $arg_list += '-volid "' + $VolumeID + '"' }
         if ($Publisher) { $arg_list += '-publisher "' + $Publisher + '"' }
@@ -613,18 +635,18 @@ Function New-ISOImageFile {
 
 
         # Last entry of ArgumentList (file directory)
-        $arg_list += ('"' + (CygPath($input_path)) + '"')
+        $arg_list += ('"' + (CYGPATH($input_path)) + '"')
         if ($DebugPreference -ne 'SilentlyContinue')
         {
-            #####################################################################################
-            Start-Command -FilePath $command -ArgumentList $arg_list -WindowStyle Hidden -Debug
-            #####################################################################################
+            #########################################################################################################
+            Start-Command -FilePath $command -ArgumentList $arg_list -OutputEncoding UTF8 -WindowStyle Hidden -Debug
+            #########################################################################################################
         }
         else
         {
-            #####################################################################################
-            Start-Command -FilePath $command -ArgumentList $arg_list -WindowStyle Hidden
-            #####################################################################################
+            #########################################################################################################
+            Start-Command -FilePath $command -ArgumentList $arg_list -OutputEncoding UTF8 -WindowStyle Hidden
+            #########################################################################################################
         }
 
 

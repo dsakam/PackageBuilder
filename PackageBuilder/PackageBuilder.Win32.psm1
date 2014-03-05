@@ -34,98 +34,40 @@
 <#
  # P/Invoke 関連のリソース URL
  #
- # アンマネージ DLL 関数の処理
- # http://msdn.microsoft.com/ja-jp/library/26thfadc.aspx
+ #  アンマネージ DLL 関数の処理
+ #  http://msdn.microsoft.com/ja-jp/library/26thfadc.aspx
  #
- # プラットフォーム呼び出しのデータ型
- # http://msdn.microsoft.com/ja-jp/library/ac7ay120.aspx
+ #  プラットフォーム呼び出しのデータ型
+ #  http://msdn.microsoft.com/ja-jp/library/ac7ay120.aspx
  #>
 <#
  # Win32 関連のリソース URL
  #
- # LoadLibrary 関数
- # http://msdn.microsoft.com/ja-jp/library/cc429241.aspx
+ #  LoadLibrary 関数
+ #  http://msdn.microsoft.com/ja-jp/library/cc429241.aspx
  #
- # LoadLibraryEx 関数
- # http://msdn.microsoft.com/ja-jp/library/cc429243.aspx
+ #  LoadLibraryEx 関数
+ #  http://msdn.microsoft.com/ja-jp/library/cc429243.aspx
  #
- # FreeLibrary 関数
- # http://msdn.microsoft.com/ja-jp/library/cc429103.aspx
+ #  FreeLibrary 関数
+ #  http://msdn.microsoft.com/ja-jp/library/cc429103.aspx
  #
- # LoadString 関数
- # http://msdn.microsoft.com/ja-jp/library/cc410872.aspx
+ #  LoadString 関数
+ #  http://msdn.microsoft.com/ja-jp/library/cc410872.aspx
  #>
 #####################################################################################################################################################
 
 #####################################################################################################################################################
 # Variables
-$script:Win32Namespace = 'BUILDLet.PowerShell.PackageBuilder'
+$Global:Win32Namespace = 'BUILDLet.PowerShell.PackageBuilder'
 
-$global:HTMLHelpCommand = @{
+$Global:HTMLHelpCommand = @{
     HH_DISPLAY_TOPIC  = 0x0000;
     HH_DISPLAY_TOC    = 0x0001;
     HH_DISPLAY_INDEX  = 0x0002;
     HH_DISPLAY_SEARCH = 0x0003;
     HH_HELP_CONTEXT   = 0x000F;
     HH_CLOSE_ALL      = 0x0012;
-}
-
-#####################################################################################################################################################
-Function Invoke-LoadLibrary {
-
-<#
-.SYNOPSIS
-    LoadLibrary()
-
-
-.DESCRIPTION
-    使用しないでください。
-
-
-.PARAMETER Path
-
-
-.INPUTS
-    None
-
-
-.OUTPUTS
-    System.String
-
-
-.NOTES
-    (None)
-
-
-.EXAMPLE
-    (None)
-
-
-.LINK
-    (None)
-#>
-
-    [CmdletBinding()] Param (
-        [Parameter(Mandatory=$true, Position=0)]
-        [ValidateScript ( {
-            if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            elseif ((Get-Item -Path $_).GetType() -ne [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
-            return $true
-        } )]
-        [string]$lpFileName
-    )
-
-    Process
-    {
-        $signature = @'
-[DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-public static extern IntPtr LoadLibrary(
-    string lpFileName // モジュールのファイル名
-);
-'@
-        # LoadLibrary
-        return (Add-Type -MemberDefinition $signature -Name 'Win32LoadLibrary' -Namespace $script:Win32Namespace -PassThru)::LoadLibrary($lpFileName)
-    }
 }
 
 #####################################################################################################################################################
@@ -185,7 +127,7 @@ public static extern IntPtr LoadLibraryEx(
 );
 '@
 
-        $win32 = Add-Type -MemberDefinition $signature -Name 'Win32LoadLibraryEx' -Namespace $script:Win32Namespace -PassThru
+        $win32 = Add-Type -MemberDefinition $signature -Name 'Win32LoadLibraryEx' -Namespace $Global:Win32Namespace -PassThru
 
         # LoadLibraryEx
         return $win32::LoadLibraryEx($lpLibFileName, [IntPtr]::Zero, $dwFlags)
@@ -241,7 +183,7 @@ public static extern bool FreeLibrary(
 );
 '@
         # FreeLibrary
-        return (Add-Type -MemberDefinition $signature -Name 'Win32FreeLibrary' -Namespace $script:Win32Namespace -PassThru)::FreeLibrary($hModule)
+        return (Add-Type -MemberDefinition $signature -Name 'Win32FreeLibrary' -Namespace $Global:Win32Namespace -PassThru)::FreeLibrary($hModule)
     }
 }
 
@@ -300,7 +242,7 @@ public static extern int LoadString(
     int nBufferMax                       // バッファのサイズ
 );
 '@
-        $win32 = Add-Type -MemberDefinition $signature -Name 'Win32LoadString' -Namespace $script:Win32Namespace -PassThru
+        $win32 = Add-Type -MemberDefinition $signature -Name 'Win32LoadString' -Namespace $Global:Win32Namespace -PassThru
         $lpBuffer = New-Object -TypeName System.Text.StringBuilder($nBufferMax)
 
         # LoadString
@@ -444,9 +386,9 @@ Function Invoke-HtmlHelp {
 public static extern IntPtr HtmlHelp(IntPtr hwndCaller, string pszFile, uint uCommand, int dwData);
 '@
         
-        if (-not $uCommand) { $uCommand = $global:HTMLHelpCommand.HH_DISPLAY_TOC }
+        if (-not $uCommand) { $uCommand = $Global:HTMLHelpCommand.HH_DISPLAY_TOC }
 
-        $win32 = Add-Type -MemberDefinition $signature -Name 'Win32HtmlHelp' -Namespace $script:Win32Namespace -PassThru
+        $win32 = Add-Type -MemberDefinition $signature -Name 'Win32HtmlHelp' -Namespace $Global:Win32Namespace -PassThru
 
         # HtmlHelp
         $win32::HtmlHelp($hwndCaller, $Path, $uCommand, $dwData)
