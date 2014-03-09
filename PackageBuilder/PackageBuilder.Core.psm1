@@ -158,6 +158,81 @@ Function Get-MD5 {
 }
 
 #####################################################################################################################################################
+Function Test-SameFile {
+
+<#
+.SYNOPSIS
+    2 つのファイルが同じかどうかをテストします。
+
+.DESCRIPTION
+    Get-CheckSum
+
+
+.PARAMETER ReferenceObject
+
+
+.PARAMETER DifferenceObject
+
+
+.PARAMETER BinPath
+    fciv.exe が保存されているフォルダーのパスを指定します。
+
+
+.INPUTS
+    System.String
+
+
+.OUTPUTS
+    System.Boolean
+
+
+.NOTES
+    fciv.exe を 使って検証する 'Get-CheckSum' コマンドレットから 'Get-MD5' コマンドレットを使って検証するよう変更。
+
+
+.EXAMPLE
+
+
+.LINK
+
+#>
+
+    [CmdletBinding()]
+    Param (
+        [Parameter (Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+        [ValidateScript ( {
+            if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
+            return $true
+        } )]
+        [string]$ReferenceObject,
+
+        [Parameter (Mandatory=$true, Position=1)]
+        [ValidateScript ( {
+            if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
+            return $true
+        } )]
+        [string]$DifferenceObject
+    )
+
+    Process
+    {
+        [string[]]$ref  = Get-MD5 -Path $ReferenceObject | Sort-Object
+        [string[]]$diff = Get-MD5 -Path $DifferenceObject | Sort-Object
+
+        if ($ref.Count -ne $diff.Count) { return $false }
+        else
+        {
+            foreach ($i in 0..($ref.Count - 1))
+            {
+                if ($ref[$i] -ne $diff[$i]) { return $false }
+            }
+        }
+        
+        return $true
+    }
+}
+
+#####################################################################################################################################################
 Function Start-Command {
 
 <#
@@ -353,11 +428,11 @@ Function Start-Command {
                     # 失敗 (終了コードが 0 ではない)
 
                     # Error Message
-                    Write-Warning ('[' + $MyInvocation.MyCommand.Name + ']' + ' Exit Code = 0x' + $proc.ExitCode.ToString('x8'))
+                    Write-Warning ('[' + $MyInvocation.MyCommand.Name + ']' + ' Exit Code: 0x' + $proc.ExitCode.ToString('x8'))
 
                     if ($i -lt ($Retry-1))
                     {
-                        Write-Warning ('[' + $MyInvocation.MyCommand.Name + ']' + ' Retry Count = ' + ($i+1))
+                        Write-Warning ('[' + $MyInvocation.MyCommand.Name + ']' + ' Retry Count: ' + ($i+1))
                         Write-Warning ('[' + $MyInvocation.MyCommand.Name + ']' + " Waiting $Interval Seconds...")
                         Start-Sleep -Seconds $Interval
                     }
@@ -370,90 +445,6 @@ Function Start-Command {
                 return $proc.Id
             }
         }
-    }
-}
-
-#####################################################################################################################################################
-Function Test-SameFile {
-
-<#
-.SYNOPSIS
-    2 つのファイルが同じかどうかをテストします。
-
-.DESCRIPTION
-    Get-CheckSum
-
-
-.PARAMETER ReferenceObject
-
-
-.PARAMETER DifferenceObject
-
-
-.PARAMETER BinPath
-    fciv.exe が保存されているフォルダーのパスを指定します。
-
-
-.INPUTS
-    System.String
-
-
-.OUTPUTS
-    System.Boolean
-
-
-.NOTES
-
-
-.EXAMPLE
-
-
-.LINK
-
-#>
-
-    [CmdletBinding()]
-    Param (
-        [Parameter (Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-        [ValidateScript ( {
-            if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            return $true
-        } )]
-        [string]$ReferenceObject,
-
-        [Parameter (Mandatory=$true, Position=1)]
-        [ValidateScript ( {
-            if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            return $true
-        } )]
-        [string]$DifferenceObject,
-
-        [Parameter (Mandatory=$false, Position=2)][string]$BinPath
-    )
-
-    Process
-    {
-        if (-not $BinPath)
-        {
-            [string[]]$a = Get-CheckSum -InputObject $ReferenceObject
-            [string[]]$b = Get-CheckSum -InputObject $DifferenceObject
-        }
-        else
-        {
-            [string[]]$a = Get-CheckSum -InputObject $ReferenceObject -BinPath $BinPath
-            [string[]]$b = Get-CheckSum -InputObject $DifferenceObject -BinPath $BinPath
-        }
-
-        if ($a.Count -ne $b.Count) { return $false }
-        else
-        {
-            for ($i=0; $i -lt $a.Count; $i++)
-            {
-                if ($a[$i] -ne $b[$i]) { return $false }
-            }
-        }
-        
-        return $true
     }
 }
 
@@ -506,6 +497,7 @@ Function New-ISOImageFile {
 
 
 .NOTES
+    MD5 チェックサムではなく、iso ファイルのパスを返すように変更。
 
 
 .EXAMPLE
@@ -524,7 +516,7 @@ Function New-ISOImageFile {
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
         [ValidateScript ( {
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.DirectoryNotFoundException }
-            if ((Get-Item $_).GetType() -ne [System.IO.DirectoryInfo]) { throw New-Object System.ArgumentException }
+            if ((Get-Item -Path $_) -isnot [System.IO.DirectoryInfo]) { throw New-Object System.IO.DirectoryNotFoundException }
             return $true
         } )]
         [string]$InputObject,
@@ -543,7 +535,6 @@ Function New-ISOImageFile {
         [Parameter(Mandatory=$false, Position=5)][string[]]$ArgumentList,
 
         [Parameter(Mandatory=$false, Position=6)][string]$BinPath,
-        [Parameter(Mandatory=$false, Position=7)][string]$FCIVBinPath,
 
         [Parameter(Mandatory=$false)][switch]$RedirectStandardError,
         [Parameter(Mandatory=$false)][switch]$Recommended
@@ -665,18 +656,7 @@ Function New-ISOImageFile {
 
 
         # RETURN
-        try
-        {
-            if ($FCIVBinPath)
-            {
-                return Get-CheckSum -InputObject $Path -BinPath $FCIVBinPath
-            }
-            else
-            {
-                return Get-CheckSum -InputObject $Path
-            }
-        }
-        catch { Write-Warning ('[' + $MyInvocation.MyCommand.Name + ']' + ' Get-CheckSum: ' + $_.ToString()) }
+        return $output_path
     }
 }
 

@@ -73,7 +73,7 @@ Function Invoke-LoadLibrary
         [Parameter(Mandatory=$true, Position=0)]
         [ValidateScript ( {
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            elseif ((Get-Item -Path $_).GetType() -ne [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
+            if ((Get-Item -Path $_) -isnot [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
             return $true
         } )]
         [string]$lpFileName
@@ -88,7 +88,7 @@ public static extern IntPtr LoadLibrary(
 );
 '@
         # LoadLibrary
-        return (Add-Type -MemberDefinition $signature -Name 'Win32LoadLibrary' -Namespace $Grobal:Win32Namespace -PassThru)::LoadLibrary($lpFileName)
+        return (Add-Type -MemberDefinition $signature -Name 'Win32LoadLibrary' -PassThru)::LoadLibrary($lpFileName)
     }
 }
 

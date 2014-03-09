@@ -593,7 +593,7 @@ Function Get-FileVersionInfo {
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
         [ValidateScript ( {
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            elseif ((Get-Item -Path $_).GetType() -ne [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
+            if ((Get-Item -Path $_) -isnot [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
             return $true
         } )]
         [string]$Path,
@@ -863,7 +863,7 @@ Function Get-HTMLString {
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
         [ValidateScript ( {
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            elseif ((Get-Item -Path $_).GetType() -ne [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
+            if ((Get-Item -Path $_) -isnot [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
             return $true
         } )]
         [string]$Path,
@@ -924,7 +924,7 @@ Function Get-PrivateProfileString {
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
         [ValidateScript ( {
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            elseif ((Get-Item -Path $_).GetType() -ne [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
+            if ((Get-Item -Path $_) -isnot [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
             return $true
         } )]
         [string]$Path,
@@ -1170,6 +1170,174 @@ Function New-StructArray {
         }
 
         return $obj
+    }
+}
+
+#####################################################################################################################################################
+Function Get-ByteArray {
+
+<#
+.SYNOPSIS
+    
+
+.DESCRIPTION
+
+
+.PARAMETER Members
+
+
+.PARAMETER Count
+
+
+.INPUTS
+    System.String[]
+
+
+.OUTPUTS
+    System.String
+
+
+.NOTES
+    (None)
+
+
+.EXAMPLE
+    (None)
+
+
+.LINK
+    (None)
+#>
+
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+        [ValidateScript( {
+            if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
+            if ((Get-Item -Path $_) -isnot [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
+            return $true
+        } )]
+        [string]$Path
+    )
+
+    Process
+    {
+        try
+        {
+            $file = New-Object System.IO.FileStream ((Convert-Path -Path $Path), [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read)
+            $data = New-Object byte[] $file.Length
+
+            foreach ($i in 0..($file.Length - 1))
+            {
+                $data[$i] += $file.ReadByte() -as [byte]
+            }
+
+            return $data
+        }
+        catch { throw }
+        finally { $file.Close() }
+    }
+}
+
+#####################################################################################################################################################
+Function ConvertFrom-ByteArray {
+
+<#
+.SYNOPSIS
+    
+
+.DESCRIPTION
+
+
+.PARAMETER Members
+
+
+.PARAMETER Count
+
+
+.INPUTS
+    System.String[]
+
+
+.OUTPUTS
+    System.String
+
+
+.NOTES
+    (None)
+
+
+.EXAMPLE
+    (None)
+
+
+.LINK
+    (None)
+#>
+
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)][byte[]]$InputObject,
+        [Parameter(Mandatory=$false, Position=1)][char]$Separator = ':'
+    )
+
+    Process
+    {
+        if ($text -ne $null) { $text += $Separator }
+        $text += [System.BitConverter]::ToString($InputObject) -replace '-', $Separator
+    }
+
+    End
+    {
+        return $text
+    }
+}
+
+#####################################################################################################################################################
+Function ConvertTo-ByteArray {
+
+<#
+.SYNOPSIS
+    
+
+.DESCRIPTION
+
+
+.PARAMETER Members
+
+
+.PARAMETER Count
+
+
+.INPUTS
+    System.String[]
+
+
+.OUTPUTS
+    System.String
+
+
+.NOTES
+    (None)
+
+
+.EXAMPLE
+    (None)
+
+
+.LINK
+    (None)
+#>
+
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)][object[]]$InputObject
+    )
+
+    Process
+    {
+        
+
     }
 }
 

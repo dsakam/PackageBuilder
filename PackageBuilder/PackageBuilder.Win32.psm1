@@ -59,16 +59,101 @@
 
 #####################################################################################################################################################
 # Variables
-$Global:Win32Namespace = 'BUILDLet.PowerShell.PackageBuilder'
 
-$Global:HTMLHelpCommand = @{
-    HH_DISPLAY_TOPIC  = 0x0000;
-    HH_DISPLAY_TOC    = 0x0001;
-    HH_DISPLAY_INDEX  = 0x0002;
-    HH_DISPLAY_SEARCH = 0x0003;
-    HH_HELP_CONTEXT   = 0x000F;
-    HH_CLOSE_ALL      = 0x0012;
-}
+# Namespace
+$Global:Win32Namespace = 'BUILDLet.PowerShell.PackageBuilder.Win32'
+
+# Type Name
+$Script:Kernel32  = 'Kernel32'
+$Script:User32    = 'User32'
+$Script:HHCtrl    = 'HHCtrl'
+
+# LoadLibraryEx() Function
+$Script:Kernel32_Signature =
+@'
+[DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+public static extern IntPtr LoadLibraryEx(
+    string lpLibFileName,  // 実行可能モジュール名へのポインタ
+    IntPtr hFile,          // 予約されています。NULL を指定してください
+    uint dwFlags           // エントリポイント実行フラグ
+);
+'@
+
+# FreeLibrary() Function
+$Script:Kernel32_Signature +=
+@'
+[DllImport("kernel32.dll")]
+public static extern bool FreeLibrary(
+    IntPtr hModule        // DLL モジュールのハンドル
+);
+'@
+
+# LoadString() Function
+$Script:User32_Signature =
+@'
+[DllImport("user32.dll", CharSet = CharSet.Unicode)]
+public static extern int LoadString(
+    IntPtr hInstance,                    // リソースモジュールのハンドル
+    uint uID,                            // リソース識別子
+    [MarshalAs(UnmanagedType.LPTStr)]
+    System.Text.StringBuilder lpBuffer,  // リソースが格納されるバッファ
+    int nBufferMax                       // バッファのサイズ
+);
+'@
+
+# HtmlHelp() Function
+$Script:HHCtrl_Signature =
+@'
+[DllImport("hhctrl.ocx")]
+public static extern IntPtr HtmlHelp(
+    IntPtr hwndCaller,
+    string pszFile,
+    uint uCommand,
+    int dwData
+);
+'@
+
+# HTML Help Command
+$Script:HTMLHelpCommand_Signature = 
+@'
+public enum HTMLHelpCommand
+{
+    HH_DISPLAY_TOPIC  = 0x0000,
+    HH_DISPLAY_TOC    = 0x0001,
+    HH_DISPLAY_INDEX  = 0x0002,
+    HH_DISPLAY_SEARCH = 0x0003,
+    HH_HELP_CONTEXT   = 0x000F,
+    HH_CLOSE_ALL      = 0x0012
+};
+'@
+
+$Script:LoadLibraryEx_dwFlags_Signature = 
+@'
+public enum LoadLibraryEx_dwFlags
+{
+    DONT_RESOLVE_DLL_REFERENCES         = 0x00000001,
+    LOAD_IGNORE_CODE_AUTHZ_LEVEL        = 0x00000010,
+    LOAD_LIBRARY_AS_DATAFILE            = 0x00000002,
+    LOAD_LIBRARY_AS_DATAFILE_EXCLUSIVE  = 0x00000040,
+    LOAD_LIBRARY_AS_IMAGE_RESOURCE      = 0x00000020,
+    LOAD_LIBRARY_SEARCH_APPLICATION_DIR = 0x00000200,
+    LOAD_LIBRARY_SEARCH_DEFAULT_DIRS    = 0x00001000,
+    LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR    = 0x00000100,
+    LOAD_LIBRARY_SEARCH_SYSTEM32        = 0x00000800,
+    LOAD_LIBRARY_SEARCH_USER_DIRS       = 0x00000400,
+    LOAD_WITH_ALTERED_SEARCH_PATH       = 0x00000008
+};
+'@
+
+#####################################################################################################################################################
+# Scripts
+
+Add-Type -MemberDefinition $Script:Kernel32_Signature -Name $Script:Kernel32 -Namespace $Global:Win32Namespace
+Add-Type -MemberDefinition $Script:User32_Signature   -Name $Script:User32   -Namespace $Global:Win32Namespace
+Add-Type -MemberDefinition $Script:HHCtrl_Signature   -Name $Script:HHCtrl   -Namespace $Global:Win32Namespace
+
+Add-Type -TypeDefinition $Script:HTMLHelpCommand_Signature
+Add-Type -TypeDefinition $Script:LoadLibraryEx_dwFlags_Signature
 
 #####################################################################################################################################################
 Function Invoke-LoadLibraryEx {
@@ -101,36 +186,26 @@ Function Invoke-LoadLibraryEx {
 
 
 .LINK
-    (None)
+    LoadLibraryEx function (Windows)
+    http://msdn.microsoft.com/en-us/library/windows/desktop/ms684179.aspx
 #>
 
     [CmdletBinding()] Param (
         [Parameter(Mandatory=$true, Position=0)]
         [ValidateScript ( {
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            elseif ((Get-Item -Path $_).GetType() -ne [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
+            if ((Get-Item -Path $_) -isnot [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
             return $true
         } )]
         [string]$lpLibFileName,
 
-        [Parameter(Mandatory=$false, Position=1)][UInt32]$dwFlags = ($LOAD_LIBRARY_AS_DATAFILE = 2)
+        [Parameter(Mandatory=$false, Position=1)][UInt32]$dwFlags = [LoadLibraryEx_dwFlags]::LOAD_LIBRARY_AS_DATAFILE        
     )
 
     Process
     {
-        $signature = @'
-[DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-public static extern IntPtr LoadLibraryEx(
-    string lpLibFileName,  // 実行可能モジュール名へのポインタ
-    IntPtr hFile,          // 予約されています。NULL を指定してください
-    uint dwFlags           // エントリポイント実行フラグ
-);
-'@
-
-        $win32 = Add-Type -MemberDefinition $signature -Name 'Win32LoadLibraryEx' -Namespace $Global:Win32Namespace -PassThru
-
-        # LoadLibraryEx
-        return $win32::LoadLibraryEx($lpLibFileName, [IntPtr]::Zero, $dwFlags)
+        try { return [BUILDLet.PowerShell.PackageBuilder.Win32.Kernel32]::LoadLibraryEx($lpLibFileName, [IntPtr]::Zero, $dwFlags) }
+        catch { throw }
     }
 }
 
@@ -176,14 +251,8 @@ Function Invoke-FreeLibrary {
 
     Process
     {
-        $signature = @'
-[DllImport("kernel32.dll")]
-public static extern bool FreeLibrary(
-    IntPtr hModule        // DLL モジュールのハンドル
-);
-'@
-        # FreeLibrary
-        return (Add-Type -MemberDefinition $signature -Name 'Win32FreeLibrary' -Namespace $Global:Win32Namespace -PassThru)::FreeLibrary($hModule)
+        try { return [BUILDLet.PowerShell.PackageBuilder.Win32.Kernel32]::FreeLibrary($hModule) }
+        catch { throw }
     }
 }
 
@@ -232,22 +301,13 @@ Function Invoke-LoadString {
 
     Process
     {
-        $signature = @'
-[DllImport("user32.dll", CharSet = CharSet.Unicode)]
-public static extern int LoadString(
-    IntPtr hInstance,                    // リソースモジュールのハンドル
-    uint uID,                            // リソース識別子
-    [MarshalAs(UnmanagedType.LPTStr)]
-    System.Text.StringBuilder lpBuffer,  // リソースが格納されるバッファ
-    int nBufferMax                       // バッファのサイズ
-);
-'@
-        $win32 = Add-Type -MemberDefinition $signature -Name 'Win32LoadString' -Namespace $Global:Win32Namespace -PassThru
-        $lpBuffer = New-Object -TypeName System.Text.StringBuilder($nBufferMax)
+        try
+        {
+            $lpBuffer = New-Object -TypeName System.Text.StringBuilder($nBufferMax)
+            if ([BUILDLet.PowerShell.PackageBuilder.Win32.User32]::LoadString($hInstance, $uID, $lpBuffer, $nBufferMax) -gt $nBufferMax) { throw }
+        }
+        catch { throw }
 
-        # LoadString
-        if ($win32::LoadString($hInstance, $uID, $lpBuffer, $nBufferMax) -gt $nBufferMax) { throw Exception }
-        
         return $lpBuffer.ToString()
     }
 }
@@ -290,7 +350,7 @@ Function Get-ResourceString {
         [Parameter(Mandatory=$true, Position=0)]
         [ValidateScript ( {
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            elseif ((Get-Item -Path $_).GetType() -ne [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
+            if ((Get-Item -Path $_) -isnot [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
             return $true
         } )]
         [string]$Path,
@@ -301,18 +361,21 @@ Function Get-ResourceString {
 
     Process
     {
-
-        # LoadLibraryEx
-        [IntPtr]$lib = Invoke-LoadLibraryEx -lpLibFileName $Path -dwFlags ($LOAD_LIBRARY_AS_DATAFILE = 2)
-
-        # LoadString
-        foreach ($i in $uID)
+        try
         {
-            [string[]]$texts += Invoke-LoadString -hInstance $lib -uID $i -nBufferMax $nBufferMax
-        }
+            # LoadLibraryEx
+            [IntPtr]$lib = Invoke-LoadLibraryEx -lpLibFileName $Path -dwFlags ($LOAD_LIBRARY_AS_DATAFILE = 2)
 
-        # FreeLibrary
-        if ((Invoke-FreeLibrary -hModule $lib) -eq 0) { throw Exception }
+            # LoadString
+            foreach ($i in $uID)
+            {
+                [string[]]$texts += Invoke-LoadString -hInstance $lib -uID $i -nBufferMax $nBufferMax
+            }
+
+            # FreeLibrary
+            if ((Invoke-FreeLibrary -hModule $lib) -eq 0) { throw }
+        }
+        catch { throw }
         
         return $texts
     }
@@ -369,7 +432,7 @@ Function Invoke-HtmlHelp {
         [Parameter(Mandatory=$true, Position=0)]
         [ValidateScript ( {
             if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            elseif ((Get-Item -Path $_).GetType() -ne [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
+            if ((Get-Item -Path $_) -isnot [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
             return $true
         } )]
         [string]$Path,
@@ -381,17 +444,9 @@ Function Invoke-HtmlHelp {
 
     Process
     {
-        $signature = @'
-[DllImport("hhctrl.ocx")]
-public static extern IntPtr HtmlHelp(IntPtr hwndCaller, string pszFile, uint uCommand, int dwData);
-'@
-        
-        if (-not $uCommand) { $uCommand = $Global:HTMLHelpCommand.HH_DISPLAY_TOC }
+        if (-not $uCommand) { $uCommand = [HTMLHelpCommand]::HH_DISPLAY_TOC }
 
-        $win32 = Add-Type -MemberDefinition $signature -Name 'Win32HtmlHelp' -Namespace $Global:Win32Namespace -PassThru
-
-        # HtmlHelp
-        $win32::HtmlHelp($hwndCaller, $Path, $uCommand, $dwData)
+        [BUILDLet.PowerShell.PackageBuilder.Win32.HHCtrl]::HtmlHelp($hwndCaller, $Path, $uCommand, $dwData)
     }
 }
 
