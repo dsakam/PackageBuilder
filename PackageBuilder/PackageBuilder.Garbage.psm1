@@ -29,11 +29,6 @@
 #####################################################################################################################################################
 
 #####################################################################################################################################################
-# Variables
-$Script:FCIV_BinPath  = 'C:\FCIV'
-$Script:FCIV_FileName = 'fciv.exe'
-
-#####################################################################################################################################################
 Function Invoke-LoadLibrary
 {
 
@@ -159,13 +154,16 @@ Function Get-CheckSum
 
     Process
     {
+        $FCIV_BinPath  = 'C:\FCIV'
+        $FCIV_FileName = 'fciv.exe'
+
         # Exception
         trap { break }
 
-        if ($BinPath) { $command = ($BinPath | Resolve-Path | Join-Path -ChildPath $Script:FCIV_FileName) }
+        if ($BinPath) { $command = ($BinPath | Resolve-Path | Join-Path -ChildPath $FCIV_FileName) }
         else
         {
-            if (-not (($command = ($Script:FCIV_BinPath | Join-Path -ChildPath $Script:FCIV_FileName)) | Test-Path)) { $command = $Script:FCIV_FileName }
+            if (-not (($command = ($FCIV_BinPath | Join-Path -ChildPath $FCIV_FileName)) | Test-Path)) { $command = $FCIV_FileName }
         }
 
         if($SHA1)

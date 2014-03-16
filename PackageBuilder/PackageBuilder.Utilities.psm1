@@ -1278,17 +1278,44 @@ Function ConvertFrom-ByteArray {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)][byte[]]$InputObject,
-        [Parameter(Mandatory=$false, Position=1)][char]$Separator = ':'
+        [Parameter(Mandatory=$false, Position=1)][char]$Separator,
+        [Parameter(Mandatory=$false)][switch]$Hex
     )
+
+    Begin
+    {
+        # Set Separator
+        if (-not $Separator)
+        {
+            if ($Hex) { $Separator = ':' }
+            else { $Separator = '.' }
+        }
+
+        # Prepare return value
+        $text = [string]::Empty
+    }
 
     Process
     {
-        if ($text -ne $null) { $text += $Separator }
-        $text += [System.BitConverter]::ToString($InputObject) -replace '-', $Separator
+        if ($Hex)
+        {
+            # Hexadecimal
+            if ($text -ne [string]::Empty) { $text += $Separator }
+            $text += [System.BitConverter]::ToString($InputObject) -replace '-', $Separator
+        }
+        else
+        {
+            # Decimal
+            $InputObject | % {
+                if ($text -ne [string]::Empty) { $text += $Separator }
+                $text += $_.ToString()
+            }
+        }
     }
 
     End
     {
+        # Return
         return $text
     }
 }
@@ -1331,13 +1358,47 @@ Function ConvertTo-ByteArray {
 
     [CmdletBinding()]
     Param (
-        [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)][object[]]$InputObject
+        [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)][string]$InputObject,
+        [Parameter(Mandatory=$false, Position=1)][char]$Separator,
+        [Parameter(Mandatory=$false)][switch]$Hex
     )
+
+    Begin
+    {
+        # Set Separator
+        if (-not $Separator)
+        {
+            if ($Hex) { $Separator = ':' }
+            else { $Separator = '.' }
+        }
+
+        # Prepare return value
+        [byte[]]$bin = $null
+    }
 
     Process
     {
-        
+        $InputObject.Split($Separator) | % {
 
+            if ($Hex)
+            {
+                # Hexadecimal (Text)
+                try { [byte[]]$bin += [System.Convert]::ToInt32($_, 16) -as [byte] }
+                catch { throw New-Object System.ArgumentException }
+            }
+            else
+            {
+                # Decimal
+                if (($_ -as [int]) -le [byte]::MaxValue) { [byte[]]$bin += $_ -as [int] }
+                else { throw New-Object System.ArgumentOutOfRangeException }
+            }
+        }
+    }
+
+    End
+    {
+        # Return
+        return $bin
     }
 }
 
