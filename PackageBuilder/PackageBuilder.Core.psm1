@@ -51,29 +51,26 @@
 
 #####################################################################################################################################################
 # Variables
-$Script:BinPath_Cygwin   = 'C:\cygwin\bin'
-$Script:BinPath_Cygwin64 = 'C:\cygwin64\bin'
+[string[]]$Script:BinPath_Cygwin = (
+    'C:\cygwin\bin',
+    'C:\cygwin64\bin'
+)
 
+[string[]]$Script:BinPath_signtool = (
+    'C:\Program Files (x86)\Windows Kits\8.1\bin\x86',
+    'C:\Program Files (x86)\Windows Kits\8.1\bin\x64',
+    'C:\Program Files (x86)\Windows Kits\8.0\bin\x86',
+    'C:\Program Files (x86)\Windows Kits\8.0\bin\x64',
+    'C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin',
+    'C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Bin',
 
-
-$Script:BinPath_signtool_WOW64_WDK8_1_x86 = 'C:\Program Files (x86)\Windows Kits\8.1\bin\x86'
-
-$Script:BinPath_signtool_WOW64_WDK8_1_x64 = 'C:\Program Files (x86)\Windows Kits\8.1\bin\x64'
-$Script:BinPath_signtool_WOW64_WDK8_1_x86 = 'C:\Program Files (x86)\Windows Kits\8.1\bin\x86'
-$Script:BinPath_signtool_WOW64_WDK8_0_x64 = 'C:\Program Files (x86)\Windows Kits\8.0\bin\x64'
-$Script:BinPath_signtool_WOW64_WDK8_0_x86 = 'C:\Program Files (x86)\Windows Kits\8.0\bin\x86'
-$Script:BinPath_signtool_WOW64_WDK7_1     = 'C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin'
-$Script:BinPath_signtool_WOW64_WDK7_0     = 'C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Bin'
-
-$Script:BinPath_signtool_WDK8_1_x64 = 'C:\Program Files\Windows Kits\8.1\bin\x64'
-$Script:BinPath_signtool_WDK8_1_x86 = 'C:\Program Files\Windows Kits\8.1\bin\x86'
-$Script:BinPath_signtool_WDK8_0_x64 = 'C:\Program Files\Windows Kits\8.0\bin\x64'
-$Script:BinPath_signtool_WDK8_0_x86 = 'C:\Program Files\Windows Kits\8.0\bin\x86'
-$Script:BinPath_signtool_WDK7_1     = 'C:\Program Files\Microsoft SDKs\Windows\v7.1A\Bin'
-$Script:BinPath_signtool_WDK7_0     = 'C:\Program Files\Microsoft SDKs\Windows\v7.0A\Bin'
-
-
-
+    'C:\Program Files\Windows Kits\8.1\bin\x64',
+    'C:\Program Files\Windows Kits\8.1\bin\x86',
+    'C:\Program Files\Windows Kits\8.0\bin\x64',
+    'C:\Program Files\Windows Kits\8.0\bin\x86',
+    'C:\Program Files\Microsoft SDKs\Windows\v7.1A\Bin',
+    'C:\Program Files\Microsoft SDKs\Windows\v7.0A\Bin'
+)
 
 $Script:genisoimage_FileName = 'genisoimage.exe'
 $Script:signtool_FileName    = 'signtool.exe'
@@ -84,51 +81,87 @@ $Script:signtool_FileName    = 'signtool.exe'
 Function CYGPATH { return ('/cygdrive/' + ($args[0] -replace '\\', '/').Remove(1, 1))  }
 
 #####################################################################################################################################################
-Function Get-MD5 {
+Function Get-MD5
+{
+    <#
+    .SYNOPSIS
+        ファイルの MD5 ハッシュ値を取得します。
 
-<#
-.SYNOPSIS
-    ファイルの MD5 チェックサムを取得します。
+    .DESCRIPTION
+        System.Security.Cryptography.HashAlgorithm.ComputeHash メソッドを使用して、ファイルの MD5 ハッシュ値を計算して文字列として取得します。
 
+        ファイルは複数指定することもできます。また、フォルダーを指定すると、そのフォルダー以下にある全てのファイルのハッシュ値を取得します。
+        複数のファイルが指定されたときは、ファイル毎に改行されて出力されます。
 
-.DESCRIPTION
+        FileName または FullName パラメーターが指定されたときは、ハッシュ値とファイル名が出力されます。
+        これらのパラメーターを指定しなかったときは MD5 ハッシュ値のみが出力されます。(デフォルトは指定なしです。)
 
+        出力文字列のフォーマットは
+            [MD5 ハッシュ値]([区切り文字][ファイル名またはファイルのパス])
+        です。
 
-.PARAMETER InputObject
+    .PARAMETER Path
+        入力ファイルを指定します。
+        複数のファイルを指定するときは、それぞれのファイル名 (またはファイルパス) の文字列配列として指定します。
 
+    .PARAMETER FileName
+        MD5 ハッシュ値とファイル名を出力するときに指定します。
+        (ファイル名にパスは含まれません。ファイル名ではなく、ファイルのフルパスを出力させたい場合は FullName パラメーターを指定してください。)
+        複数のファイルが指定されたときは、ファイル毎に改行されます。
 
-.INPUTS
-    System.String
+    .PARAMETER FullName
+        MD5 ハッシュ値とファイル名のフルパスを出力するときに指定します。
+        複数のファイルが指定されたときは、ファイル毎に改行されます。
 
+    .PARAMETER Separator
+        FileName または FullName パラメーターが指定されたときに、MD5 ハッシュ値と、ファイル名 (またはファイルパス) を区切る文字列を指定します。
+        デフォルトでは、タブ文字 ("`t") が使用されます。
 
-.OUTPUTS
-    System.String
+    .INPUTS
+        System.String
+        パイプを使用して、Path パラメーターを Get-MD5 コマンドレットに渡すことができます。
 
+    .OUTPUTS
+        System.String
+        ファイルの MD5 ハッシュ値を文字列として返します。
 
-.NOTES
+    .EXAMPLE
+        Get-MD5 sample.dll
+        カレントディレクトリにある sample.dll の MD5 ハッシュ値を文字列として取得します。
 
+    .EXAMPLE
+        Get-MD5 sample1.dll, sample2.dll
+        カレントディレクトリにある sample.dll および sample2.dll の MD5 ハッシュ値を取得します。
 
-.EXAMPLE
+    .EXAMPLE
+        Get-MD5 C:\Sample -FileName -Separator ' '
+        C:\Sample フォルダー以下にあるすべてのファイルの MD5 ハッシュ値を、ハッシュ値とファイル名がスペースで区切られた文字列配列として取得します。
 
-
-.LINK
-
-#>
+    .LINK
+        HashAlgorithm.ComputeHash Method (System.Security.Cryptography)
+        http://msdn.microsoft.com/en-us/library/system.security.cryptography.hashalgorithm.computehash.aspx
+    #>
 
     [CmdletBinding(DefaultParameterSetName=$false)]
     Param (
         [Parameter (Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-        [ValidateScript ( {
-            $_ | % { if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException } }
-            return $true
-        } )]
+        [ValidateScript (
+            {
+                $_ | % { if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException } }
+                return $true
+            }
+        )]
         [string[]]$Path,
 
         [Parameter (Mandatory=$false, Position=1, ParameterSetName='file')]
         [switch]$FileName,
 
         [Parameter (Mandatory=$false, Position=1, ParameterSetName='full')]
-        [switch]$FullName
+        [switch]$FullName,
+
+        [Parameter (Mandatory=$false, Position=2, ParameterSetName='file')]
+        [Parameter (Mandatory=$false, Position=2, ParameterSetName='full')]
+        [char]$Separator = "`t"
     )
 
     Process
@@ -138,16 +171,16 @@ Function Get-MD5 {
 
         $md5 = [System.Security.Cryptography.MD5]::Create()
 
-        $Path | Convert-Path | Get-ChildItem -Recurse -Force -File | % {
-
+        $Path | Convert-Path | Get-ChildItem -Recurse -Force -File | 
+        % {
             $file = [System.IO.FileInfo]$_
             $inputStream = (New-Object System.IO.StreamReader (Convert-Path -Path $file.FullName)).BaseStream
             $hash = [System.BitConverter]::ToString($md5.ComputeHash($inputStream)) -replace '-', ''
 
             switch ($PSCmdlet.ParameterSetName)
             {
-                'file'  { $text = $hash + "`t'" + $file.Name + "'" }
-                'full'  { $text = $hash + "`t'" + $file.FullName + "'" }
+                'file'  { $text = $hash + $Separator + "'" + $file.Name + "'" }
+                'full'  { $text = $hash + $Separator + "'" + $file.FullName + "'" }
                 default { $text = $hash }
             }
 
@@ -158,59 +191,58 @@ Function Get-MD5 {
 }
 
 #####################################################################################################################################################
-Function Test-SameFile {
+Function Test-SameFile
+{
+    <#
+    .SYNOPSIS
+        ファイルが同じかどうかをテストします。
 
-<#
-.SYNOPSIS
-    2 つのファイルが同じかどうかをテストします。
+    .DESCRIPTION
+        Get-MD5 コマンドレットを使用して、ファイルが同じかどうかをテストします。
+        フォルダーが指定されたときは、そのフォルダー以下にある全てのファイルについてテストを行います。
 
-.DESCRIPTION
-    Get-CheckSum
+    .PARAMETER ReferenceObject
+        比較の参照として使用されるファイル、またはフォルダーを指定します。
 
+    .PARAMETER DifferenceObject
+        ReferenceObject と比較するファイル、またはフォルダーを指定します。
 
-.PARAMETER ReferenceObject
+    .INPUTS
+        System.String
+        パイプを使用して DifferenceObject パラメーターを Test-SameFile コマンドレットに渡すことができます。
 
+    .OUTPUTS
+        System.Boolean
+        テスト対象に差異がない場合は TRUE、そうでない場合は FALSE を返します。
 
-.PARAMETER DifferenceObject
+    .EXAMPLE
+        Test-SameFile -ReferenceObject sample1.dll -DifferenceObject sample2.dll
+        カレントディレクトリにある sample1.dll と sample2.dll が同じかどうかをテストします。
 
+    .EXAMPLE
+        Test-SameFile C:\sample1 C:\sample2
+        C:\sample1 フォルダーと sample2 フォルダーについて、当該フォルダー以下にある全てのファイルが同じかどうかをテストします。
 
-.PARAMETER BinPath
-    fciv.exe が保存されているフォルダーのパスを指定します。
-
-
-.INPUTS
-    System.String
-
-
-.OUTPUTS
-    System.Boolean
-
-
-.NOTES
-    fciv.exe を 使って検証する 'Get-CheckSum' コマンドレットから 'Get-MD5' コマンドレットを使って検証するよう変更。
-
-
-.EXAMPLE
-
-
-.LINK
-
-#>
+    #>
 
     [CmdletBinding()]
     Param (
-        [Parameter (Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-        [ValidateScript ( {
-            if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            return $true
-        } )]
+        [Parameter (Mandatory=$true, Position=0)]
+        [ValidateScript (
+            {
+                if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
+                return $true
+            }
+        )]
         [string]$ReferenceObject,
 
-        [Parameter (Mandatory=$true, Position=1)]
-        [ValidateScript ( {
-            if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            return $true
-        } )]
+        [Parameter (Mandatory=$true, Position=1, ValueFromPipeline=$true)]
+        [ValidateScript (
+            {
+                if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
+                return $true
+            }
+        )]
         [string]$DifferenceObject
     )
 
@@ -233,75 +265,76 @@ Function Test-SameFile {
 }
 
 #####################################################################################################################################################
-Function Start-Command {
+Function Start-Command
+{
+    <#
+    .SYNOPSIS
+        ファイルを実行します。
 
-<#
-.SYNOPSIS
-    ファイルを実行します。
+    .DESCRIPTION
+        指定されたパスにあるファイルを実行する Start-Process コマンドレットのラッパーです。
+        ただし、デフォルトでは同期処理で実行します。
+        非同期処理モードで実行したい場合は Async パラメーターを指定してください。
 
+        標準出力、および、標準エラー出力は一時的に WorkingDirectory (デフォルトはカレントディレクトリ) にファイルとして書き出された後に、
+        それぞれ、標準出力、および、標準エラー出力に出力されます。
+        これらのファイルは、コマンドレットの処理が終了したら削除されますが、Debug パラメーターが指定されたときは削除されません。
+        (非同期処理モードの場合は、標準出力、および、標準エラー出力は、これらのファイルには出力されません。)
 
-.DESCRIPTION
-    Start-Process コマンドレットのラッパーです。
+    .PARAMETER FilePath
 
+    .PARAMETER ArgumentList
 
-.PARAMETER FilePath
+    .PARAMETER WorkingDirectory
 
+    .PARAMETER BinPath
 
-.PARAMETER ArgumentList
+    .PARAMETER Retry
 
+    .PARAMETER Interval
 
-.PARAMETER WorkingDirectory
+    .PARAMETER WindowStyle
 
+    .PARAMETER NoNewWindow
 
-.PARAMETER Retry
+    .PARAMETER Async
 
+    .PARAMETER OutputEncoding
 
-.PARAMETER Interval
+    .INPUTS
+        None
 
+    .OUTPUTS
+        System.Int32
 
-.PARAMETER WindowStyle
-
-
-.PARAMETER NoNewWindow
-
-
-.PARAMETER Async
-
-
-.INPUTS
-    None
-
-
-.OUTPUTS
-    System.String
-
-
-.NOTES
-
-
-.EXAMPLE
+    .NOTES
 
 
-.LINK
-    [MS-ERREF] Windows Error Codes    
-    http://msdn.microsoft.com/en-us/library/cc231196.aspx
-#>
+    .EXAMPLE
+
+
+    .LINK
+        [MS-ERREF] Windows Error Codes    
+        http://msdn.microsoft.com/en-us/library/cc231196.aspx
+    #>
 
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory=$true, Position=0)][string]$FilePath,
         [Parameter(Mandatory=$false, Position=1)][string[]]$ArgumentList,
         [Parameter(Mandatory=$false, Position=2)][string]$WorkingDirectory,
+        [Parameter(Mandatory=$false, Position=3)][string[]]$BinPath,
 
-        [Parameter(Mandatory=$false, Position=3)][ValidateRange(1,10)][int]$Retry = 1,
-        [Parameter(Mandatory=$false, Position=4)][ValidateRange(1,60)][int]$Interval = 1,
+        [Parameter(Mandatory=$false, Position=4)][ValidateRange(1,100)][int]$Retry = 1,
+        [Parameter(Mandatory=$false, Position=5)][ValidateRange(1,60)][int]$Interval = 1,
 
-        [Parameter(Mandatory=$false, Position=5)][System.Diagnostics.ProcessWindowStyle]$WindowStyle,
+        [Parameter(Mandatory=$false, Position=6)][System.Diagnostics.ProcessWindowStyle]$WindowStyle,
         [Parameter(Mandatory=$false)][switch]$NoNewWindow,
 
         [Parameter(Mandatory=$false)][switch]$Async,
 
-        [Parameter(Mandatory=$false, Position=6)][Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding]$OutputEncoding `
+        [Parameter(Mandatory=$false, Position=7)]
+        [Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding]$OutputEncoding `
             = [Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding]::Default
     )
 
@@ -328,6 +361,30 @@ Function Start-Command {
             # Module Path + ".exe"
             $FilePath = $exe_filepath
         }
+        elseif ($BinPath -and ($BinPath.Count -ge 1))
+        {
+            # -BinPath
+            foreach ($i in 0..($BinPath.Count - 1))
+            {
+                if (Test-Path -Path $BinPath[$i] -PathType Container)
+                {
+                    if (Test-Path -Path ($exe_filepath = ($BinPath[$i] | Join-Path -ChildPath $FilePath)))
+                    {
+                        # $BinPath
+                        $FilePath = $exe_filepath
+                        break
+                    }
+                    elseif (Test-Path -Path ($exe_filepath += '.exe'))
+                    {
+                        # $BinPath + ".exe"
+                        $FilePath = $exe_filepath
+                        break
+                    }
+                }
+            }
+        }
+
+        # Set FilePath
         [string]$commandline_base = "Start-Process -FilePath '" + $FilePath + "'"
 
 
@@ -449,83 +506,86 @@ Function Start-Command {
 }
 
 #####################################################################################################################################################
-Function New-ISOImageFile {
+Function New-ISOImageFile
+{
+    <#
+    .SYNOPSIS
+        ISO イメージファイルを作成します。
 
-<#
-.SYNOPSIS
-    ISO イメージファイルを作成します。
-
-.DESCRIPTION
-
-
-.PARAMETER InputObject
+    .DESCRIPTION
 
 
-.PARAMETER Path
+    .PARAMETER InputObject
 
 
-.PARAMETER VolumeID
+    .PARAMETER Path
 
 
-.PARAMETER Publisher
+    .PARAMETER VolumeID
 
 
-.PARAMETER ApplicationID
+    .PARAMETER Publisher
 
 
-.PARAMETER ArgumentList
+    .PARAMETER ApplicationID
 
 
-.PARAMETER BinPath
+    .PARAMETER ArgumentList
 
 
-.PARAMETER FCIVBinPath
+    .PARAMETER BinPath
 
 
-.PARAMETER RedirectStandardError
+    .PARAMETER FCIVBinPath
 
 
-.PARAMETER Recommended
+    .PARAMETER RedirectStandardError
 
 
-.INPUTS
-    System.String
+    .PARAMETER Recommended
 
 
-.OUTPUTS
-    System.String
+    .INPUTS
+        System.String
 
 
-.NOTES
-    MD5 チェックサムではなく、iso ファイルのパスを返すように変更。
+    .OUTPUTS
+        System.String
 
 
-.EXAMPLE
+    .NOTES
+        MD5 チェックサムではなく、iso ファイルのパスを返すように変更。
 
 
-.LINK
-    Cygwin
-    http://www.cygwin.com/
+    .EXAMPLE
 
-    cdrkit - portable command-line CD-DVD recorder software (for genisoimage.exe)
-    http://www.cdrkit.org/
-#>
+
+    .LINK
+        Cygwin
+        http://www.cygwin.com/
+
+        cdrkit - portable command-line CD-DVD recorder software (for genisoimage.exe)
+        http://www.cdrkit.org/
+    #>
 
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-        [ValidateScript ( {
-            if (-not (Test-Path -Path $_)) { throw New-Object System.IO.DirectoryNotFoundException }
-            if ((Get-Item -Path $_) -isnot [System.IO.DirectoryInfo]) { throw New-Object System.IO.DirectoryNotFoundException }
-            return $true
-        } )]
+        [ValidateScript (
+            {
+                if (-not (Test-Path -Path $_ -PathType Container)) { throw New-Object System.IO.DirectoryNotFoundException }
+                return $true
+            }
+        )]
         [string]$InputObject,
 
         [Parameter(Mandatory=$false, Position=1)]
-        [ValidateScript ( {
-            if (-not ($_ | Split-Path -Parent | Test-Path)) { throw New-Object System.IO.DirectoryNotFoundException }
-            return $true
-        } )]
+        [ValidateScript (
+            {
+                if (-not ($_ | Split-Path -Parent | Test-Path)) { throw New-Object System.IO.DirectoryNotFoundException }
+                return $true
+            }
+        )]
         [string]$Path = ($InputObject + '.iso'),
 
         [Parameter(Mandatory=$false, Position=2)][string]$VolumeID,
@@ -534,7 +594,7 @@ Function New-ISOImageFile {
 
         [Parameter(Mandatory=$false, Position=5)][string[]]$ArgumentList,
 
-        [Parameter(Mandatory=$false, Position=6)][string]$BinPath,
+        [Parameter(Mandatory=$false, Position=6)][string[]]$BinPath = $Script:BinPath_Cygwin,
 
         [Parameter(Mandatory=$false)][switch]$RedirectStandardError,
         [Parameter(Mandatory=$false)][switch]$Recommended
@@ -543,20 +603,7 @@ Function New-ISOImageFile {
     Process
     {
         # Command Path (genisoimage)
-        if ($BinPath)
-        {
-            $command = ($BinPath | Resolve-Path | Join-Path -ChildPath $Script:genisoimage_FileName)
-        }
-        else
-        {
-            if (-not (($command = ($Script:BinPath_Cygwin64 | Join-Path -ChildPath $Script:genisoimage_FileName)) | Test-Path))
-            {
-                if (-not (($command = ($Script:BinPath_Cygwin | Join-Path -ChildPath $Script:genisoimage_FileName)) | Test-Path))
-                {
-                    $command = $Script:genisoimage_FileName
-                }
-            }
-        }
+        $command = $Script:genisoimage_FileName
 
         # Input Path
         $input_path = ($InputObject | Resolve-Path)
@@ -629,15 +676,15 @@ Function New-ISOImageFile {
         $arg_list += ('"' + (CYGPATH($input_path)) + '"')
         if ($DebugPreference -ne 'SilentlyContinue')
         {
-            #########################################################################################################
-            Start-Command -FilePath $command -ArgumentList $arg_list -OutputEncoding UTF8 -WindowStyle Hidden -Debug
-            #########################################################################################################
+            #############################################################################################################################
+            Start-Command -FilePath $command -ArgumentList $arg_list -BinPath $BinPath -OutputEncoding UTF8 -WindowStyle Hidden -Debug
+            #############################################################################################################################
         }
         else
         {
-            #########################################################################################################
-            Start-Command -FilePath $command -ArgumentList $arg_list -OutputEncoding UTF8 -WindowStyle Hidden
-            #########################################################################################################
+            #############################################################################################################################
+            Start-Command -FilePath $command -ArgumentList $arg_list -BinPath $BinPath -OutputEncoding UTF8 -WindowStyle Hidden
+            #############################################################################################################################
         }
 
 
@@ -660,4 +707,67 @@ Function New-ISOImageFile {
     }
 }
 
+#####################################################################################################################################################
+Function Add-Signature
+{
+    <#
+    .SYNOPSIS
+
+    .DESCRIPTION
+
+
+    .PARAMETER InputObject
+
+
+    .PARAMETER Path
+
+
+    .INPUTS
+        System.String
+
+
+    .OUTPUTS
+        System.String
+
+
+    .NOTES
+
+
+    .EXAMPLE
+
+
+    .LINK
+
+    #>
+
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$true, Position=0)]
+        [string[]]$Options,
+
+        [Parameter(Mandatory=$true, Position=1, ValueFromPipeline=$true)]
+        [ValidateScript (
+            {
+                $_ | % { if (-not (Test-Path -Path $_ -PathType Leaf)) { throw New-Object System.IO.FileNotFoundException } }
+                return $true
+            }
+        )]
+        [string[]]$FileName,
+
+        [Parameter(Mandatory=$false, Position=2)][int]$Retry = 5,
+        [Parameter(Mandatory=$false, Position=3)][int]$Interval = 10
+    )
+
+    Process
+    {
+        try
+        {
+            Start-Command `
+                -FilePath 'signtool.exe' -ArgumentList ('sign', $Options) `
+                -BinPath $Script:BinPath_signtool `
+                -Retry $Retry -Interval $Interval
+        }
+        catch { throw }
+    }
+}
 #####################################################################################################################################################

@@ -31,46 +31,48 @@
 #####################################################################################################################################################
 Function Invoke-LoadLibrary
 {
-
-<#
-    .SYNOPSIS
-        LoadLibrary()
-
-
-    .DESCRIPTION
-        使用しないでください。
+    <#
+        .SYNOPSIS
+            LoadLibrary()
 
 
-    .PARAMETER Path
+        .DESCRIPTION
+            使用しないでください。
 
 
-    .INPUTS
-        None
+        .PARAMETER Path
 
 
-    .OUTPUTS
-        System.String
+        .INPUTS
+            None
 
 
-    .NOTES
-        (None)
+        .OUTPUTS
+            System.String
 
 
-    .EXAMPLE
-        (None)
+        .NOTES
+            (None)
 
 
-    .LINK
-        (None)
-#>
+        .EXAMPLE
+            (None)
 
-    [CmdletBinding()] Param (
+
+        .LINK
+            (None)
+    #>
+
+    [CmdletBinding()]
+    Param (
         [Parameter(Mandatory=$true, Position=0)]
-        [ValidateScript ( {
-            if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            if ((Get-Item -Path $_) -isnot [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
-            return $true
-        } )]
+        [ValidateScript (
+            {
+                if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
+                if ((Get-Item -Path $_) -isnot [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
+                return $true
+            }
+        )]
         [string]$lpFileName
     )
 
@@ -90,61 +92,62 @@ public static extern IntPtr LoadLibrary(
 #####################################################################################################################################################
 Function Get-CheckSum
 {
-
-<#
-    .SYNOPSIS
-        チェックサムを取得します。
-
-
-    .DESCRIPTION
-        Microsoft の FCIV (File Checksum Integrity Verifier / version 2.05) を実行します。
-        FCIV は、別途ご用意してください。
+    <#
+        .SYNOPSIS
+            チェックサムを取得します。
 
 
-    .PARAMETER InputObject
+        .DESCRIPTION
+            Microsoft の FCIV (File Checksum Integrity Verifier / version 2.05) を実行します。
+            FCIV は、別途用意してください。
 
 
-    .PARAMETER BinPath
-        fciv.exe が保存されているフォルダーのパスを指定します。
-        省略すると、C:\FCIV を検索します。
-        あるいは、環境変数の PATH に保存されていても実行可能です。
-
-    .PARAMETER MD5
+        .PARAMETER InputObject
 
 
-    .PARAMETER SHA1
+        .PARAMETER BinPath
+            fciv.exe が保存されているフォルダーのパスを指定します。
+            省略すると、C:\FCIV を検索します。
+            あるいは、環境変数の PATH に保存されていても実行可能です。
+
+        .PARAMETER MD5
 
 
-    .INPUTS
-        System.String
+        .PARAMETER SHA1
 
 
-    .OUTPUTS
-        System.String
+        .INPUTS
+            System.String
 
 
-    .NOTES
-
-        //
-        // File Checksum Integrity Verifier version 2.05.
-        //
-        ffffffffffffffffffffffffffffffff test.txt
-
-    .EXAMPLE
+        .OUTPUTS
+            System.String
 
 
-    .LINK
-        Availability and description of the File Checksum Integrity Verifier utility
-        http://support.microsoft.com/kb/841290
-#>
+        .NOTES
+
+            //
+            // File Checksum Integrity Verifier version 2.05.
+            //
+            ffffffffffffffffffffffffffffffff test.txt
+
+        .EXAMPLE
+
+
+        .LINK
+            Availability and description of the File Checksum Integrity Verifier utility
+            http://support.microsoft.com/kb/841290
+    #>
 
     [CmdletBinding()]
     Param (
         [Parameter (Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-        [ValidateScript ( {
-            if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            return $true
-        } )]
+        [ValidateScript (
+            {
+                if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
+                return $true
+            }
+        )]
         [string]$InputObject,
 
         [Parameter (Mandatory=$false, Position=1)][string]$BinPath,
@@ -183,47 +186,47 @@ Function Get-CheckSum
 }
 
 #####################################################################################################################################################
-Function Send-Mail {
-
-<#
-.SYNOPSIS
-    E メールを送信します。
-
-
-.DESCRIPTION
-    Send-MailMessage コマンドレットを使用してください。
+Function Send-Mail
+{
+    <#
+    .SYNOPSIS
+        E メールを送信します。
 
 
-.PARAMETER To
-.PARAMETER From
-.PARAMETER Host
-.PARAMETER Subject
-.PARAMETER Body
-.PARAMETER UserName
-.PARAMETER Password
-.PARAMETER Domain
-.PARAMETER Port
+    .DESCRIPTION
+        Send-MailMessage コマンドレットを使用してください。
 
 
-.INPUTS
-    System.String
+    .PARAMETER To
+    .PARAMETER From
+    .PARAMETER Host
+    .PARAMETER Subject
+    .PARAMETER Body
+    .PARAMETER UserName
+    .PARAMETER Password
+    .PARAMETER Domain
+    .PARAMETER Port
 
 
-.OUTPUTS
-    System.String
+    .INPUTS
+        System.String
 
 
-.NOTES
-    (None)
+    .OUTPUTS
+        System.String
 
 
-.EXAMPLE
-    (None)
+    .NOTES
+        (None)
 
 
-.LINK
-    (None)
-#>
+    .EXAMPLE
+        (None)
+
+
+    .LINK
+        (None)
+    #>
 
     [CmdletBinding()]
     Param (

@@ -76,35 +76,35 @@ Function PASS_FAIL { Write-Boolean -TestObject $args[0] -Green 'Pass' -Red 'Fail
 Function YES_NO { Write-Boolean -TestObject $args[0] -Green 'Yes' -Red 'No' }
 
 #####################################################################################################################################################
-Function New-GUID {
-
-<#
-.SYNOPSIS
-    GUID を生成します。
-
-
-.DESCRIPTION
+Function New-GUID
+{
+    <#
+    .SYNOPSIS
+        GUID を生成します。
 
 
-.INPUTS
-    None
+    .DESCRIPTION
 
 
-.OUTPUTS
-    System.String
+    .INPUTS
+        None
 
 
-.NOTES
+    .OUTPUTS
+        System.String
 
 
-.EXAMPLE
-    $guid = New-GUID
-    GUID を生成し、String 型の文字列として取得します。
+    .NOTES
 
 
-.LINK
-    (None)
-#>
+    .EXAMPLE
+        $guid = New-GUID
+        GUID を生成し、String 型の文字列として取得します。
+
+
+    .LINK
+        (None)
+    #>
 
     [CmdletBinding()]Param()
 
@@ -115,41 +115,41 @@ Function New-GUID {
 }
 
 #####################################################################################################################################################
-Function New-HR {
-
-<#
-.SYNOPSIS
-    水平線を出力します。
-
-
-.DESCRIPTION
+Function New-HR
+{
+    <#
+    .SYNOPSIS
+        水平線を出力します。
 
 
-.PARAMETER Char
-    デフォルトは '-'
+    .DESCRIPTION
 
 
-.PARAMETER Length
-    デフォルトは (コンソールの幅 - 1)
+    .PARAMETER Char
+        デフォルトは '-'
 
 
-.INPUTS
-    System.Char
+    .PARAMETER Length
+        デフォルトは (コンソールの幅 - 1)
 
 
-.OUTPUTS
-    System.String
+    .INPUTS
+        System.Char
 
 
-.NOTES
+    .OUTPUTS
+        System.String
 
 
-.EXAMPLE
+    .NOTES
 
 
-.LINK
-    (None)
-#>
+    .EXAMPLE
+
+
+    .LINK
+        (None)
+    #>
 
     [CmdletBinding()]
     Param (
@@ -164,64 +164,64 @@ Function New-HR {
 }
 
 #####################################################################################################################################################
-Function Write-Title {
-
-<#
-.SYNOPSIS
-    コンソールにタイトルを表示します。
-
-
-.DESCRIPTION
+Function Write-Title
+{
+    <#
+    .SYNOPSIS
+        コンソールにタイトルを表示します。
 
 
-.PARAMETER Text
+    .DESCRIPTION
 
 
-.PARAMETER Char
-    デフォルトは '#'
+    .PARAMETER Text
 
 
-.PARAMETER Width
-    デフォルトは (コンソールの幅 - 1)
+    .PARAMETER Char
+        デフォルトは '#'
 
 
-.PARAMETER Color
-    デフォルトは白
+    .PARAMETER Width
+        デフォルトは (コンソールの幅 - 1)
 
 
-.PARAMETER 
-    デフォルトは 0
+    .PARAMETER Color
+        デフォルトは白
 
 
-.PARAMETER ColumnWidth
-    デフォルトは 2
+    .PARAMETER 
+        デフォルトは 0
 
 
-.PARAMETER MinWidth
-    デフォルトは 64
+    .PARAMETER ColumnWidth
+        デフォルトは 2
 
 
-.PARAMETER MaxWidth
-    デフォルトは 256
+    .PARAMETER MinWidth
+        デフォルトは 64
 
 
-.INPUTS
-    System.String
+    .PARAMETER MaxWidth
+        デフォルトは 256
 
 
-.OUTPUTS
-    None
+    .INPUTS
+        System.String
 
 
-.NOTES
+    .OUTPUTS
+        None
 
 
-.EXAMPLE
+    .NOTES
 
 
-.LINK
-    (None)
-#>
+    .EXAMPLE
+
+
+    .LINK
+        (None)
+    #>
 
     [CmdletBinding()]
     Param (
@@ -256,7 +256,8 @@ Function Write-Title {
         if ($Width -lt $MinWidth) { $Width = $MinWidth }
         if ($Width -gt $MaxWidth) { $Width = $MaxWidth }
 
-        $Text | % {
+        $Text | 
+        % {
             if ($_.Length -gt ($maxLength = $Width - 2 - ($ColumnWidth * 2)))
             {
                 $_ = $_.Substring(0, $maxLength - 2 - '...'.Length) + '...'
@@ -280,7 +281,8 @@ Function Write-Title {
         }
 
         # Main
-        $Text | % {
+        $Text | 
+        % {
             if ([string]::IsNullOrEmpty($_)) { Write-Host $pad -ForegroundColor $Color }
             else
             {
@@ -297,42 +299,42 @@ Function Write-Title {
 }
 
 #####################################################################################################################################################
-Function Write-Boolean {
-
-<#
-.SYNOPSIS
-    入力が真の場合は緑、偽の場合は赤でコンソールに文字列を表示します。
-
-
-.DESCRIPTION
+Function Write-Boolean
+{
+    <#
+    .SYNOPSIS
+        入力が真の場合は緑、偽の場合は赤でコンソールに文字列を表示します。
 
 
-.PARAMETER TestObject
+    .DESCRIPTION
+
+
+    .PARAMETER TestObject
     
 
-.PARAMETER Green
+    .PARAMETER Green
 
 
-.PARAMETER Red
+    .PARAMETER Red
 
 
-.INPUTS
-    System.Boolean
+    .INPUTS
+        System.Boolean
 
 
-.OUTPUTS
-    None
+    .OUTPUTS
+        None
 
 
-.NOTES
+    .NOTES
 
 
-.EXAMPLE
+    .EXAMPLE
 
 
-.LINK
-    (None)
-#>
+    .LINK
+        (None)
+    #>
 
     [CmdletBinding()]
     Param (
@@ -349,46 +351,46 @@ Function Write-Boolean {
 }
 
 #####################################################################################################################################################
-Function Show-Message {
-
-<#
-.SYNOPSIS
-    指定したテキストとキャプションを表示するメッセージ ボックスを表示します。 
-
-
-.DESCRIPTION
-    System.Windows.Forms.MessageBox.Show()
+Function Show-Message
+{
+    <#
+    .SYNOPSIS
+        指定したテキストとキャプションを表示するメッセージ ボックスを表示します。 
 
 
-.PARAMETER Text
-    メッセージ ボックスに表示するテキストを指定します。
+    .DESCRIPTION
+        System.Windows.Forms.MessageBox.Show()
 
 
-.PARAMETER Caption
-    メッセージ ボックスのタイトル バーに表示するテキストを指定します。
+    .PARAMETER Text
+        メッセージ ボックスに表示するテキストを指定します。
 
 
-.PARAMETER Buttons
+    .PARAMETER Caption
+        メッセージ ボックスのタイトル バーに表示するテキストを指定します。
 
 
-.INPUTS
-    System.String
+    .PARAMETER Buttons
 
 
-.OUTPUTS
-    System.Windows.Forms.DialogResult
+    .INPUTS
+        System.String
 
 
-.NOTES
+    .OUTPUTS
+        System.Windows.Forms.DialogResult
 
 
-.EXAMPLE
+    .NOTES
 
 
-.LINK
-    MessageBox クラス (System.Windows.Forms)
-    http://msdn.microsoft.com/library/system.windows.forms.messagebox.aspx
-#>
+    .EXAMPLE
+
+
+    .LINK
+        MessageBox クラス (System.Windows.Forms)
+        http://msdn.microsoft.com/library/system.windows.forms.messagebox.aspx
+    #>
 
     [CmdletBinding()]
     Param (
@@ -413,91 +415,91 @@ Function Show-Message {
 }
 
 #####################################################################################################################################################
-Function Get-DateString {
-
-<#
-.SYNOPSIS
-    ロケール ID (LCID) および 標準またはカスタムの日時書式指定文字列 を使用して、日付文字列を取得します。
-
-
-.DESCRIPTION
+Function Get-DateString
+{
+    <#
+    .SYNOPSIS
+        ロケール ID (LCID) および 標準またはカスタムの日時書式指定文字列 を使用して、日付文字列を取得します。
 
 
-.PARAMETER Date
-    表示する日付を指定します。
-    デフォルトは本日です。
+    .DESCRIPTION
 
 
-.PARAMETER LCID
-    ロケール ID (LCID) を指定します。
-
-    This parameter is argument of System.Globalization.CultureInfo Constructor (String). 
-    Type: System.String
-    A predefined CultureInfo name, Name of an existing CultureInfo, or Windows-only culture name. 
-
-    If ommited, CultureInfo of your system is used.
+    .PARAMETER Date
+        表示する日付を指定します。
+        デフォルトは本日です。
 
 
-.PARAMETER Format
-    書式指定文字列を指定します。
-    デフォルトは "D" です。
+    .PARAMETER LCID
+        ロケール ID (LCID) を指定します。
 
-    This parameter is 1st argument of System.DateTime.ToString Method (String, IFormatProvider).
-    Type: System.String
-    A standard or custom date and time format string. 
+        This parameter is argument of System.Globalization.CultureInfo Constructor (String). 
+        Type: System.String
+        A predefined CultureInfo name, Name of an existing CultureInfo, or Windows-only culture name. 
 
-    If ommited, The Long Date ("D") Format Specifier is used.
-
-
-.INPUTS
-    System.DateTime
+        If ommited, CultureInfo of your system is used.
 
 
-.OUTPUTS
-    System.String
+    .PARAMETER Format
+        書式指定文字列を指定します。
+        デフォルトは "D" です。
+
+        This parameter is 1st argument of System.DateTime.ToString Method (String, IFormatProvider).
+        Type: System.String
+        A standard or custom date and time format string. 
+
+        If ommited, The Long Date ("D") Format Specifier is used.
 
 
-.NOTES
-    Get Date As String Cmdlet
-
-    2013/03/28  Version 0.0.0.1
-                Create
-    2013/03/29  Change Comment Style
-    2013/09/02  Update
-    2013/09/03  Update
-    2013/09/04  Update
-                Verion 1.0.0.0
-
-.EXAMPLE
-    Get-DateString
+    .INPUTS
+        System.DateTime
 
 
-.EXAMPLE 
-    Get-DateString -LCID 'ja-JP' -Format 'm'
+    .OUTPUTS
+        System.String
 
 
-.LINK
-    [MS-LCID] Windows Language Code Identifier (LCID) Reference
-    http://msdn.microsoft.com/en-us/library/cc233965.aspx
+    .NOTES
+        Get Date As String Cmdlet
 
-    ロケール ID (LCID) の一覧
-    http://msdn.microsoft.com/ja-jp/library/cc392381.aspx
+        2013/03/28  Version 0.0.0.1
+                    Create
+        2013/03/29  Change Comment Style
+        2013/09/02  Update
+        2013/09/03  Update
+        2013/09/04  Update
+                    Verion 1.0.0.0
 
-    標準の日付と時刻の書式指定文字列
-    http://msdn.microsoft.com/ja-jp/library/az4se3k1.aspx
+    .EXAMPLE
+        Get-DateString
 
-    カスタムの日付と時刻の書式指定文字列
-    http://msdn.microsoft.com/ja-jp/library/8kb3ddd4.aspx
 
-    DateTime.ToString メソッド (String, IFormatProvider) (System)
-    http://msdn.microsoft.com/ja-jp/library/8tfzyc64.aspx
+    .EXAMPLE 
+        Get-DateString -LCID 'ja-JP' -Format 'm'
 
-    CultureInfo コンストラクター (String) (System.Globalization)
-    http://msdn.microsoft.com/ja-jp/library/ky2chs3h.aspx
 
-    ISO 639 - Wikipedia
-    http://ja.wikipedia.org/wiki/ISO_639
-#>
+    .LINK
+        [MS-LCID] Windows Language Code Identifier (LCID) Reference
+        http://msdn.microsoft.com/en-us/library/cc233965.aspx
+
+        ロケール ID (LCID) の一覧
+        http://msdn.microsoft.com/ja-jp/library/cc392381.aspx
+
+        標準の日付と時刻の書式指定文字列
+        http://msdn.microsoft.com/ja-jp/library/az4se3k1.aspx
+
+        カスタムの日付と時刻の書式指定文字列
+        http://msdn.microsoft.com/ja-jp/library/8kb3ddd4.aspx
+
+        DateTime.ToString メソッド (String, IFormatProvider) (System)
+        http://msdn.microsoft.com/ja-jp/library/8tfzyc64.aspx
+
+        CultureInfo コンストラクター (String) (System.Globalization)
+        http://msdn.microsoft.com/ja-jp/library/ky2chs3h.aspx
+
+        ISO 639 - Wikipedia
+        http://ja.wikipedia.org/wiki/ISO_639
+    #>
 
     [CmdletBinding()]
     Param (
@@ -513,89 +515,90 @@ Function Get-DateString {
 }
 
 #####################################################################################################################################################
-Function Get-FileVersionInfo {
-
-<#
-.SYNOPSIS
-    ディスク上の物理ファイルのバージョン情報を取得します。
-
-
-.DESCRIPTION
+Function Get-FileVersionInfo
+{
+    <#
+    .SYNOPSIS
+        ディスク上の物理ファイルのバージョン情報を取得します。
 
 
-.PARAMETER Path
+    .DESCRIPTION
 
 
-.PARAMETER ProductName
+    .PARAMETER Path
 
 
-.PARAMETER FileDescription
+    .PARAMETER ProductName
 
 
-.PARAMETER FileVersion
-    If specified, File Version is acquired.
+    .PARAMETER FileDescription
 
 
-.PARAMETER ProductVersion
-    If specified, Product Version is acquired instead of File Version.
+    .PARAMETER FileVersion
+        If specified, File Version is acquired.
 
 
-.PARAMETER Major
-
-.PARAMETER Minor
-
-.PARAMETER Build
-
-.PARAMETER Private
-
-.PARAMETER Composite
+    .PARAMETER ProductVersion
+        If specified, Product Version is acquired instead of File Version.
 
 
-.INPUTS
-    System.String
+    .PARAMETER Major
+
+    .PARAMETER Minor
+
+    .PARAMETER Build
+
+    .PARAMETER Private
+
+    .PARAMETER Composite
 
 
-.OUTPUTS
-    System.String
+    .INPUTS
+        System.String
 
 
-.NOTES
-    If any parameter is not specified, [System.Diagnostics.FileVersionInfo] is acquired.
+    .OUTPUTS
+        System.String
 
 
-.EXAMPLE
-    Get-FileVersion -Path .\setup.exe
+    .NOTES
+        If any parameter is not specified, [System.Diagnostics.FileVersionInfo] is acquired.
 
 
-.EXAMPLE 
-    Get-FileVersion -Path .\setup.exe -ProductVersion
+    .EXAMPLE
+        Get-FileVersion -Path .\setup.exe
 
 
-.LINK
-    FileVersionInfo プロパティ (System.Diagnostics)
-    http://msdn.microsoft.com/ja-jp/library/System.Diagnostics.FileVersionInfo.aspx    
+    .EXAMPLE 
+        Get-FileVersion -Path .\setup.exe -ProductVersion
 
-    FileVersionInfo.ProductName プロパティ (System.Diagnostics)
-    http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.productname.aspx
 
-    FileVersionInfo.FileDescription プロパティ (System.Diagnostics)
-    http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.filedescription.aspx
+    .LINK
+        FileVersionInfo プロパティ (System.Diagnostics)
+        http://msdn.microsoft.com/ja-jp/library/System.Diagnostics.FileVersionInfo.aspx    
 
-    FileVersionInfo.FileVersion プロパティ (System.Diagnostics)
-    http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.fileversion.aspx
+        FileVersionInfo.ProductName プロパティ (System.Diagnostics)
+        http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.productname.aspx
 
-    FileVersionInfo.ProductVersion プロパティ (System.Diagnostics)
-    http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.productversion.aspx
-#>
+        FileVersionInfo.FileDescription プロパティ (System.Diagnostics)
+        http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.filedescription.aspx
+
+        FileVersionInfo.FileVersion プロパティ (System.Diagnostics)
+        http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.fileversion.aspx
+
+        FileVersionInfo.ProductVersion プロパティ (System.Diagnostics)
+        http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.productversion.aspx
+    #>
 
     [CmdletBinding(DefaultParameterSetName=$false)]
     Param (
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-        [ValidateScript ( {
-            if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            if ((Get-Item -Path $_) -isnot [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
-            return $true
-        } )]
+        [ValidateScript (
+            {
+                if (-not (Test-Path -Path $_ -PathType Leaf)) { throw New-Object System.IO.FileNotFoundException }
+                return $true
+            }
+        )]
         [string]$Path,
 
 
@@ -663,32 +666,32 @@ Function Get-FileVersionInfo {
 }
 
 #####################################################################################################################################################
-Function Get-ProductName {
-
-<#
-.SYNOPSIS
-    ファイルの製品名を取得します。
-
-
-.DESCRIPTION
-    Get-FileVersionInfo -ProductName のエイリアスです。
+Function Get-ProductName
+{
+    <#
+    .SYNOPSIS
+        ファイルの製品名を取得します。
 
 
-.PARAMETER Path
+    .DESCRIPTION
+        Get-FileVersionInfo -ProductName のエイリアスです。
 
 
-.INPUTS
-    System.String
+    .PARAMETER Path
 
 
-.OUTPUTS
-    System.String
+    .INPUTS
+        System.String
 
 
-.LINK
-    FileVersionInfo.ProductName プロパティ (System.Diagnostics)
-    http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.productname.aspx
-#>
+    .OUTPUTS
+        System.String
+
+
+    .LINK
+        FileVersionInfo.ProductName プロパティ (System.Diagnostics)
+        http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.productname.aspx
+    #>
 
     [CmdletBinding()]
     Param (
@@ -702,32 +705,32 @@ Function Get-ProductName {
 }
 
 #####################################################################################################################################################
-Function Get-FileDescription {
-
-<#
-.SYNOPSIS
-    ファイルの説明を取得します。
-
-
-.DESCRIPTION
-    Get-FileVersionInfo -FiletDescription のエイリアスです。
+Function Get-FileDescription
+{
+    <#
+    .SYNOPSIS
+        ファイルの説明を取得します。
 
 
-.PARAMETER Path
+    .DESCRIPTION
+        Get-FileVersionInfo -FiletDescription のエイリアスです。
 
 
-.INPUTS
-    System.String
+    .PARAMETER Path
 
 
-.OUTPUTS
-    System.String
+    .INPUTS
+        System.String
 
 
-.LINK
-    FileVersionInfo.FileDescription プロパティ (System.Diagnostics)
-    http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.filedescription.aspx
-#>
+    .OUTPUTS
+        System.String
+
+
+    .LINK
+        FileVersionInfo.FileDescription プロパティ (System.Diagnostics)
+        http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.filedescription.aspx
+    #>
 
     [CmdletBinding()]
     Param (
@@ -741,32 +744,32 @@ Function Get-FileDescription {
 }
 
 #####################################################################################################################################################
-Function Get-FileVersion {
-
-<#
-.SYNOPSIS
-    ファイルのファイルバージョンを取得します。
-
-
-.DESCRIPTION
-    Get-FileVersionInfo -FiletVersion のエイリアスです。
+Function Get-FileVersion
+{
+    <#
+    .SYNOPSIS
+        ファイルのファイルバージョンを取得します。
 
 
-.PARAMETER Path
+    .DESCRIPTION
+        Get-FileVersionInfo -FiletVersion のエイリアスです。
 
 
-.INPUTS
-    System.String
+    .PARAMETER Path
 
 
-.OUTPUTS
-    System.String
+    .INPUTS
+        System.String
 
 
-.LINK
-    FileVersionInfo.FileVersion プロパティ (System.Diagnostics)
-    http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.fileversion.aspx
-#>
+    .OUTPUTS
+        System.String
+
+
+    .LINK
+        FileVersionInfo.FileVersion プロパティ (System.Diagnostics)
+        http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.fileversion.aspx
+    #>
 
     [CmdletBinding()]
     Param (
@@ -780,32 +783,32 @@ Function Get-FileVersion {
 }
 
 #####################################################################################################################################################
-Function Get-ProductVersion {
-
-<#
-.SYNOPSIS
-    ファイルの製品バージョンを取得します。
-
-
-.DESCRIPTION
-    Get-FileVersionInfo -ProductVersion のエイリアスです。
+Function Get-ProductVersion
+{
+    <#
+    .SYNOPSIS
+        ファイルの製品バージョンを取得します。
 
 
-.PARAMETER Path
+    .DESCRIPTION
+        Get-FileVersionInfo -ProductVersion のエイリアスです。
 
 
-.INPUTS
-    System.String
+    .PARAMETER Path
 
 
-.OUTPUTS
-    System.String
+    .INPUTS
+        System.String
 
 
-.LINK
-    FileVersionInfo.ProductVersion プロパティ (System.Diagnostics)
-    http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.productversion.aspx
-#>
+    .OUTPUTS
+        System.String
+
+
+    .LINK
+        FileVersionInfo.ProductVersion プロパティ (System.Diagnostics)
+        http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.productversion.aspx
+    #>
 
     [CmdletBinding()]
     Param (
@@ -819,53 +822,54 @@ Function Get-ProductVersion {
 }
 
 #####################################################################################################################################################
-Function Get-HTMLString {
-
-<#
-.SYNOPSIS
-    HTML ファイルから HTML 要素を取得します。
-
-
-.DESCRIPTION
+Function Get-HTMLString
+{
+    <#
+    .SYNOPSIS
+        HTML ファイルから HTML 要素を取得します。
 
 
-.PARAMETER Path
+    .DESCRIPTION
 
 
-.PARAMETER Tag
+    .PARAMETER Path
 
 
-.INPUTS
-    System.String
+    .PARAMETER Tag
 
 
-.OUTPUTS
-    System.String
+    .INPUTS
+        System.String
 
 
-.NOTES
-    Get String from HTML Document Cmdlet
-
-    2013/09/09  Version 0.0.0.1
-                Create
+    .OUTPUTS
+        System.String
 
 
-.EXAMPLE
-    Get-HtmlElement -Path .\sample.html -Tag h1
+    .NOTES
+        Get String from HTML Document Cmdlet
+
+        2013/09/09  Version 0.0.0.1
+                    Create
 
 
-.LINK
+    .EXAMPLE
+        Get-HtmlElement -Path .\sample.html -Tag h1
+
+
+    .LINK
     
-#>
+    #>
 
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-        [ValidateScript ( {
-            if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            if ((Get-Item -Path $_) -isnot [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
-            return $true
-        } )]
+        [ValidateScript (
+            {
+                if (-not (Test-Path -Path $_ -PathType Leaf)) { throw New-Object System.IO.FileNotFoundException }
+                return $true
+            }
+        )]
         [string]$Path,
 
         [Parameter(Mandatory=$true, Position=1)][string]$Tag
@@ -878,55 +882,56 @@ Function Get-HTMLString {
 }
 
 #####################################################################################################################################################
-Function Get-PrivateProfileString {
-
-<#
-.SYNOPSIS
-    指定された .ini ファイル（初期化ファイル）の指定されたセクション内にある、指定されたキーに関連付けられている文字列を取得します。
-
-
-.DESCRIPTION
+Function Get-PrivateProfileString
+{
+    <#
+    .SYNOPSIS
+        指定された .ini ファイル（初期化ファイル）の指定されたセクション内にある、指定されたキーに関連付けられている文字列を取得します。
 
 
-.PARAMETER Path
+    .DESCRIPTION
 
 
-.PARAMETER Section
+    .PARAMETER Path
 
 
-.PARAMETER Key
+    .PARAMETER Section
 
 
-.INPUTS
-    System.String
+    .PARAMETER Key
 
 
-.OUTPUTS
-    System.String
+    .INPUTS
+        System.String
 
 
-.NOTES
-    Get HTML Element Cmdlet
-
-    2013/10/02  Version 0.0.0.1
-                Create
+    .OUTPUTS
+        System.String
 
 
-.EXAMPLE
+    .NOTES
+        Get HTML Element Cmdlet
+
+        2013/10/02  Version 0.0.0.1
+                    Create
 
 
-.LINK
+    .EXAMPLE
+
+
+    .LINK
     
-#>
+    #>
 
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-        [ValidateScript ( {
-            if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            if ((Get-Item -Path $_) -isnot [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
-            return $true
-        } )]
+        [ValidateScript (
+            {
+                if (-not (Test-Path -Path $_ -PathType Leaf)) { throw New-Object System.IO.FileNotFoundException }
+                return $true
+            }
+        )]
         [string]$Path,
 
         [Parameter(Mandatory=$true, Position=1)][string]$Section,
@@ -958,42 +963,42 @@ Function Get-PrivateProfileString {
 }
 
 #####################################################################################################################################################
-Function Update-Content {
-
-<#
-.SYNOPSIS
-    ファイルの内容を更新します。
-
-
-.DESCRIPTION
+Function Update-Content
+{
+    <#
+    .SYNOPSIS
+        ファイルの内容を更新します。
 
 
-.PARAMETER Line
-
-.PARAMETER SearchText
-
-.PARAMETER UpdateText
-
-.PARAMETER InputObject
+    .DESCRIPTION
 
 
-.INPUTS
-    System.String
+    .PARAMETER Line
+
+    .PARAMETER SearchText
+
+    .PARAMETER UpdateText
+
+    .PARAMETER InputObject
 
 
-.OUTPUTS
-    System.String
+    .INPUTS
+        System.String
 
 
-.NOTES
+    .OUTPUTS
+        System.String
 
 
-.EXAMPLE
+    .NOTES
 
 
-.LINK
+    .EXAMPLE
+
+
+    .LINK
     
-#>
+    #>
 
     [CmdletBinding()]
     Param (
@@ -1039,40 +1044,40 @@ Function Update-Content {
 }
 
 #####################################################################################################################################################
-Function Get-WindowHandler {
+Function Get-WindowHandler
+{
+    <#
+    .SYNOPSIS
+        指定したプロセス ID に対応するウィンドウのウィンドウ ハンドル (HWND) を取得します。
 
-<#
-.SYNOPSIS
-    指定したプロセス ID に対応するウィンドウのウィンドウ ハンドル (HWND) を取得します。
 
-
-.DESCRIPTION
+    .DESCRIPTION
     
 
 
-.PARAMETER PID
-    デフォルトはコンソールのプロセス ID ($PID)
+    .PARAMETER PID
+        デフォルトはコンソールのプロセス ID ($PID)
 
 
-.INPUTS
-    System.Int32
+    .INPUTS
+        System.Int32
 
 
-.OUTPUTS
-    System.IntPtr
+    .OUTPUTS
+        System.IntPtr
 
 
-.NOTES
-    (None)
+    .NOTES
+        (None)
 
 
-.EXAMPLE
-    (None)
+    .EXAMPLE
+        (None)
 
 
-.LINK
-    (None)
-#>
+    .LINK
+        (None)
+    #>
 
     [CmdletBinding()]
     Param (
@@ -1086,41 +1091,41 @@ Function Get-WindowHandler {
 }
 
 #####################################################################################################################################################
-Function New-StructArray {
-
-<#
-.SYNOPSIS
-    構造体の配列ようなをコンテナを作成します。
-
-
-.DESCRIPTION
+Function New-StructArray
+{
+    <#
+    .SYNOPSIS
+        構造体の配列ようなをコンテナを作成します。
 
 
-.PARAMETER Members
+    .DESCRIPTION
 
 
-.PARAMETER Count
+    .PARAMETER Members
 
 
-.INPUTS
-    System.String[]
+    .PARAMETER Count
 
 
-.OUTPUTS
-    System.String
+    .INPUTS
+        System.String[]
 
 
-.NOTES
-    (None)
+    .OUTPUTS
+        System.String
 
 
-.EXAMPLE
-    (None)
+    .NOTES
+        (None)
 
 
-.LINK
-    (None)
-#>
+    .EXAMPLE
+        (None)
+
+
+    .LINK
+        (None)
+    #>
 
     [CmdletBinding()]
     Param (
@@ -1174,49 +1179,50 @@ Function New-StructArray {
 }
 
 #####################################################################################################################################################
-Function Get-ByteArray {
-
-<#
-.SYNOPSIS
+Function Get-ByteArray
+{
+    <#
+    .SYNOPSIS
     
 
-.DESCRIPTION
+    .DESCRIPTION
 
 
-.PARAMETER Members
+    .PARAMETER Members
 
 
-.PARAMETER Count
+    .PARAMETER Count
 
 
-.INPUTS
-    System.String[]
+    .INPUTS
+        System.String[]
 
 
-.OUTPUTS
-    System.String
+    .OUTPUTS
+        System.String
 
 
-.NOTES
-    (None)
+    .NOTES
+        (None)
 
 
-.EXAMPLE
-    (None)
+    .EXAMPLE
+        (None)
 
 
-.LINK
-    (None)
-#>
+    .LINK
+        (None)
+    #>
 
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-        [ValidateScript( {
-            if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            if ((Get-Item -Path $_) -isnot [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
-            return $true
-        } )]
+        [ValidateScript(
+            {
+                if (-not (Test-Path -Path $_ -PathType Leaf)) { throw New-Object System.IO.FileNotFoundException }
+                return $true
+            }
+        )]
         [string]$Path
     )
 
@@ -1240,40 +1246,40 @@ Function Get-ByteArray {
 }
 
 #####################################################################################################################################################
-Function ConvertFrom-ByteArray {
-
-<#
-.SYNOPSIS
+Function ConvertFrom-ByteArray
+{
+    <#
+    .SYNOPSIS
     
 
-.DESCRIPTION
+    .DESCRIPTION
 
 
-.PARAMETER Members
+    .PARAMETER Members
 
 
-.PARAMETER Count
+    .PARAMETER Count
 
 
-.INPUTS
-    System.String[]
+    .INPUTS
+        System.String[]
 
 
-.OUTPUTS
-    System.String
+    .OUTPUTS
+        System.String
 
 
-.NOTES
-    (None)
+    .NOTES
+        (None)
 
 
-.EXAMPLE
-    (None)
+    .EXAMPLE
+        (None)
 
 
-.LINK
-    (None)
-#>
+    .LINK
+        (None)
+    #>
 
     [CmdletBinding()]
     Param (
@@ -1321,40 +1327,40 @@ Function ConvertFrom-ByteArray {
 }
 
 #####################################################################################################################################################
-Function ConvertTo-ByteArray {
-
-<#
-.SYNOPSIS
+Function ConvertTo-ByteArray
+{
+    <#
+    .SYNOPSIS
     
 
-.DESCRIPTION
+    .DESCRIPTION
 
 
-.PARAMETER Members
+    .PARAMETER Members
 
 
-.PARAMETER Count
+    .PARAMETER Count
 
 
-.INPUTS
-    System.String[]
+    .INPUTS
+        System.String[]
 
 
-.OUTPUTS
-    System.String
+    .OUTPUTS
+        System.String
 
 
-.NOTES
-    (None)
+    .NOTES
+        (None)
 
 
-.EXAMPLE
-    (None)
+    .EXAMPLE
+        (None)
 
 
-.LINK
-    (None)
-#>
+    .LINK
+        (None)
+    #>
 
     [CmdletBinding()]
     Param (

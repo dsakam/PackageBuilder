@@ -32,61 +32,61 @@
 #####################################################################################################################################################
 
 #####################################################################################################################################################
-Function Shutdown-Computer {
-
-<#
-.SYNOPSIS
-    PC をシャットダウンします。
-
-
-.DESCRIPTION
+Function Stop-Host
+{
+    <#
+    .SYNOPSIS
+        PC をシャットダウンします。
 
 
-.PARAMETER ComputerName
-    Type: System.String
-    If omitted, this computer may be shut down.
+    .DESCRIPTION
 
 
-.PARAMETER UserName
-    Type: System.String
-    If omitted, shutdown is tryed by your privilege.
+    .PARAMETER ComputerName
+        Type: System.String
+        If omitted, this computer may be shut down.
 
 
-.PARAMETER Password
-    Type: System.String
-    Password of those who tries to shut down the computer.
+    .PARAMETER UserName
+        Type: System.String
+        If omitted, shutdown is tryed by your privilege.
 
 
-.PARAMETER Silent
+    .PARAMETER Password
+        Type: System.String
+        Password of those who tries to shut down the computer.
 
 
-.PARAMETER Force
+    .PARAMETER Silent
 
 
-.INPUTS
-    System.String
+    .PARAMETER Force
 
 
-.OUTPUTS
-    None
+    .INPUTS
+        System.String
 
 
-.NOTES
-    Shutdown Computer Cmdlet
+    .OUTPUTS
+        None
+
+
+    .NOTES
+        Shutdown Computer Cmdlet
     
-    2013/08/17  Create
-    2013/09/02  Update
-    2013/09/04  Update
-    2013/10/23  Modify
+        2013/08/17  Create
+        2013/09/02  Update
+        2013/09/04  Update
+        2013/10/23  Modify
 
 
-.EXAMPLE
-(None)
+    .EXAMPLE
+    (None)
 
 
-.LINK
-(None)
-#>
+    .LINK
+    (None)
+    #>
 
     [CmdletBinding ()]
     Param (
@@ -150,55 +150,55 @@ Function Shutdown-Computer {
 }
 
 #####################################################################################################################################################
-Function Reboot-Computer {
-
-<#
-.SYNOPSIS
-    PC を再起動します。
-
-
-.DESCRIPTION
+Function Restart-Host
+{
+    <#
+    .SYNOPSIS
+        PC を再起動します。
 
 
-.PARAMETER ComputerName
-    Type: System.String
-    If omitted, this computer may be shut down.
+    .DESCRIPTION
 
 
-.PARAMETER UserName
-    Type: System.String
-    If omitted, shutdown is tryed by your privilege.
+    .PARAMETER ComputerName
+        Type: System.String
+        If omitted, this computer may be shut down.
 
 
-.PARAMETER Password
-    Type: System.String
-    Password of those who tries to shut down the computer.
-
-.PARAMETER Silent
+    .PARAMETER UserName
+        Type: System.String
+        If omitted, shutdown is tryed by your privilege.
 
 
-.PARAMETER Force
+    .PARAMETER Password
+        Type: System.String
+        Password of those who tries to shut down the computer.
+
+    .PARAMETER Silent
 
 
-.INPUTS
-    System.String
+    .PARAMETER Force
 
 
-.OUTPUTS
-    None
+    .INPUTS
+        System.String
 
 
-.NOTES
-    Shutdown Computer Cmdlet
+    .OUTPUTS
+        None
+
+
+    .NOTES
+        Shutdown Computer Cmdlet
     
 
-.EXAMPLE
-(None)
+    .EXAMPLE
+    (None)
 
 
-.LINK
-(None)
-#>
+    .LINK
+    (None)
+    #>
 
     [CmdletBinding ()]
     Param (
@@ -262,46 +262,46 @@ Function Reboot-Computer {
 }
 
 #####################################################################################################################################################
-Function Start-Computer {
-
-<#
-.SYNOPSIS
-    Wake on LAN
-
-
-.DESCRIPTION
+Function Start-Computer
+{
+    <#
+    .SYNOPSIS
+        Wake on LAN
 
 
-.PARAMETER MacAddress
+    .DESCRIPTION
 
 
-.PARAMETER Port
+    .PARAMETER MacAddress
 
 
-.PARAMETER Retry
+    .PARAMETER Port
 
 
-.INPUTS
-    System.String
+    .PARAMETER Retry
 
 
-.OUTPUTS
-    None
+    .INPUTS
+        System.String
 
 
-.NOTES
-    Shutdown Computer Cmdlet
+    .OUTPUTS
+        None
+
+
+    .NOTES
+        Shutdown Computer Cmdlet
     
 
-.EXAMPLE
-(None)
+    .EXAMPLE
+    (None)
 
 
-.LINK
+    .LINK
 
-    方法 16 進文字列と数値型の間で変換する (C# プログラミング ガイド)
-    http://msdn.microsoft.com/ja-jp/library/bb311038.aspx
-#>
+        方法 16 進文字列と数値型の間で変換する (C# プログラミング ガイド)
+        http://msdn.microsoft.com/ja-jp/library/bb311038.aspx
+    #>
 
     [CmdletBinding ()]
     Param (

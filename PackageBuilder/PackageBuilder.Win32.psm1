@@ -147,7 +147,6 @@ public enum LoadLibraryEx_dwFlags
 
 #####################################################################################################################################################
 # Scripts
-
 Add-Type -MemberDefinition $Script:Kernel32_Signature -Name $Script:Kernel32 -Namespace $Global:Win32Namespace
 Add-Type -MemberDefinition $Script:User32_Signature   -Name $Script:User32   -Namespace $Global:Win32Namespace
 Add-Type -MemberDefinition $Script:HHCtrl_Signature   -Name $Script:HHCtrl   -Namespace $Global:Win32Namespace
@@ -156,47 +155,49 @@ Add-Type -TypeDefinition $Script:HTMLHelpCommand_Signature
 Add-Type -TypeDefinition $Script:LoadLibraryEx_dwFlags_Signature
 
 #####################################################################################################################################################
-Function Invoke-LoadLibraryEx {
-
-<#
-.SYNOPSIS
-    LoadLibraryEx()
-
-
-.DESCRIPTION
+Function Invoke-LoadLibraryEx
+{
+    <#
+    .SYNOPSIS
+        LoadLibraryEx()
 
 
-.PARAMETER Path
+    .DESCRIPTION
 
 
-.INPUTS
-    None
+    .PARAMETER Path
 
 
-.OUTPUTS
-    System.String
+    .INPUTS
+        None
 
 
-.NOTES
-    (None)
+    .OUTPUTS
+        System.String
 
 
-.EXAMPLE
-    (None)
+    .NOTES
+        (None)
 
 
-.LINK
-    LoadLibraryEx function (Windows)
-    http://msdn.microsoft.com/en-us/library/windows/desktop/ms684179.aspx
-#>
+    .EXAMPLE
+        (None)
 
-    [CmdletBinding()] Param (
+
+    .LINK
+        LoadLibraryEx function (Windows)
+        http://msdn.microsoft.com/en-us/library/windows/desktop/ms684179.aspx
+    #>
+
+    [CmdletBinding()]
+    Param (
         [Parameter(Mandatory=$true, Position=0)]
-        [ValidateScript ( {
-            if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            if ((Get-Item -Path $_) -isnot [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
-            return $true
-        } )]
+        [ValidateScript (
+            {
+                if (-not (Test-Path -Path $_ -PathType Leaf)) { throw New-Object System.IO.FileNotFoundException }
+                return $true
+            }
+        )]
         [string]$lpLibFileName,
 
         [Parameter(Mandatory=$false, Position=1)][UInt32]$dwFlags = [LoadLibraryEx_dwFlags]::LOAD_LIBRARY_AS_DATAFILE        
@@ -210,40 +211,41 @@ Function Invoke-LoadLibraryEx {
 }
 
 #####################################################################################################################################################
-Function Invoke-FreeLibrary {
-
-<#
-.SYNOPSIS
-    FreeLibrary()
-
-
-.DESCRIPTION
+Function Invoke-FreeLibrary
+{
+    <#
+    .SYNOPSIS
+        FreeLibrary()
 
 
-.PARAMETER Path
+    .DESCRIPTION
 
 
-.INPUTS
-    None
+    .PARAMETER Path
 
 
-.OUTPUTS
-    System.String
+    .INPUTS
+        None
 
 
-.NOTES
-    (None)
+    .OUTPUTS
+        System.String
 
 
-.EXAMPLE
-    (None)
+    .NOTES
+        (None)
 
 
-.LINK
-    (None)
-#>
+    .EXAMPLE
+        (None)
 
-    [CmdletBinding()] Param (
+
+    .LINK
+        (None)
+    #>
+
+    [CmdletBinding()]
+    Param (
         [Parameter(Mandatory=$true, Position=0)]
         [ValidateScript ( {$_ -ne [IntPtr]::Zero } )]
         [IntPtr]$hModule
@@ -257,40 +259,41 @@ Function Invoke-FreeLibrary {
 }
 
 #####################################################################################################################################################
-Function Invoke-LoadString {
-
-<#
-.SYNOPSIS
-    LoadString()
-
-
-.DESCRIPTION
+Function Invoke-LoadString
+{
+    <#
+    .SYNOPSIS
+        LoadString()
 
 
-.PARAMETER Path
+    .DESCRIPTION
 
 
-.INPUTS
-    None
+    .PARAMETER Path
 
 
-.OUTPUTS
-    System.String
+    .INPUTS
+        None
 
 
-.NOTES
-    (None)
+    .OUTPUTS
+        System.String
 
 
-.EXAMPLE
-    (None)
+    .NOTES
+        (None)
 
 
-.LINK
-    (None)
-#>
+    .EXAMPLE
+        (None)
 
-    [CmdletBinding()] Param (
+
+    .LINK
+        (None)
+    #>
+
+    [CmdletBinding()]
+    Param (
         [Parameter(Mandatory=$true, Position=0)]
         [ValidateScript ( {$_ -ne [IntPtr]::Zero } )]
         [IntPtr]$hInstance,
@@ -313,46 +316,48 @@ Function Invoke-LoadString {
 }
 
 #####################################################################################################################################################
-Function Get-ResourceString {
-
-<#
-.SYNOPSIS
-    文字列リソースを取得します。
-
-
-.DESCRIPTION
+Function Get-ResourceString
+{
+    <#
+    .SYNOPSIS
+        文字列リソースを取得します。
 
 
-.PARAMETER Path
+    .DESCRIPTION
 
 
-.INPUTS
-    None
+    .PARAMETER Path
 
 
-.OUTPUTS
-    System.String
+    .INPUTS
+        None
 
 
-.NOTES
-    (None)
+    .OUTPUTS
+        System.String
 
 
-.EXAMPLE
-    (None)
+    .NOTES
+        (None)
 
 
-.LINK
-    (None)
-#>
+    .EXAMPLE
+        (None)
 
-    [CmdletBinding()] Param (
+
+    .LINK
+        (None)
+    #>
+
+    [CmdletBinding()]
+    Param (
         [Parameter(Mandatory=$true, Position=0)]
-        [ValidateScript ( {
-            if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            if ((Get-Item -Path $_) -isnot [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
-            return $true
-        } )]
+        [ValidateScript (
+            {
+                if (-not (Test-Path -Path $_ -PathType Leaf)) { throw New-Object System.IO.FileNotFoundException }
+                return $true
+            }
+        )]
         [string]$Path,
 
         [Parameter(Mandatory=$true, Position=1)][int[]]$uID,
@@ -382,59 +387,61 @@ Function Get-ResourceString {
 }
 
 #####################################################################################################################################################
-Function Invoke-HtmlHelp {
-
-<#
-.SYNOPSIS
-    HTML ヘルプを開きます。
-
-
-.DESCRIPTION
+Function Invoke-HtmlHelp
+{
+    <#
+    .SYNOPSIS
+        HTML ヘルプを開きます。
 
 
-.PARAMETER Path
+    .DESCRIPTION
 
 
-.INPUTS
-    None
+    .PARAMETER Path
 
 
-.OUTPUTS
-    System.String
+    .INPUTS
+        None
 
 
-.NOTES
-    (None)
+    .OUTPUTS
+        System.String
 
 
-.EXAMPLE
-    (None)
+    .NOTES
+        (None)
 
 
-.LINK
-    Microsoft HTML Help とは
-    http://msdn.microsoft.com/ja-jp/library/cc344272.aspx
+    .EXAMPLE
+        (None)
 
-    Microsoft HTML Help 1.4 (Windows)
-    http://msdn.microsoft.com/en-us/library/windows/desktop/ms670169.aspx
 
-    About the HTML Help API Function (Windows)
-    http://msdn.microsoft.com/en-us/library/windows/desktop/ms670172.aspx
+    .LINK
+        Microsoft HTML Help とは
+        http://msdn.microsoft.com/ja-jp/library/cc344272.aspx
 
-    Microsoft HTML Help Downloads (Windows)
-    http://msdn.microsoft.com/en-us/library/windows/desktop/ms669985.aspx
+        Microsoft HTML Help 1.4 (Windows)
+        http://msdn.microsoft.com/en-us/library/windows/desktop/ms670169.aspx
 
-    HTML Help End-User License Agreement (Windows)
-    http://msdn.microsoft.com/en-us/library/windows/desktop/ms669979.aspx
-#>
+        About the HTML Help API Function (Windows)
+        http://msdn.microsoft.com/en-us/library/windows/desktop/ms670172.aspx
 
-    [CmdletBinding()] Param (
+        Microsoft HTML Help Downloads (Windows)
+        http://msdn.microsoft.com/en-us/library/windows/desktop/ms669985.aspx
+
+        HTML Help End-User License Agreement (Windows)
+        http://msdn.microsoft.com/en-us/library/windows/desktop/ms669979.aspx
+    #>
+
+    [CmdletBinding()]
+    Param (
         [Parameter(Mandatory=$true, Position=0)]
-        [ValidateScript ( {
-            if (-not (Test-Path -Path $_)) { throw New-Object System.IO.FileNotFoundException }
-            if ((Get-Item -Path $_) -isnot [System.IO.FileInfo]) { throw New-Object System.IO.FileNotFoundException }
-            return $true
-        } )]
+        [ValidateScript (
+            {
+                if (-not (Test-Path -Path $_ -PathType Leaf)) { throw New-Object System.IO.FileNotFoundException }
+                return $true
+            }
+        )]
         [string]$Path,
 
         [Parameter(Mandatory=$false, Position=1)][UInt32]$uCommand,
