@@ -84,62 +84,62 @@ Function CYGPATH { return ('/cygdrive/' + ($args[0] -replace '\\', '/').Remove(1
 Function Get-MD5
 {
     <#
-    .SYNOPSIS
-        ファイルの MD5 ハッシュ値を取得します。
+        .SYNOPSIS
+            ファイルの MD5 ハッシュ値を取得します。
 
-    .DESCRIPTION
-        System.Security.Cryptography.HashAlgorithm.ComputeHash メソッドを使用して、ファイルの MD5 ハッシュ値を計算して文字列として取得します。
+        .DESCRIPTION
+            System.Security.Cryptography.HashAlgorithm.ComputeHash メソッドを使用して、ファイルの MD5 ハッシュ値を計算して文字列として取得します。
 
-        ファイルは複数指定することもできます。また、フォルダーを指定すると、そのフォルダー以下にある全てのファイルのハッシュ値を取得します。
-        複数のファイルが指定されたときは、ファイル毎に改行されて出力されます。
+            ファイルは複数指定することもできます。また、フォルダーを指定すると、そのフォルダー以下にある全てのファイルのハッシュ値を取得します。
+            複数のファイルが指定されたときは、ファイル毎に改行されて出力されます。
 
-        FileName または FullName パラメーターが指定されたときは、ハッシュ値とファイル名が出力されます。
-        これらのパラメーターを指定しなかったときは MD5 ハッシュ値のみが出力されます。(デフォルトは指定なしです。)
+            FileName または FullName パラメーターが指定されたときは、ハッシュ値とファイル名が出力されます。
+            これらのパラメーターを指定しなかったときは MD5 ハッシュ値のみが出力されます。(デフォルトは指定なしです。)
 
-        出力文字列のフォーマットは
-            [MD5 ハッシュ値]([区切り文字][ファイル名またはファイルのパス])
-        です。
+            出力文字列のフォーマットは
+                [MD5 ハッシュ値]([区切り文字][ファイル名またはファイルのパス])
+            です。
 
-    .PARAMETER Path
-        入力ファイルを指定します。
-        複数のファイルを指定するときは、それぞれのファイル名 (またはファイルパス) の文字列配列として指定します。
+        .PARAMETER Path
+            入力ファイルを指定します。
+            複数のファイルを指定するときは、それぞれのファイル名 (またはファイルパス) の文字列配列として指定します。
 
-    .PARAMETER FileName
-        MD5 ハッシュ値とファイル名を出力するときに指定します。
-        (ファイル名にパスは含まれません。ファイル名ではなく、ファイルのフルパスを出力させたい場合は FullName パラメーターを指定してください。)
-        複数のファイルが指定されたときは、ファイル毎に改行されます。
+        .PARAMETER FileName
+            MD5 ハッシュ値とファイル名を出力するときに指定します。
+            (ファイル名にパスは含まれません。ファイル名ではなく、ファイルのフルパスを出力させたい場合は FullName パラメーターを指定してください。)
+            複数のファイルが指定されたときは、ファイル毎に改行されます。
 
-    .PARAMETER FullName
-        MD5 ハッシュ値とファイル名のフルパスを出力するときに指定します。
-        複数のファイルが指定されたときは、ファイル毎に改行されます。
+        .PARAMETER FullName
+            MD5 ハッシュ値とファイルのフルパスを出力するときに指定します。
+            複数のファイルが指定されたときは、ファイル毎に改行されます。
 
-    .PARAMETER Separator
-        FileName または FullName パラメーターが指定されたときに、MD5 ハッシュ値と、ファイル名 (またはファイルパス) を区切る文字列を指定します。
-        デフォルトでは、タブ文字 ("`t") が使用されます。
+        .PARAMETER Separator
+            FileName または FullName パラメーターが指定されたときに、MD5 ハッシュ値と、ファイル名 (またはファイルパス) を区切る文字列を指定します。
+            デフォルトでは、タブ文字 ("`t") が使用されます。
 
-    .INPUTS
-        System.String
-        パイプを使用して、Path パラメーターを Get-MD5 コマンドレットに渡すことができます。
+        .INPUTS
+            System.String
+            パイプを使用して、Path パラメーターを Get-MD5 コマンドレットに渡すことができます。
 
-    .OUTPUTS
-        System.String
-        ファイルの MD5 ハッシュ値を文字列として返します。
+        .OUTPUTS
+            System.String
+            ファイルの MD5 ハッシュ値を文字列として返します。
 
-    .EXAMPLE
-        Get-MD5 sample.dll
-        カレントディレクトリにある sample.dll の MD5 ハッシュ値を文字列として取得します。
+        .EXAMPLE
+            Get-MD5 sample.dll
+            カレントディレクトリにある sample.dll の MD5 ハッシュ値を文字列として取得します。
 
-    .EXAMPLE
-        Get-MD5 sample1.dll, sample2.dll
-        カレントディレクトリにある sample.dll および sample2.dll の MD5 ハッシュ値を取得します。
+        .EXAMPLE
+            Get-MD5 sample1.dll, sample2.dll
+            カレントディレクトリにある sample.dll および sample2.dll の MD5 ハッシュ値を取得します。
 
-    .EXAMPLE
-        Get-MD5 C:\Sample -FileName -Separator ' '
-        C:\Sample フォルダー以下にあるすべてのファイルの MD5 ハッシュ値を、ハッシュ値とファイル名がスペースで区切られた文字列配列として取得します。
+        .EXAMPLE
+            Get-MD5 C:\Sample -FileName -Separator ' '
+            C:\Sample フォルダー以下にあるすべてのファイルの MD5 ハッシュ値を、ハッシュ値とファイル名がスペースで区切られた文字列配列として取得します。
 
-    .LINK
-        HashAlgorithm.ComputeHash Method (System.Security.Cryptography)
-        http://msdn.microsoft.com/en-us/library/system.security.cryptography.hashalgorithm.computehash.aspx
+        .LINK
+            HashAlgorithm.ComputeHash Method (System.Security.Cryptography)
+            http://msdn.microsoft.com/en-us/library/system.security.cryptography.hashalgorithm.computehash.aspx
     #>
 
     [CmdletBinding(DefaultParameterSetName=$false)]
@@ -194,35 +194,34 @@ Function Get-MD5
 Function Test-SameFile
 {
     <#
-    .SYNOPSIS
-        ファイルが同じかどうかをテストします。
+        .SYNOPSIS
+            ファイルが同じかどうかをテストします。
 
-    .DESCRIPTION
-        Get-MD5 コマンドレットを使用して、ファイルが同じかどうかをテストします。
-        フォルダーが指定されたときは、そのフォルダー以下にある全てのファイルについてテストを行います。
+        .DESCRIPTION
+            Get-MD5 コマンドレットを使用して、指定された 2 つのファイルが同じかどうかをテストします。
+            フォルダーが指定されたときは、そのフォルダー以下にある全てのファイルについてテストを行います。
 
-    .PARAMETER ReferenceObject
-        比較の参照として使用されるファイル、またはフォルダーを指定します。
+        .PARAMETER ReferenceObject
+            比較の参照として使用されるファイル、またはフォルダーを指定します。
 
-    .PARAMETER DifferenceObject
-        ReferenceObject と比較するファイル、またはフォルダーを指定します。
+        .PARAMETER DifferenceObject
+            ReferenceObject と比較するファイル、またはフォルダーを指定します。
 
-    .INPUTS
-        System.String
-        パイプを使用して DifferenceObject パラメーターを Test-SameFile コマンドレットに渡すことができます。
+        .INPUTS
+            System.String
+            パイプを使用して DifferenceObject パラメーターを Test-SameFile コマンドレットに渡すことができます。
 
-    .OUTPUTS
-        System.Boolean
-        テスト対象に差異がない場合は TRUE、そうでない場合は FALSE を返します。
+        .OUTPUTS
+            System.Boolean
+            テスト対象に差異がない場合は TRUE、そうでない場合は FALSE を返します。
 
-    .EXAMPLE
-        Test-SameFile -ReferenceObject sample1.dll -DifferenceObject sample2.dll
-        カレントディレクトリにある sample1.dll と sample2.dll が同じかどうかをテストします。
+        .EXAMPLE
+            Test-SameFile -ReferenceObject sample1.dll -DifferenceObject sample2.dll
+            カレントディレクトリにある sample1.dll と sample2.dll が同じかどうかをテストします。
 
-    .EXAMPLE
-        Test-SameFile C:\sample1 C:\sample2
-        C:\sample1 フォルダーと sample2 フォルダーについて、当該フォルダー以下にある全てのファイルが同じかどうかをテストします。
-
+        .EXAMPLE
+            Test-SameFile C:\sample1 C:\sample2
+            C:\sample1 フォルダーと sample2 フォルダーについて、当該フォルダー以下にある全てのファイルが同じかどうかをテストします。
     #>
 
     [CmdletBinding()]
@@ -268,60 +267,117 @@ Function Test-SameFile
 Function Start-Command
 {
     <#
-    .SYNOPSIS
-        ファイルを実行します。
+        .SYNOPSIS
+            ファイルを実行します。
 
-    .DESCRIPTION
-        指定されたパスにあるファイルを実行する Start-Process コマンドレットのラッパーです。
-        ただし、デフォルトでは同期処理で実行します。
-        非同期処理モードで実行したい場合は Async パラメーターを指定してください。
+        .DESCRIPTION
+            指定されたパスにあるファイルを実行します。
 
-        標準出力、および、標準エラー出力は一時的に WorkingDirectory (デフォルトはカレントディレクトリ) にファイルとして書き出された後に、
-        それぞれ、標準出力、および、標準エラー出力に出力されます。
-        これらのファイルは、コマンドレットの処理が終了したら削除されますが、Debug パラメーターが指定されたときは削除されません。
-        (非同期処理モードの場合は、標準出力、および、標準エラー出力は、これらのファイルには出力されません。)
+            Start-Process コマンドレットのラッパーとして実装されていますが、デフォルトでは同期処理で実行します。
+            非同期モードで実行したい場合は Async パラメーターを指定してください。
 
-    .PARAMETER FilePath
+            標準出力、および、標準エラー出力は一時的に WorkingDirectory (デフォルトはカレントディレクトリ) にファイルとして書き出された後に、
+            それぞれ、標準出力、および、標準エラー出力に出力されます。
+            これらのファイルは、コマンドレットの処理が終了すると削除されます。
+            ただし、Debug パラメーターが指定されたときは削除されません。
+            また、非同期処理モードの場合は、標準出力、および、標準エラー出力は、これらのファイルには出力されません。
 
-    .PARAMETER ArgumentList
+        .PARAMETER FilePath
+            実行するファイルを指定します。
 
-    .PARAMETER WorkingDirectory
+        .PARAMETER ArgumentList
+            実行時のパラメーターを文字列配列として指定します。
 
-    .PARAMETER BinPath
+        .PARAMETER WorkingDirectory
+            作業フォルダーを指定します。
+            デフォルトは、カレントディレクトリです。
 
-    .PARAMETER Retry
+        .PARAMETER BinPath
+            実行ファイルのパスの配列を文字列配列として指定します。
+            以下の順番で FilePath パラメーターで指定されたファイルを検索し、最初に検出したファイルが実行されます。
 
-    .PARAMETER Interval
+                1. カレントディレクトリ + FilePath
+                2. カレントディレクトリ + FilePath + '.exe'
+                3. スクリプトのあるフォルダー + FilePath
+                4. スクリプトのあるフォルダー + FilePath + '.exe'
+                5. BinPath で指定されたパス (0) + FilePath
+                6. BinPath で指定されたパス (0) + FilePath + '.exe'
+                7. BinPath で指定されたパス (1) + FilePath
+                8. BinPath で指定されたパス (1) + FilePath + '.exe'
+                        :
+                N.   BinPath で指定されたパス (n) + FilePath
+                N+1. BinPath で指定されたパス (n) + FilePath + '.exe'
 
-    .PARAMETER WindowStyle
+            FilePath パラメーターに、ファイル名ではなくパスが指定されていた場合は、FilePath で指定されているファイル名が検索に使われます。
 
-    .PARAMETER NoNewWindow
+        .PARAMETER Retry
+            ファイルの実行に失敗した時に、指定回数をリトライします。
+            Retry パラメーターには、最初の試行を含めた数値を指定します。
+            デフォルトはリトライなし (1) です。
 
-    .PARAMETER Async
+            ファイルを実行した戻り値が 0 でない場合に、実行に失敗したと判定されます。
+            そのため、適切に戻り値を返さないファイルを実行した場合、リトライは正しく試行されません。
 
-    .PARAMETER OutputEncoding
+        .PARAMETER Interval
+            リトライ間隔の秒数を指定します。
+            デフォルトは 1 [秒] です。
 
-    .INPUTS
-        None
+        .PARAMETER WindowStyle
+            ウィンドウのスタイル (System.Diagnostics.ProcessWindowStyle) を指定します。
 
-    .OUTPUTS
-        System.Int32
+        .PARAMETER NoNewWindow
+            ウィンドウを非表示にする場合に指定します。
+            このパラメーターを指定すると、Start-Process コマンドレットの -NoNewWindow パラメーターが指定されます。
 
-    .NOTES
+        .PARAMETER Async
+            非同期で実行するときに指定します。
+            デフォルトでは、Start-Process コマンドレットの -NoWait パラメーターが指定されていますが、Async パラメーターを指定すると、
+            Start-Process コマンドレットの -NoWait パラメーターが指定されません。
 
+        .PARAMETER OutputEncoding
+            標準出力、および、標準エラー出力のエンコーディングを指定します。
+            デフォルトは Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding.Default です。
 
-    .EXAMPLE
+            出力が文字化けしているときは、このパラメーターを変更してみてください。
+            たとえば、Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding.UTF8 を指定すると、正しく表示される場合があります。
 
+        .INPUTS
+            System.String
+            パイプを使用して、ArgumentList パラメーターを Start-Command コマンドレットに渡すことができます。
 
-    .LINK
-        [MS-ERREF] Windows Error Codes    
-        http://msdn.microsoft.com/en-us/library/cc231196.aspx
+        .OUTPUTS
+            System.Int32
+            デフォルト (同期処理モード) では、ファイルを実行した戻り値を返します。
+            非同期処理モードでは、実行したプロセスのプロセス ID を返します。
+
+        .EXAMPLE
+            Start-Command notepad
+            メモ帳を同期モードで実行します。
+
+        .EXAMPLE
+            Start-Command calc -Async
+            電卓を非同期モードで実行します。
+
+        .EXAMPLE
+            Start-Command fciv .\sample1.dll, .\sample2.dll -WrokingDirectory C:\Temp -BinPath C:\FCIV -Retry 5 -Interval 3
+            FCIV (File Checksum Integrity Verifier) を実行します。
+
+            Start-Command コマンドレットは C:\FCIV\fciv.exe を検出・実行し、カレントディレクトリにある sample1.dll と \sample2.dll のハッシュ値を
+            表示します。作業フォルダーには C:\Temp を指定しています。
+            何らかの理由で FCIV の実行に失敗すると、3 秒間隔で 4 回のリトライ (最初の試行を含めると、合計 5 回の試行) を実行します。
+
+        .LINK
+            Start-Process
+            http://technet.microsoft.com/ja-JP/library/hh849848.aspx
+
+            [MS-ERREF] Windows Error Codes    
+            http://msdn.microsoft.com/en-us/library/cc231196.aspx
     #>
 
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory=$true, Position=0)][string]$FilePath,
-        [Parameter(Mandatory=$false, Position=1)][string[]]$ArgumentList,
+        [Parameter(Mandatory=$false, Position=1, ValueFromPipeline=$true)][string[]]$ArgumentList,
         [Parameter(Mandatory=$false, Position=2)][string]$WorkingDirectory,
         [Parameter(Mandatory=$false, Position=3)][string[]]$BinPath,
 
@@ -341,7 +397,7 @@ Function Start-Command
     Process
     {
         # -FilePath
-        if (Test-Path -Path ($exe_filepath = (Get-Location | Join-Path -ChildPath $FilePath)))
+        if (Test-Path -Path ($exe_filepath = (Get-Location | Join-Path -ChildPath ($FilePath | Split-Path -Leaf))))
         {
             # Current Directory
             $FilePath = $exe_filepath
@@ -351,14 +407,14 @@ Function Start-Command
             # Current Directory + '.exe'
             $FilePath = $exe_filepath
         }
-        elseif (Test-Path -Path ($exe_filepath = ($PSCommandPath | Split-Path -Parent | Join-Path -ChildPath $FilePath)))
+        elseif (Test-Path -Path ($exe_filepath = ($PSCommandPath | Split-Path -Parent | Join-Path -ChildPath ($FilePath | Split-Path -Leaf))))
         {
             # Module Path
             $FilePath = $exe_filepath
         }
         elseif (Test-Path -Path ($exe_filepath += '.exe'))
         {
-            # Module Path + ".exe"
+            # Module Path + '.exe'
             $FilePath = $exe_filepath
         }
         elseif ($BinPath -and ($BinPath.Count -ge 1))
@@ -368,7 +424,7 @@ Function Start-Command
             {
                 if (Test-Path -Path $BinPath[$i] -PathType Container)
                 {
-                    if (Test-Path -Path ($exe_filepath = ($BinPath[$i] | Join-Path -ChildPath $FilePath)))
+                    if (Test-Path -Path ($exe_filepath = ($BinPath[$i] | Join-Path -ChildPath ($FilePath | Split-Path -Leaf))))
                     {
                         # $BinPath
                         $FilePath = $exe_filepath
@@ -376,7 +432,7 @@ Function Start-Command
                     }
                     elseif (Test-Path -Path ($exe_filepath += '.exe'))
                     {
-                        # $BinPath + ".exe"
+                        # $BinPath + '.exe'
                         $FilePath = $exe_filepath
                         break
                     }
@@ -431,6 +487,7 @@ Function Start-Command
         }
 
 
+        # Repeat Retry times
         for ($i = 0; $i -lt $Retry; $i++)
         {
             $commandline = $commandline_base
@@ -509,63 +566,78 @@ Function Start-Command
 Function New-ISOImageFile
 {
     <#
-    .SYNOPSIS
-        ISO イメージファイルを作成します。
+        .SYNOPSIS
+            ISO イメージファイルを作成します。
 
-    .DESCRIPTION
+        .DESCRIPTION
+            Cygwin ランタイム上で動作する genisoimage.exe を使用して、指定したフォルダーをルートディレクトリにした ISO イメージファイルを作成します。
+            指定したパスがファイルだった場合はエラーになります。
+            Cygwin および genisoimage.exe は、別途用意してください。
 
+        .PARAMETER InputObject
+            ISO イメージを作成した時に、ルートディレクトリになるフォルダーのパスを指定します。
+            指定したパスがファイルだった場合はエラーになります。
 
-    .PARAMETER InputObject
+        .PARAMETER Path
+            作成した ISO イメージファイルを保存するパスを指定します。
 
+            ファイルパスではなくフォルダーのパスが指定された場合、あるいは、このパラメーターが省略された場合、指定されたパス、あるいは、
+            入力ファイルと同じフォルダーに、入力ファイル名 ($InputObject) に拡張子 '.iso' を付加したファイル名の ISO イメージファイルが作成されます。
 
-    .PARAMETER Path
+            指定されたパスに既にファイルが存在する場合、そのファイルは上書きされます。
 
+        .PARAMETER VolumeID
+            ISO イメージのボリュームラベル文字列を指定します。
 
-    .PARAMETER VolumeID
+        .PARAMETER Publisher
+            ISO イメージの発行者の文字列を指定します。
 
+        .PARAMETER ApplicationID
+            ISO イメージのアプリケーション ID 文字列を指定します。
 
-    .PARAMETER Publisher
+        .PARAMETER ArgumentList
+            genisoimage.exe へのパラメーターを個別に指定する場合に、文字列配列として指定します。
+            New-ISOImageFile コマンドレットのプリセットのパラメーターと重複する場合は、このパラメーターの値が優先されます。
 
+        .PARAMETER BinPath
+            genisoimage.exe のパスを指定します。複数指定する場合は、文字列配列として指定します。
+            Cygwin のデフォルトのインストールパスに genisoimage.exe をインストールしていれば、通常、このパラメーターを指定する必要はありません。
 
-    .PARAMETER ApplicationID
+        .PARAMETER RedirectStandardError
+            標準エラー出力を標準出力にリダイレクトします。
 
+        .PARAMETER Recommended
+            genisoimage.exe に対して、以下のパラメーターを指定します。
 
-    .PARAMETER ArgumentList
+                -input-charset utf-8
+                -output-charset utf-8
+                -rational-rock
+                -joliet
+                -joliet-long
+                -jcharset utf-8
 
+        .INPUTS
+            System.String
+            パイプを使用して、InputObject パラメーターを New-ISOImageFile コマンドレットに渡すことができます。
 
-    .PARAMETER BinPath
+        .OUTPUTS
+            System.String, Null
+            ISO イメージファイルの作成に成功した場合は、作成した ISO イメージファイルのパスを返します。
+            ISO イメージファイルの作成に失敗した場合は、なにも返しません。
 
+        .NOTES
+            MD5 チェックサムではなく、ISO イメージファイルのパスを返すよう、仕様変更しました。
 
-    .PARAMETER FCIVBinPath
+        .EXAMPLE
+            New-ISOImageFile -InputObject .\sample -Path .\sample.iso -VolumeID "Test" -Recommended
+            カレントディレクトリにある sample フォルダーをルートディレクトリとする sample.iso というファイル名の ISO イメージファイルを作成します。
 
+        .LINK
+            Cygwin
+            http://www.cygwin.com/
 
-    .PARAMETER RedirectStandardError
-
-
-    .PARAMETER Recommended
-
-
-    .INPUTS
-        System.String
-
-
-    .OUTPUTS
-        System.String
-
-
-    .NOTES
-        MD5 チェックサムではなく、iso ファイルのパスを返すように変更。
-
-
-    .EXAMPLE
-
-
-    .LINK
-        Cygwin
-        http://www.cygwin.com/
-
-        cdrkit - portable command-line CD-DVD recorder software (for genisoimage.exe)
-        http://www.cdrkit.org/
+            cdrkit - portable command-line CD-DVD recorder software (for genisoimage.exe)
+            http://www.cdrkit.org/
     #>
 
     [CmdletBinding()]
@@ -593,7 +665,6 @@ Function New-ISOImageFile
         [Parameter(Mandatory=$false, Position=4)][string]$ApplicationID,
 
         [Parameter(Mandatory=$false, Position=5)][string[]]$ArgumentList,
-
         [Parameter(Mandatory=$false, Position=6)][string[]]$BinPath = $Script:BinPath_Cygwin,
 
         [Parameter(Mandatory=$false)][switch]$RedirectStandardError,
@@ -609,7 +680,14 @@ Function New-ISOImageFile
         $input_path = ($InputObject | Resolve-Path)
 
         # Output Path (*.iso)
-        $output_path = ($Path | Split-Path -Parent | Convert-Path | Join-Path -ChildPath ($Path | Split-Path -Leaf))
+        if ($Path | Test-Path -PathType Container)
+        {
+            $output_path = $Path | Join-Path -ChildPath ($InputObject + '.iso')
+        }
+        else
+        {
+            $output_path = ($Path | Split-Path -Parent | Convert-Path | Join-Path -ChildPath ($Path | Split-Path -Leaf))
+        }
 
 
         # ArgumentList
@@ -711,33 +789,57 @@ Function New-ISOImageFile
 Function Add-Signature
 {
     <#
-    .SYNOPSIS
+        .SYNOPSIS
+            指定されたファイルにデジタル署名をします。
 
-    .DESCRIPTION
+        .DESCRIPTION
+            Microsoft 社の signtool.exe を使用して、指定されたファイルにデジタル署名をします。
+            コマンドラインは signtool sign [Options] <FileName> です。
+            signtool.exe の Options / <filename(s)> パラメーターには、Add-Signature コマンドレットの Options / FileName パラメーターが、
+            それぞれ割り当てられます。
+
+        .PARAMETER Options
+            signtool.exe の sign コマンドの options パラメーターに引き渡されます。
+
+        .PARAMETER FileName
+            デジタル署名をするファイルのパスを指定します。
+            signtool.exe の sign コマンドの <filename(s)> パラメーターに引き渡されます。
+
+        .PARAMETER BinPath
+            signtool.exe があるフォルダーへのパスを指定します。
+            いくつかのバージョンの Windows SDK や Windows Driver Kit のデフォルトのパスは組み込まれているので、通常、指定する必要はありません。
+
+        .INPUTS
+            System.String
 
 
-    .PARAMETER InputObject
+        .OUTPUTS
+            System.String
 
 
-    .PARAMETER Path
+        .NOTES
+            以下のパスに signtool.exe がある場合、BinPath パラメーターを指定する必要はありません。
+
+                C:\Program Files (x86)\Windows Kits\8.1\bin\x86
+                C:\Program Files (x86)\Windows Kits\8.1\bin\x64
+                C:\Program Files (x86)\Windows Kits\8.0\bin\x86
+                C:\Program Files (x86)\Windows Kits\8.0\bin\x64
+                C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin
+                C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Bin
+
+                C:\Program Files\Windows Kits\8.1\bin\x64
+                C:\Program Files\Windows Kits\8.1\bin\x86
+                C:\Program Files\Windows Kits\8.0\bin\x64
+                C:\Program Files\Windows Kits\8.0\bin\x86
+                C:\Program Files\Microsoft SDKs\Windows\v7.1A\Bin
+                C:\Program Files\Microsoft SDKs\Windows\v7.0A\Bin
+
+        .EXAMPLE
 
 
-    .INPUTS
-        System.String
-
-
-    .OUTPUTS
-        System.String
-
-
-    .NOTES
-
-
-    .EXAMPLE
-
-
-    .LINK
-
+        .LINK
+            SignTool.exe (署名ツール)
+            http://msdn.microsoft.com/ja-jp/library/8s9b9yaz.aspx
     #>
 
     [CmdletBinding()]
@@ -754,8 +856,10 @@ Function Add-Signature
         )]
         [string[]]$FileName,
 
-        [Parameter(Mandatory=$false, Position=2)][int]$Retry = 5,
-        [Parameter(Mandatory=$false, Position=3)][int]$Interval = 10
+        [Parameter(Mandatory=$false, Position=2)][string[]]$BinPath = $Script:BinPath_signtool,
+
+        [Parameter(Mandatory=$false, Position=3)][int]$Retry = 5,
+        [Parameter(Mandatory=$false, Position=4)][int]$Interval = 10
     )
 
     Process
@@ -764,7 +868,7 @@ Function Add-Signature
         {
             Start-Command `
                 -FilePath 'signtool.exe' -ArgumentList ('sign', $Options) `
-                -BinPath $Script:BinPath_signtool `
+                -BinPath $BinPath `
                 -Retry $Retry -Interval $Interval
         }
         catch { throw }
