@@ -25,8 +25,17 @@
  #
  #  2013/03/28  Create
  #  2013/09/02  Version 0.0.0.1
+ #  2013/12/31  Version 0.1.0.0
+ #  2014/01/05  Version 0.2.0.0
+ #  2014/01/10  Version 0.3.0.0
  #  2014/01/16  Version 0.4.0.0
  #  2014/01/17  Version 0.5.0.0
+ #  2014/03/01  Version 0.6.0.0
+ #  2014/03/10  Version 0.7.0.0
+ #  2014/03/17  Version 0.8.0.0
+ #  2014/04/07  Version 0.9.0.0
+ #  2014/04/17  Version 0.10.0.0
+ #  2014/04/20  Version 0.11.0.0
  #
  #>
 #####################################################################################################################################################
@@ -79,31 +88,26 @@ Function YES_NO { Write-Boolean -TestObject $args[0] -Green 'Yes' -Red 'No' }
 Function New-GUID
 {
     <#
-    .SYNOPSIS
-        GUID を生成します。
+        .SYNOPSIS
+            GUID を生成します。
 
+        .DESCRIPTION
+            System.Guid.NewGUID メソッドを使って新しい GUID を生成します。
 
-    .DESCRIPTION
+        .INPUTS
+            None
 
+        .OUTPUTS
+            System.String
+            生成した GUID を文字列として取得します。
 
-    .INPUTS
-        None
+        .EXAMPLE
+            $guid = New-GUID
+            GUID を生成し、String 型の文字列として変数 guid に格納します。
 
-
-    .OUTPUTS
-        System.String
-
-
-    .NOTES
-
-
-    .EXAMPLE
-        $guid = New-GUID
-        GUID を生成し、String 型の文字列として取得します。
-
-
-    .LINK
-        (None)
+        .LINK
+            Guid.NewGuid メソッド (System)
+            http://msdn.microsoft.com/ja-jp/library/system.guid.newguid.aspx
     #>
 
     [CmdletBinding()]Param()
@@ -118,37 +122,38 @@ Function New-GUID
 Function New-HR
 {
     <#
-    .SYNOPSIS
-        水平線を出力します。
+        .SYNOPSIS
+            水平線を出力します。
 
+        .DESCRIPTION
+            コンソールのウィンドウ幅の水平線を出力します。
 
-    .DESCRIPTION
+        .PARAMETER Char
+            水平線を構成する Char 型の文字を指定します。
+            デフォルトは '-' です。
 
+        .PARAMETER Length
+            水平線の幅を指定します。
+            デフォルトは [コンソールのウィンドウの幅 - 1] です。
 
-    .PARAMETER Char
-        デフォルトは '-'
+        .INPUTS
+            System.Char
+            パイプを使用して、Char パラメーターを New-HR コマンドレットに渡すことができます。
 
+        .OUTPUTS
+            System.String
+            水平線を文字列として取得します。
 
-    .PARAMETER Length
-        デフォルトは (コンソールの幅 - 1)
+        .NOTES
+            New-HR コマンドレットから取得するのは文字列なので、このコマンドのみを実行した場合、水平線は標準出力に表示されます。
 
+        .EXAMPLE
+            New-HR | Write-Host -ForegroundColor Red
+            赤い色の水平線を、コンソールに出力します。
 
-    .INPUTS
-        System.Char
-
-
-    .OUTPUTS
-        System.String
-
-
-    .NOTES
-
-
-    .EXAMPLE
-
-
-    .LINK
-        (None)
+        .LINK
+            PSHostRawUserInterface.BufferSize Property (System.Management.Automation.Host)
+            http://msdn.microsoft.com/en-us/library/system.management.automation.host.pshostrawuserinterface.buffersize.aspx
     #>
 
     [CmdletBinding()]
@@ -167,60 +172,59 @@ Function New-HR
 Function Write-Title
 {
     <#
-    .SYNOPSIS
-        コンソールにタイトルを表示します。
+        .SYNOPSIS
+            コンソールにタイトルを表示します。
+
+        .DESCRIPTION
+            指定された文字列を、コンソールのウィンドウ幅 (-1) の Char 型の文字で矩形に囲って、コンソールに表示します。
+
+        .PARAMETER Text
+            矩形に囲う文字列を指定します。
+
+        .PARAMETER Char
+            デフォルトは '#'
 
 
-    .DESCRIPTION
+        .PARAMETER Width
+            デフォルトは (コンソールのウィンドウの幅 - 1)
 
 
-    .PARAMETER Text
+        .PARAMETER Color
+            デフォルトは白
 
 
-    .PARAMETER Char
-        デフォルトは '#'
+        .PARAMETER 
+            デフォルトは 0
 
 
-    .PARAMETER Width
-        デフォルトは (コンソールの幅 - 1)
+        .PARAMETER ColumnWidth
+            デフォルトは 2
 
 
-    .PARAMETER Color
-        デフォルトは白
+        .PARAMETER MinWidth
+            デフォルトは 64
 
 
-    .PARAMETER 
-        デフォルトは 0
+        .PARAMETER MaxWidth
+            デフォルトは 256
 
 
-    .PARAMETER ColumnWidth
-        デフォルトは 2
+        .INPUTS
+            System.String
 
 
-    .PARAMETER MinWidth
-        デフォルトは 64
+        .OUTPUTS
+            None
 
 
-    .PARAMETER MaxWidth
-        デフォルトは 256
+        .NOTES
+            Write-Title コマンドレットの出力先はコンソールなので、通常、標準出力には出力されません。
+
+        .EXAMPLE
 
 
-    .INPUTS
-        System.String
-
-
-    .OUTPUTS
-        None
-
-
-    .NOTES
-
-
-    .EXAMPLE
-
-
-    .LINK
-        (None)
+        .LINK
+            (None)
     #>
 
     [CmdletBinding()]
@@ -242,31 +246,44 @@ Function Write-Title
         [int]$ColumnWidth = 2,
 
         [Parameter(Mandatory=$false, Position=6)]
-        [ValidateRange(0,512)]
-        [int]$MinWidth = 64,
+        [ValidateRange((1+2+0+2+1),512)]
+        [int]$MinWidth = (1+2+0+2+1),
 
         [Parameter(Mandatory=$false, Position=7)]
-        [ValidateRange(0,1024)]
+        [ValidateRange((1+2+0+2+1),1024)]
         [int]$MaxWidth = 256
     )
 
     Process
     {
-        # Validations
+        # Set minimum text length
+        $minLength = $Text[0].Length
+        $Text | % {
+            if ($_.Length -gt '...'.Length) { $minLength = 1 + '...'.Length }
+            elseif ($_.Length -gt $minLength) { $minLength = $_.Length }
+        }
+
+        # Validations (Update $MinWidth / $MaxWidth)
+        if ($MinWidth -lt ($minLength + ($offsetLength = (($ColumnWidth + (' '.Length * 2)) * 2)))) { $MinWidth = ($minLength + $offsetLength) }
+        if ($MaxWidth -lt ($minLength + $offsetLength)) { $MaxWidth = ($minLength + $offsetLength) }
+
+        # Validations (Update $Width)
         if ($Width -lt $MinWidth) { $Width = $MinWidth }
         if ($Width -gt $MaxWidth) { $Width = $MaxWidth }
 
-        $Text | 
-        % {
-            if ($_.Length -gt ($maxLength = $Width - 2 - ($ColumnWidth * 2)))
+        # Cut text if needed
+        foreach ($i in 0..($Text.Count - 1))
+        {
+            if (($Text[$i].Length + $offsetLength) -gt $Width)
             {
-                $_ = $_.Substring(0, $maxLength - 2 - '...'.Length) + '...'
+                $Text[$i] = $Text[$i].Substring(0, $Width - ($offsetLength + '...'.Length)) + '...'
             }
         }
 
         $hr = New-HR -Char $Char -Length $Width
         $side = "$Char" * $ColumnWidth
-        $pad = $side + (' ' * ($hr.Length - ($side.Length * 2))) + $side
+        $pad = $side + (' ' * ($Width - ($side.Length * 2))) + $side
+
 
         # Brerak Line
         Write-Host
@@ -281,12 +298,16 @@ Function Write-Title
         }
 
         # Main
-        $Text | 
-        % {
+        $Text | % {
+
             if ([string]::IsNullOrEmpty($_)) { Write-Host $pad -ForegroundColor $Color }
             else
             {
-                Write-Host ($side + (' ' * 2) + $_ + (' ' * ($hr.Length - $_.Length - 2 - ($side.Length * 2))) + $side) -ForegroundColor $Color
+                Write-Host ($side `
+                    + (' ' * 2) `
+                    + $_ `
+                    + (' ' * ($Width - ($_.Length + (' '.Length * 2) + ($side.Length * 2)))) `
+                    + $side) -ForegroundColor $Color
             }
         }
 

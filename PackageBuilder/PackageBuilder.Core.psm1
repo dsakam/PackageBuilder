@@ -24,9 +24,17 @@
  # Package Builder Toolkit for PowerShell
  #
  #  2013/09/02  Version 0.0.0.1
+ #  2013/12/31  Version 0.1.0.0
+ #  2014/01/05  Version 0.2.0.0
+ #  2014/01/10  Version 0.3.0.0
  #  2014/01/16  Version 0.4.0.0
  #  2014/01/17  Version 0.5.0.0
  #  2014/03/01  Version 0.6.0.0
+ #  2014/03/10  Version 0.7.0.0
+ #  2014/03/17  Version 0.8.0.0
+ #  2014/04/07  Version 0.9.0.0
+ #  2014/04/17  Version 0.10.0.0
+ #  2014/04/20  Version 0.11.0.0
  #
  #>
 #####################################################################################################################################################
@@ -346,8 +354,8 @@ Function Start-Command
             パイプを使用して、ArgumentList パラメーターを Start-Command コマンドレットに渡すことができます。
 
         .OUTPUTS
-            System.Int32
-            デフォルト (同期処理モード) では、ファイルを実行した戻り値を返します。
+            None or System.Int32
+            デフォルト (同期処理モード) では、Start-Command コマンドレットは値を返しません。
             非同期処理モードでは、実行したプロセスのプロセス ID を返します。
 
         .EXAMPLE
@@ -621,7 +629,7 @@ Function New-ISOImageFile
             パイプを使用して、InputObject パラメーターを New-ISOImageFile コマンドレットに渡すことができます。
 
         .OUTPUTS
-            System.String, Null
+            System.String or None
             ISO イメージファイルの作成に成功した場合は、作成した ISO イメージファイルのパスを返します。
             ISO イメージファイルの作成に失敗した場合は、なにも返しません。
 
@@ -802,7 +810,7 @@ Function Add-Signature
             signtool.exe の sign コマンドの options パラメーターに引き渡されます。
 
         .PARAMETER FileName
-            デジタル署名をするファイルのパスを指定します。
+            デジタル署名をする対象となるファイルのパスを指定します。
             signtool.exe の sign コマンドの <filename(s)> パラメーターに引き渡されます。
 
         .PARAMETER BinPath
@@ -811,11 +819,10 @@ Function Add-Signature
 
         .INPUTS
             System.String
-
+            パイプを使用して、FileName パラメーターを Add-Signature コマンドレットに渡すことができます。
 
         .OUTPUTS
-            System.String
-
+            None
 
         .NOTES
             以下のパスに signtool.exe がある場合、BinPath パラメーターを指定する必要はありません。
@@ -835,6 +842,9 @@ Function Add-Signature
                 C:\Program Files\Microsoft SDKs\Windows\v7.0A\Bin
 
         .EXAMPLE
+            Add-Signature -Options "/t http://timestamp.verisign.com/scripts/timestamp.dll, /v" -FileName .\setup.exe
+
+            ★★★★★ signtool.exe のパラメーターを調査する。 ★★★★★
 
 
         .LINK
