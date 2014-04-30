@@ -36,6 +36,7 @@
  #  2014/04/07  Version 0.9.0.0
  #  2014/04/17  Version 0.10.0.0
  #  2014/04/20  Version 0.11.0.0
+ #  2014/04/27  Version 0.12.0.0
  #
  #>
 #####################################################################################################################################################
@@ -96,10 +97,11 @@ Function New-GUID
 
         .INPUTS
             None
+            パイプを使用してこのコマンドレットに入力を渡すことはできません。
 
         .OUTPUTS
             System.String
-            生成した GUID を文字列として取得します。
+            生成した GUID を文字列として返します。
 
         .EXAMPLE
             $guid = New-GUID
@@ -126,10 +128,10 @@ Function New-HR
             水平線を出力します。
 
         .DESCRIPTION
-            コンソールのウィンドウ幅の水平線を出力します。
+            指定された文字で構成される水平線を出力します。
 
         .PARAMETER Char
-            水平線を構成する Char 型の文字を指定します。
+            水平線を構成する System.Char 型の文字を指定します。
             デフォルトは '-' です。
 
         .PARAMETER Length
@@ -176,55 +178,67 @@ Function Write-Title
             コンソールにタイトルを表示します。
 
         .DESCRIPTION
-            指定された文字列を、コンソールのウィンドウ幅 (-1) の Char 型の文字で矩形に囲って、コンソールに表示します。
+            指定されたテキストを矩形に囲われた文字列を Write-Host コマンドレットを使って、コンソールに表示します。
 
         .PARAMETER Text
-            矩形に囲う文字列を指定します。
+            タイトル文字列を指定します。
+            複数行を指定するときは、1 行ずつ文字列配列で指定してください。
+            指定した幅に収まらない場合は、必要に応じて、末尾 (あるいは全文) が '...' で省略されます。
 
         .PARAMETER Char
-            デフォルトは '#'
-
+            囲いを構成する System.Char 型の文字を指定します。
+            デフォルトは '#' です。
 
         .PARAMETER Width
-            デフォルトは (コンソールのウィンドウの幅 - 1)
-
+            囲いの幅を指定します。
+            デフォルトは [コンソールのウィンドウの幅 - 1] です。
 
         .PARAMETER Color
-            デフォルトは白
+            表示色を (System.ConsoleColor 型で) 指定します。
+            デフォルトは白 (System.ConsoleColor.White)です。
 
+        .PARAMETER Padding
+            タイトル文字列と囲いの上部および下部との間を何行空けるかを指定します。
+            デフォルトは 0 [行] です。5 [行] までの値を指定することができます。
 
-        .PARAMETER 
-            デフォルトは 0
-
+            タイトル文字列と囲いの囲いの左右の間は 2 文字分固定です。
 
         .PARAMETER ColumnWidth
-            デフォルトは 2
-
+            囲いを構成する左右の柱部分の幅を文字数で指定します。
+            デフォルトは 2 [文字] です。5 [文字] までの値を指定することができます。
 
         .PARAMETER MinWidth
-            デフォルトは 64
-
+            囲いの幅の最小値を指定します。
+            このパラメーターよりも Width パラメーターの方が小さかった場合に、囲いの幅は Width ではなく MinWidth になります。
+            デフォルトは 6 です。6 から 512 までの値を指定することができます。
 
         .PARAMETER MaxWidth
-            デフォルトは 256
-
+            囲いの幅の最大値を指定します。
+            このパラメーターよりも Width パラメーターの方が大きかった場合に、囲いの幅は Width ではなく MaxWidth になります。
+            デフォルトは 256 です。6 から 1024 までの値を指定することができます。
 
         .INPUTS
             System.String
-
+            パイプを使用して、Text パラメーターを Write-Title コマンドレットに渡すことができます。
 
         .OUTPUTS
             None
 
-
         .NOTES
-            Write-Title コマンドレットの出力先はコンソールなので、通常、標準出力には出力されません。
+            Write-Boolean コマンドレットの出力先はコンソールなので、標準出力には、通常、何も出力されません。
 
         .EXAMPLE
+            Write-Title hoge
+            コンソールのウィンドウ幅 (-1) の '#' で囲われたタイトル文字列 'hoge' を、コンソールに出力します。
 
+        .EXAMPLE
+            Write-Title -Text 'This is', 'miltiple-line', 'title.' -Char "*" -Width 42 -Padding 2 -ColumnWidth 1 -Color Yellow
+            幅 42 [文字] の '*' で囲われた 'This is miltiple-line title.' というタイトルを、黄色い文字列でコンソールに出力します。
+            タイトル文字列と囲いの上部および下部との間には 2 行のスペースがあり、左右の柱部分の文字列の幅は 1 文字です。
 
         .LINK
-            (None)
+            Write-Host
+            http://technet.microsoft.com/ja-JP/library/dd347596.aspx
     #>
 
     [CmdletBinding()]
@@ -323,38 +337,45 @@ Function Write-Title
 Function Write-Boolean
 {
     <#
-    .SYNOPSIS
-        入力が真の場合は緑、偽の場合は赤でコンソールに文字列を表示します。
+        .SYNOPSIS
+            入力となるテスト対象の結果に応じて、指定された文字列を指定された色でコンソールに表示します。
 
+        .DESCRIPTION
+            入力となるテスト対象の結果を Boolean 型の真の場合、およびそれ以外の場合で、それぞれ異なる文字列を、指定された色でコンソールに表示します。
+            デフォルトでは、真の場合は緑色の 'TRUE' の文字、それ以外の場合は赤い 'FALSE' の文字を表示します。
 
-    .DESCRIPTION
+        .PARAMETER TestObject
+            テスト対象を指定します。
 
+        .PARAMETER Green
+            TestObject の結果が真の場合に、緑色で表示する文字列を指定します。
+            デフォルトは 'TRUE' です。
 
-    .PARAMETER TestObject
-    
+        .PARAMETER Red
+            TestObject の結果が真でない場合に、赤く表示する文字列を指定します。
+            デフォルトは 'FALSE' です。
 
-    .PARAMETER Green
+        .INPUTS
+            System.Boolean
+            パイプを使用して、TestObject パラメーターを Write-Boolean コマンドレットに渡すことができます。
 
+        .OUTPUTS
+            None
 
-    .PARAMETER Red
+        .NOTES
+            Write-Boolean コマンドレットの出力先はコンソールなので、標準出力には、通常、何も出力されません。
 
+        .EXAMPLE
+            Write-Boolean $true
+            緑色の 'TRUE' の文字をコンソールに表示します。
 
-    .INPUTS
-        System.Boolean
+        .EXAMPLE
+            Write-Boolean $false -Green 'Pass' -Red 'Fail'
+            赤い 'Fail' の文字をコンソールに表示します。
 
-
-    .OUTPUTS
-        None
-
-
-    .NOTES
-
-
-    .EXAMPLE
-
-
-    .LINK
-        (None)
+        .LINK
+            Write-Host
+            http://technet.microsoft.com/ja-JP/library/dd347596.aspx
     #>
 
     [CmdletBinding()]
@@ -375,42 +396,39 @@ Function Write-Boolean
 Function Show-Message
 {
     <#
-    .SYNOPSIS
-        指定したテキストとキャプションを表示するメッセージ ボックスを表示します。 
+        .SYNOPSIS
+            メッセージ ボックスを表示します。 
 
+        .DESCRIPTION
+            Show-Message コマンドレットは、System.Windows.Forms (System.Windows.Forms.dll) のロードを試みます。
+            System.Windows.Forms のロードに成功すると、System.Windows.Forms.MessageBox.Show メソッドを使用して、メッセージ ボックスを表示します。 
 
-    .DESCRIPTION
-        System.Windows.Forms.MessageBox.Show()
+        .PARAMETER Text
+            メッセージ ボックスに表示するテキストを指定します。
 
+        .PARAMETER Caption
+            メッセージ ボックスのタイトル バーに表示するテキストを指定します。
+            デフォルトでは、ホストセッションの名前 ($PSSessionApplicationName) が表示されます。
 
-    .PARAMETER Text
-        メッセージ ボックスに表示するテキストを指定します。
+        .PARAMETER Buttons
+            メッセージ ボックスに表示するボタンを [System.Windows.Forms.MessageBoxButtons] 型で指定します。
+            デフォルトは、指定なしです。
 
+        .INPUTS
+            System.String
+            パイプを使用して、Text パラメーターを Show-Message コマンドレットに渡すことができます。
 
-    .PARAMETER Caption
-        メッセージ ボックスのタイトル バーに表示するテキストを指定します。
+        .OUTPUTS
+            System.Windows.Forms.DialogResult
+            System.Windows.Forms.MessageBox.Show メソッドの戻り値を、コマンドレットの戻り値として返します。
 
+        .EXAMPLE
+            Show-Message hoge
+            メッセージ 'hoge' のメッセージ ボックスを表示します。
 
-    .PARAMETER Buttons
-
-
-    .INPUTS
-        System.String
-
-
-    .OUTPUTS
-        System.Windows.Forms.DialogResult
-
-
-    .NOTES
-
-
-    .EXAMPLE
-
-
-    .LINK
-        MessageBox クラス (System.Windows.Forms)
-        http://msdn.microsoft.com/library/system.windows.forms.messagebox.aspx
+        .LINK
+            MessageBox クラス (System.Windows.Forms)
+            http://msdn.microsoft.com/library/system.windows.forms.messagebox.aspx
     #>
 
     [CmdletBinding()]
@@ -439,87 +457,65 @@ Function Show-Message
 Function Get-DateString
 {
     <#
-    .SYNOPSIS
-        ロケール ID (LCID) および 標準またはカスタムの日時書式指定文字列 を使用して、日付文字列を取得します。
+        .SYNOPSIS
+            指定した時刻に対する日付を、指定した書式の文字列として取得します。
 
+        .DESCRIPTION
+            指定した時刻に対する日付に対して、ロケール ID (LCID) および 標準またはカスタムの日時書式指定文字列を指定して、文字列として取得します。
 
-    .DESCRIPTION
+        .PARAMETER Date
+            表示する日付を指定します。
+            デフォルトは本日です。
 
+        .PARAMETER LCID
+            ロケール ID (LCID) を指定します。
+            デフォルトは、現在のカルチャーの LCID です。
 
-    .PARAMETER Date
-        表示する日付を指定します。
-        デフォルトは本日です。
+        .PARAMETER Format
+            書式指定文字列を指定します。
+            デフォルトは 'D' です。
 
+        .INPUTS
+            System.DateTime
+            パイプを使用して、Date パラメーターを Get-DateString コマンドレットに渡すことができます。
 
-    .PARAMETER LCID
-        ロケール ID (LCID) を指定します。
+        .OUTPUTS
+            System.String
+            Show-Message コマンドレットは、日付文字列を返します。
 
-        This parameter is argument of System.Globalization.CultureInfo Constructor (String). 
-        Type: System.String
-        A predefined CultureInfo name, Name of an existing CultureInfo, or Windows-only culture name. 
+        .NOTES
+            Show-Message コマンドレットは、System.Globalization.CultureInfo() メソッドを使用しています。
 
-        If ommited, CultureInfo of your system is used.
+        .EXAMPLE
+            Get-DateString
+            今日の日付を文字列として取得します。
+            書式指定文字列はデフォルトの 'D' なので、日本であれば 'yyyy年M月d日' になります。
 
+        .EXAMPLE 
+            Get-DateString -Date 2014/4/29 -LCID en-US -Format m
+            2014年4月29日 (0:00) に対する日付文字列を、ロケール ID 'en-US' および書式指定文字列 'm' の文字列として取得します。
 
-    .PARAMETER Format
-        書式指定文字列を指定します。
-        デフォルトは "D" です。
+        .LINK
+            [MS-LCID] Windows Language Code Identifier (LCID) Reference
+            http://msdn.microsoft.com/en-us/library/cc233965.aspx
 
-        This parameter is 1st argument of System.DateTime.ToString Method (String, IFormatProvider).
-        Type: System.String
-        A standard or custom date and time format string. 
+            ロケール ID (LCID) の一覧
+            http://msdn.microsoft.com/ja-jp/library/cc392381.aspx
 
-        If ommited, The Long Date ("D") Format Specifier is used.
+            標準の日付と時刻の書式指定文字列
+            http://msdn.microsoft.com/ja-jp/library/az4se3k1.aspx
 
+            カスタムの日付と時刻の書式指定文字列
+            http://msdn.microsoft.com/ja-jp/library/8kb3ddd4.aspx
 
-    .INPUTS
-        System.DateTime
+            DateTime.ToString メソッド (String, IFormatProvider) (System)
+            http://msdn.microsoft.com/ja-jp/library/8tfzyc64.aspx
 
+            CultureInfo コンストラクター (String) (System.Globalization)
+            http://msdn.microsoft.com/ja-jp/library/ky2chs3h.aspx
 
-    .OUTPUTS
-        System.String
-
-
-    .NOTES
-        Get Date As String Cmdlet
-
-        2013/03/28  Version 0.0.0.1
-                    Create
-        2013/03/29  Change Comment Style
-        2013/09/02  Update
-        2013/09/03  Update
-        2013/09/04  Update
-                    Verion 1.0.0.0
-
-    .EXAMPLE
-        Get-DateString
-
-
-    .EXAMPLE 
-        Get-DateString -LCID 'ja-JP' -Format 'm'
-
-
-    .LINK
-        [MS-LCID] Windows Language Code Identifier (LCID) Reference
-        http://msdn.microsoft.com/en-us/library/cc233965.aspx
-
-        ロケール ID (LCID) の一覧
-        http://msdn.microsoft.com/ja-jp/library/cc392381.aspx
-
-        標準の日付と時刻の書式指定文字列
-        http://msdn.microsoft.com/ja-jp/library/az4se3k1.aspx
-
-        カスタムの日付と時刻の書式指定文字列
-        http://msdn.microsoft.com/ja-jp/library/8kb3ddd4.aspx
-
-        DateTime.ToString メソッド (String, IFormatProvider) (System)
-        http://msdn.microsoft.com/ja-jp/library/8tfzyc64.aspx
-
-        CultureInfo コンストラクター (String) (System.Globalization)
-        http://msdn.microsoft.com/ja-jp/library/ky2chs3h.aspx
-
-        ISO 639 - Wikipedia
-        http://ja.wikipedia.org/wiki/ISO_639
+            ISO 639 - Wikipedia
+            http://ja.wikipedia.org/wiki/ISO_639
     #>
 
     [CmdletBinding()]
@@ -539,76 +535,83 @@ Function Get-DateString
 Function Get-FileVersionInfo
 {
     <#
-    .SYNOPSIS
-        ディスク上の物理ファイルのバージョン情報を取得します。
+        .SYNOPSIS
+            ディスク上の物理ファイルのバージョン情報を取得します。
 
+        .DESCRIPTION
+            指定したファイルのバージョン情報を System.Diagnostics.FileVersionInfo として取得します。
 
-    .DESCRIPTION
+        .PARAMETER Path
+            ファイルバージョンを取得するファイルのパスを指定します。
 
+        .PARAMETER ProductName
+            バージョン情報 (System.Diagnostics.FileVersionInfo) ではなく、
+            製品名 (System.Diagnostics.FileVersionInfo.ProductName) を文字列として取得します。
 
-    .PARAMETER Path
+        .PARAMETER FileDescription
+            バージョン情報 (System.Diagnostics.FileVersionInfo) ではなく、
+            ファイルの説明 (System.Diagnostics.FileVersionInfo.FileDescription) を文字列として取得します。
 
+        .PARAMETER FileVersion
+            バージョン情報 (System.Diagnostics.FileVersionInfo) ではなく、
+            ファイルバージョン (System.Diagnostics.FileVersionInfo.FileVersion) を文字列として取得します。
 
-    .PARAMETER ProductName
+        .PARAMETER ProductVersion
+            バージョン情報 (System.Diagnostics.FileVersionInfo) ではなく、
+            製品バージョン (System.Diagnostics.FileVersionInfo.ProductVersion) を文字列として取得します。
 
+        .PARAMETER Major
+            ファイルバージョン (System.Diagnostics.FileVersionInfo.FileVersion) あるいは
+            製品バージョン (System.Diagnostics.FileVersionInfo.ProductVersion) のメジャーバージョンのみを取得します。
 
-    .PARAMETER FileDescription
+        .PARAMETER Minor
+            ファイルバージョン (System.Diagnostics.FileVersionInfo.FileVersion) あるいは
+            製品バージョン (System.Diagnostics.FileVersionInfo.ProductVersion) のマイナーバージョンのみを取得します。
 
+        .PARAMETER Build
+            ファイルバージョン (System.Diagnostics.FileVersionInfo.FileVersion) あるいは
+            製品バージョン (System.Diagnostics.FileVersionInfo.ProductVersion) のビルド番号のみを取得します。
 
-    .PARAMETER FileVersion
-        If specified, File Version is acquired.
+        .PARAMETER Private
+            ファイルバージョン (System.Diagnostics.FileVersionInfo.FileVersion) あるいは
+            製品バージョン (System.Diagnostics.FileVersionInfo.ProductVersion) のプライベートビルド番号 (リビジョン) のみを取得します。
 
+        .PARAMETER Composite
+            ファイルバージョン (System.Diagnostics.FileVersionInfo.FileVersion) あるいは
+            製品バージョン (System.Diagnostics.FileVersionInfo.ProductVersion) ではなく、メジャーバージョン、マイナーバージョン、ビルド番号、
+            および、プライベートビルド番号 (リビジョン) を組み合わせた文字列として取得します。
 
-    .PARAMETER ProductVersion
-        If specified, Product Version is acquired instead of File Version.
+        .INPUTS
+            System.String
+            パイプを使用して、ファイルのパス (Path パラメーター) を Get-GetFileVersionInfo コマンドレットに渡すことができます。
 
+        .OUTPUTS
+            System.Diagnostics.FileVersionInfo or System.String or System.Int32
+            Get-FileVersionInfo コマンドレットは、System.Diagnostics.FileVersionInfo、System.String または System.Int32 を返します。
 
-    .PARAMETER Major
+        .EXAMPLE
+            Get-FileVersion -Path .\setup.exe
+            カレントディレクトリにある setup.exe のバージョン情報を取得します。
 
-    .PARAMETER Minor
+        .EXAMPLE 
+            Get-FileVersion -Path .\setup.exe -ProductVersion
+            カレントディレクトリにある setup.exe の製品バージョンを取得します。
 
-    .PARAMETER Build
+        .LINK
+            FileVersionInfo プロパティ (System.Diagnostics)
+            http://msdn.microsoft.com/ja-jp/library/System.Diagnostics.FileVersionInfo.aspx    
 
-    .PARAMETER Private
+            FileVersionInfo.ProductName プロパティ (System.Diagnostics)
+            http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.productname.aspx
 
-    .PARAMETER Composite
+            FileVersionInfo.FileDescription プロパティ (System.Diagnostics)
+            http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.filedescription.aspx
 
+            FileVersionInfo.FileVersion プロパティ (System.Diagnostics)
+            http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.fileversion.aspx
 
-    .INPUTS
-        System.String
-
-
-    .OUTPUTS
-        System.String
-
-
-    .NOTES
-        If any parameter is not specified, [System.Diagnostics.FileVersionInfo] is acquired.
-
-
-    .EXAMPLE
-        Get-FileVersion -Path .\setup.exe
-
-
-    .EXAMPLE 
-        Get-FileVersion -Path .\setup.exe -ProductVersion
-
-
-    .LINK
-        FileVersionInfo プロパティ (System.Diagnostics)
-        http://msdn.microsoft.com/ja-jp/library/System.Diagnostics.FileVersionInfo.aspx    
-
-        FileVersionInfo.ProductName プロパティ (System.Diagnostics)
-        http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.productname.aspx
-
-        FileVersionInfo.FileDescription プロパティ (System.Diagnostics)
-        http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.filedescription.aspx
-
-        FileVersionInfo.FileVersion プロパティ (System.Diagnostics)
-        http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.fileversion.aspx
-
-        FileVersionInfo.ProductVersion プロパティ (System.Diagnostics)
-        http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.productversion.aspx
+            FileVersionInfo.ProductVersion プロパティ (System.Diagnostics)
+            http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.productversion.aspx
     #>
 
     [CmdletBinding(DefaultParameterSetName=$false)]
@@ -690,28 +693,26 @@ Function Get-FileVersionInfo
 Function Get-ProductName
 {
     <#
-    .SYNOPSIS
-        ファイルの製品名を取得します。
+        .SYNOPSIS
+            ファイルの製品名 (System.Diagnostics.FileVersionInfo.ProductName) を取得します。
 
+        .DESCRIPTION
+            Get-FileVersionInfo -ProductName のエイリアスです。
 
-    .DESCRIPTION
-        Get-FileVersionInfo -ProductName のエイリアスです。
+        .PARAMETER Path
+            製品名を取得するファイルのパスを指定します。
 
+        .INPUTS
+            System.String
+            パイプを使用して、ファイルのパス (Path パラメーター) を Get-ProductName コマンドレットに渡すことができます。
 
-    .PARAMETER Path
+        .OUTPUTS
+            System.String
+            Get-ProductName コマンドレットは、System.String を返します。
 
-
-    .INPUTS
-        System.String
-
-
-    .OUTPUTS
-        System.String
-
-
-    .LINK
-        FileVersionInfo.ProductName プロパティ (System.Diagnostics)
-        http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.productname.aspx
+        .LINK
+            FileVersionInfo.ProductName プロパティ (System.Diagnostics)
+            http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.productname.aspx
     #>
 
     [CmdletBinding()]
@@ -729,28 +730,26 @@ Function Get-ProductName
 Function Get-FileDescription
 {
     <#
-    .SYNOPSIS
-        ファイルの説明を取得します。
+        .SYNOPSIS
+            ファイルの説明 (System.Diagnostics.FileVersionInfo.FileDescription) を取得します。
 
+        .DESCRIPTION
+            Get-FileVersionInfo -FiletDescription のエイリアスです。
 
-    .DESCRIPTION
-        Get-FileVersionInfo -FiletDescription のエイリアスです。
+        .PARAMETER Path
+            ファイルの説明を取得するファイルのパスを指定します。
 
+        .INPUTS
+            System.String
+            パイプを使用して、ファイルのパス (Path パラメーター) を Get-FileDescription コマンドレットに渡すことができます。
 
-    .PARAMETER Path
+        .OUTPUTS
+            System.String
+            Get-FileDescription コマンドレットは、System.String を返します。
 
-
-    .INPUTS
-        System.String
-
-
-    .OUTPUTS
-        System.String
-
-
-    .LINK
-        FileVersionInfo.FileDescription プロパティ (System.Diagnostics)
-        http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.filedescription.aspx
+        .LINK
+            FileVersionInfo.FileDescription プロパティ (System.Diagnostics)
+            http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.filedescription.aspx
     #>
 
     [CmdletBinding()]
@@ -768,28 +767,26 @@ Function Get-FileDescription
 Function Get-FileVersion
 {
     <#
-    .SYNOPSIS
-        ファイルのファイルバージョンを取得します。
+        .SYNOPSIS
+            ファイルのファイルバージョン (System.Diagnostics.FileVersionInfo.FileVersion) を取得します。
 
+        .DESCRIPTION
+            Get-FileVersionInfo -FiletVersion のエイリアスです。
 
-    .DESCRIPTION
-        Get-FileVersionInfo -FiletVersion のエイリアスです。
+        .PARAMETER Path
+            ファイルバージョンを取得するファイルのパスを指定します。
 
+        .INPUTS
+            System.String
+            パイプを使用して、ファイルのパス (Path パラメーター) を Get-FileVersion コマンドレットに渡すことができます。
 
-    .PARAMETER Path
+        .OUTPUTS
+            System.String
+            Get-FileVersion コマンドレットは、System.String を返します。
 
-
-    .INPUTS
-        System.String
-
-
-    .OUTPUTS
-        System.String
-
-
-    .LINK
-        FileVersionInfo.FileVersion プロパティ (System.Diagnostics)
-        http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.fileversion.aspx
+        .LINK
+            FileVersionInfo.FileVersion プロパティ (System.Diagnostics)
+            http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.fileversion.aspx
     #>
 
     [CmdletBinding()]
@@ -807,28 +804,26 @@ Function Get-FileVersion
 Function Get-ProductVersion
 {
     <#
-    .SYNOPSIS
-        ファイルの製品バージョンを取得します。
+        .SYNOPSIS
+            ファイルの製品バージョン (System.Diagnostics.FileVersionInfo.ProductVersion) を取得します。
 
+        .DESCRIPTION
+            Get-FileVersionInfo -ProductVersion のエイリアスです。
 
-    .DESCRIPTION
-        Get-FileVersionInfo -ProductVersion のエイリアスです。
+        .PARAMETER Path
+            製品バージョンを取得するファイルのパスを指定します。
 
+        .INPUTS
+            System.String
+            パイプを使用して、ファイルのパス (Path パラメーター) を Get-ProductVersion コマンドレットに渡すことができます。
 
-    .PARAMETER Path
+        .OUTPUTS
+            System.String
+            Get-ProductVersion コマンドレットは、System.String を返します。
 
-
-    .INPUTS
-        System.String
-
-
-    .OUTPUTS
-        System.String
-
-
-    .LINK
-        FileVersionInfo.ProductVersion プロパティ (System.Diagnostics)
-        http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.productversion.aspx
+        .LINK
+            FileVersionInfo.ProductVersion プロパティ (System.Diagnostics)
+            http://msdn.microsoft.com/ja-jp/library/system.diagnostics.fileversioninfo.productversion.aspx
     #>
 
     [CmdletBinding()]
@@ -846,40 +841,31 @@ Function Get-ProductVersion
 Function Get-HTMLString
 {
     <#
-    .SYNOPSIS
-        HTML ファイルから HTML 要素を取得します。
+        .SYNOPSIS
+            HTML ファイルから HTML 要素を取得します。
 
+        .DESCRIPTION
+            HTML ファイルから、指定した HTML 要素を文字列として取得します。
+            属性は取得できません。
+            同名の要素が複数ある場合は、文字列配列として取得されます。
 
-    .DESCRIPTION
+        .PARAMETER Path
+            HTML 要素を取得するファイルのパスを指定します。
 
+        .PARAMETER Tag
+            取得する HTML 要素のタグを指定します。
 
-    .PARAMETER Path
+        .INPUTS
+            System.String
+            パイプを使用して、ファイルのパス (Path パラメーター) を Get-ProductVersion コマンドレットに渡すことができます。
 
+        .OUTPUTS
+            System.String or System.String[]
+            Get-HTMLString コマンドレットは、System.String または System.String[] を返します。
 
-    .PARAMETER Tag
-
-
-    .INPUTS
-        System.String
-
-
-    .OUTPUTS
-        System.String
-
-
-    .NOTES
-        Get String from HTML Document Cmdlet
-
-        2013/09/09  Version 0.0.0.1
-                    Create
-
-
-    .EXAMPLE
-        Get-HtmlElement -Path .\sample.html -Tag h1
-
-
-    .LINK
-    
+        .EXAMPLE
+            Get-HtmlElement -Path .\sample.html -Tag h1
+            カレントディレクトリにある sample.html から <H1> タグの要素を全て取得します。
     #>
 
     [CmdletBinding()]
@@ -906,42 +892,41 @@ Function Get-HTMLString
 Function Get-PrivateProfileString
 {
     <#
-    .SYNOPSIS
-        指定された .ini ファイル（初期化ファイル）の指定されたセクション内にある、指定されたキーに関連付けられている文字列を取得します。
+        .SYNOPSIS
+            INI ファイル (初期化ファイル) の設定値を取得します。
 
+        .DESCRIPTION
+            INI ファイル (初期化ファイル) の指定されたセクションとキーの組み合わせに関連付けられている値を文字列として取得します。
 
-    .DESCRIPTION
+            同じセクションとキーの組み合わせが存在した場合は、ファイルの先頭から検索し、最初に検出した値を取得します。
 
+        .PARAMETER Path
+            INI ファイルのパスを指定します。
 
-    .PARAMETER Path
+        .PARAMETER Section
+            取得する設定値に関連付けられたセクションを指定します。
 
+        .PARAMETER Key
+            取得する設定値に関連付けられたキーを指定します。
 
-    .PARAMETER Section
+        .INPUTS
+            System.String
+            パイプを使用して、ファイルのパス (Path パラメーター) を Get-PrivateProfileString コマンドレットに渡すことができます。
 
+        .OUTPUTS
+            System.String
+            Get-PrivateProfileString コマンドレットは System.String を返します。
 
-    .PARAMETER Key
+        .EXAMPLE
+            Get-PrivateProfileString -Path .\toastpkg.inf -Section Version -Key DriverVer
+            カレントディレクトリにある toastpkg.inf から、'Version' セクションの 'DriverVer' キーに対応する値を文字列として取得します。
 
+        .NOTES
+            コマンドレットの名前は Win32 API の GetPrivateProfileString を参考にしています。
 
-    .INPUTS
-        System.String
-
-
-    .OUTPUTS
-        System.String
-
-
-    .NOTES
-        Get HTML Element Cmdlet
-
-        2013/10/02  Version 0.0.0.1
-                    Create
-
-
-    .EXAMPLE
-
-
-    .LINK
-    
+        .LINK
+            GetPrivateProfileString 関数
+            http://msdn.microsoft.com/ja-jp/library/cc429779.aspx
     #>
 
     [CmdletBinding()]
@@ -987,38 +972,49 @@ Function Get-PrivateProfileString
 Function Update-Content
 {
     <#
-    .SYNOPSIS
-        ファイルの内容を更新します。
+        .SYNOPSIS
+            テキストを更新します。
 
+        .DESCRIPTION
+            文字列配列型のテキストデータに対して、条件に合う文字列あるいは行全体を、指定された文字列に置き換えます。
+            置き換え後の文字列を含むテキスト全体を出力します。
 
-    .DESCRIPTION
+            置き換え対象は、検索対象となる文字列、あるいは、行番号で指定します。
+            検索文字列と行番号の両方を指定することはできません。
 
+            検索文字列が指定された場合は、読み込んだテキストを検索し、検索文字列を検出した箇所全てに対して、文字列の置き換えを行います。
 
-    .PARAMETER Line
+            行番号が指定された場合は、指定された行全体を指定された文字列に置き換えます。
 
-    .PARAMETER SearchText
+        .PARAMETER Line
+            テキストの置き換えを行う行番号を指定します。
+            SearchText パラメーターと同時に指定することはできません。
 
-    .PARAMETER UpdateText
+        .PARAMETER SearchText
+            検索文字列を指定します。
+            Line パラメーターと同時に指定することはできません。
 
-    .PARAMETER InputObject
+        .PARAMETER UpdateText
+            置換文字列を指定します。
 
+        .PARAMETER InputObject
+            置き換え対象のテキストデータを文字列配列として指定します。
 
-    .INPUTS
-        System.String
+        .INPUTS
+            System.String
+            パイプを使用して、テキストデータ (InputObject パラメーター) を Update-Content コマンドレットに渡すことができます。
 
+        .OUTPUTS
+            System.String
+            Update-Content コマンドレットは、置換文字列を含むテキストデータ全体を返します。
 
-    .OUTPUTS
-        System.String
+        .EXAMPLE
+            Update-Content -SearchText 'Hello' -UpdateText 'Good Morning' -InputObject (Get-Content -Path .\hello.txt) | % { Write-Host $_ }
+            カレントディレクトリにある hello.txt を読み込んで、'Hello' の箇所を 'Good Morning' に置き換えた結果をコンソールに表示します。
 
-
-    .NOTES
-
-
-    .EXAMPLE
-
-
-    .LINK
-    
+        .EXAMPLE
+            Update-Content -Line 8 -UpdateText "`t`t<H1>HELLO, WORLD!</H1>" -InputObject (Get-Content -Path .\example.html) | Out-File -FilePath .\out.html
+            カレントディレクトリにあるを example.html を読み込んで、8 行目を指定した文字列に置き換えた結果を、カレントディレクトの out.html ファイルに保存します。
     #>
 
     [CmdletBinding()]
@@ -1068,36 +1064,32 @@ Function Update-Content
 Function Get-WindowHandler
 {
     <#
-    .SYNOPSIS
-        指定したプロセス ID に対応するウィンドウのウィンドウ ハンドル (HWND) を取得します。
+        .SYNOPSIS
+            ウィンドウ ハンドル (HWND) を取得します。
 
+        .DESCRIPTION
+            指定したプロセス ID に対応するウィンドウのウィンドウ ハンドル (HWND) を取得します。
+            プロセス ID を指定しなかった場合は、現在のプロセスに対するプロセス ID ($PID) が取得されます。
 
-    .DESCRIPTION
-    
+        .PARAMETER PID
+            取得するウィンドウ ハンドルのプロセス ID を指定します。
+            デフォルトは、コンソールのプロセス ID ($PID) です。
 
+        .INPUTS
+            System.Int32
+            パイプを使用して、プロセス ID (PID パラメーター) を Get-WindowHandler コマンドレットに渡すことができます。
 
-    .PARAMETER PID
-        デフォルトはコンソールのプロセス ID ($PID)
+        .OUTPUTS
+            System.IntPtr
+            Get-WindowHandler コマンドレットは System.IntPtr を返します。
 
+        .EXAMPLE
+            Get-WindowHandler
+            現在のプロセス (ホスト コンソール) に対するウィンドウ ハンドルを取得します。
 
-    .INPUTS
-        System.Int32
-
-
-    .OUTPUTS
-        System.IntPtr
-
-
-    .NOTES
-        (None)
-
-
-    .EXAMPLE
-        (None)
-
-
-    .LINK
-        (None)
+        .LINK
+            Process.MainWindowHandle プロパティ (System.Diagnostics)
+            http://msdn.microsoft.com/ja-jp/library/system.diagnostics.process.mainwindowhandle.aspx
     #>
 
     [CmdletBinding()]
@@ -1115,37 +1107,87 @@ Function Get-WindowHandler
 Function New-StructArray
 {
     <#
-    .SYNOPSIS
-        構造体の配列ようなをコンテナを作成します。
+        .SYNOPSIS
+            構造体の配列ようなをコンテナを作成します。
 
+        .DESCRIPTION
+            任意の (静的な) メンバー変数 (プロパティー) を持つカスタムオブジェクトの配列を作成します。
+            
+            作成したカスタムオブジェクトに対して ToString メソッドを使用すると、HTML の Table 要素として取り出すことができます。
+            引数を指定しない場合、 ToString メソッドは下記のような書式で出力されます。 (改行は挿入されません。)
 
-    .DESCRIPTION
+                <TR>
+                    <TH>Name</TH>
+                    <TD>Value</TD>
+                </TR>
 
+            ToString メソッドの 1 番目の引数に 'TABLE' を指定すると、下記のような出力になります。 (改行は挿入されません。)
 
-    .PARAMETER Members
+                <TABLE>
+                    <TR>
+                        <TH>Name</TH>
+                        <TD>Value</TD>
+                    </TR>
+                </TABLE>
 
+            ToString メソッドの 2 番目、3 番目 および 4 番目の引数は、それぞれ、<TR>、<TH> および <TD> タグの要素名に対応します。
+            たとえば、ToString('A', 'B', 'C', 'D') のようにコールすると、下記のような出力になります。 (改行は挿入されません。)
 
-    .PARAMETER Count
+                <A>
+                    <B>
+                        <C>Name</C>
+                        <D>Value</D>
+                    </B>
+                </A>
 
+        .PARAMETER Members
+            静的なメンバー変数 (NoteProperty) の名前を文字列配列として指定します。
+            '=' に続けて初期値を設定することもできます。
 
-    .INPUTS
-        System.String[]
+        .PARAMETER Count
+            作成する配列の個数を指定します。
+            デフォルトは 1 [個] です。
 
+        .INPUTS
+            System.String[]
+            パイプを使用して、Members パラメーターを New-StructArray コマンドレットに渡すことができます。
 
-    .OUTPUTS
-        System.String
+        .OUTPUTS
+            System.Object[]
+            New-StructArray コマンドレットは System.Object[] を返します。
 
+        .NOTES
+            構造体 (の配列) の代用として使用されることを想定しています。
 
-    .NOTES
-        (None)
+        .EXAMPLE
+            $obj = New-StructArray -Members a=1,b=2,c=3 -Count 3
+            メンバー変数が a, b および c であるカスタムオブジェクトの配列を作成します。
+            配列の個数は 3 です。
+            a, b および c の初期値は、それぞれ 1, 2 および 3 です。
 
+        .EXAMPLE
+            $obj[0].ToString('TABLE')
+            obj オブジェクトの最初 (0 番目) の要素を HTML 文字列として表示します。
+            表示される文字列は、たとえば、下記のようなものになります。 (改行は挿入されません。)
 
-    .EXAMPLE
-        (None)
+                <TABLE>
+                    <TR>
+                        <TH>a</TH>
+                        <TD>1</TD>
+                    </TR>
+                    <TR>
+                        <TH>b</TH>
+                        <TD>2</TD>
+                    </TR>
+                    <TR>
+                        <TH>c</TH>
+                        <TD>3</TD>
+                    </TR>
+                </TABLE>
 
-
-    .LINK
-        (None)
+        .LINK
+            Add-Member
+            http://technet.microsoft.com/ja-JP/library/dd347695.aspx
     #>
 
     [CmdletBinding()]
@@ -1184,7 +1226,7 @@ Function New-StructArray
                     # Body
                     $this | Get-Member -MemberType NoteProperty | % {
                         $text += "<$Item>"
-                        $text += ("<$Name>" + ([Microsoft.PowerShell.Commands.MemberDefinition]$_).Name + "</$_Name>")
+                        $text += ("<$Name>" + ([Microsoft.PowerShell.Commands.MemberDefinition]$_).Name + "</$Name>")
                         $text += ("<$Value>" + (([Microsoft.PowerShell.Commands.MemberDefinition]$_).Definition -split '=')[1] + "</$Value>")
                         $text += "</$Item>"
                     }
@@ -1203,36 +1245,26 @@ Function New-StructArray
 Function Get-ByteArray
 {
     <#
-    .SYNOPSIS
-    
+        .SYNOPSIS
+            ファイルからバイト配列を取得します。
 
-    .DESCRIPTION
+        .DESCRIPTION
+            指定したファイルの中身をバイト配列 (System.Byte[]) として読み込みます。
 
+        .PARAMETER Path
+            バイト配列を読み込むファイルのパスを指定します。
 
-    .PARAMETER Members
+        .INPUTS
+            System.String[]
+            パイプを使用して、ファイルのパス (Path パラメーター) を Get-ByteArray コマンドレットに渡すことができます。
 
+        .OUTPUTS
+            System.Object[]
+            Get-ByteArray コマンドレットは System.Object[] を返します。
 
-    .PARAMETER Count
-
-
-    .INPUTS
-        System.String[]
-
-
-    .OUTPUTS
-        System.String
-
-
-    .NOTES
-        (None)
-
-
-    .EXAMPLE
-        (None)
-
-
-    .LINK
-        (None)
+        .EXAMPLE
+            $bin = Get-ByteArray -Path .\test.bin
+            カレントディレクトリにある test.bin をバイト配列として読み込み、変数 bin に格納します。
     #>
 
     [CmdletBinding()]
@@ -1270,36 +1302,43 @@ Function Get-ByteArray
 Function ConvertFrom-ByteArray
 {
     <#
-    .SYNOPSIS
-    
+        .SYNOPSIS
+            バイト配列を文字列に変換します。
 
-    .DESCRIPTION
+        .DESCRIPTION
+            バイト配列 (System.Byte[]) として読み込んだデータを、文字列 (System.String) に変換して出力します。
 
+        .PARAMETER InputObject
+            読み込むバイト配列 (System.Byte[]) を指定します。
 
-    .PARAMETER Members
+        .PARAMETER Separator
+            バイト配列を文字列として出力する際に、各バイトデータを区切る System.Char 型の文字として指定します。
+            デフォルトでは、Hex パラメーターが指定されているときは ':'、それ以外は '.' です。
 
+        .PARAMETER Hex
+            9 より大きいデータを 16進数で表現するときに指定します。
+            文字列の取得は System.BitConverter.ToString メソッドにより行われます。
 
-    .PARAMETER Count
+            このパラメーターが指定されていないときは、10進数で表現されます。
 
+        .INPUTS
+            System.Byte[]
+            パイプを使用して、InputObject パラメーターを ConvertFrom-ByteArray コマンドレットに渡すことができます。
 
-    .INPUTS
-        System.String[]
+        .OUTPUTS
+            System.String
+            ConvertFrom-ByteArray コマンドレットは System.String を返します。
 
+        .NOTES
+            出力は、文字列配列 (System.String[]) ではなく、文字列 (System.String) です。
 
-    .OUTPUTS
-        System.String
+        .EXAMPLE
+            Get-ByteArray -Path .\test.bin | ConvertFrom-ByteArray -Hex | Write-Host -ForegroundColor Red
+            カレントディレクトリにある test.bin をバイト配列として読み込み、16進文字列としてコンソールに表示します。
 
-
-    .NOTES
-        (None)
-
-
-    .EXAMPLE
-        (None)
-
-
-    .LINK
-        (None)
+        .LINK
+            BitConverter.ToString メソッド (System)
+            http://msdn.microsoft.com/ja-jp/library/system.bitconverter.tostring.aspx
     #>
 
     [CmdletBinding()]
@@ -1351,36 +1390,43 @@ Function ConvertFrom-ByteArray
 Function ConvertTo-ByteArray
 {
     <#
-    .SYNOPSIS
-    
+        .SYNOPSIS
+            文字列をバイト配列に変換します。
 
-    .DESCRIPTION
+        .DESCRIPTION
+            文字列 (System.String) として読み込んだデータを、バイト配列 (System.Byte[]) に変換して出力します。
 
+        .PARAMETER InputObject
+            入力文字列 (System.String) を指定します。
 
-    .PARAMETER Members
+        .PARAMETER Separator
+            入力文字列をバイト配列として解釈するために、各バイトデータの要素を区切る System.Char 型の文字を指定します。
+            デフォルトでは、Hex パラメーターが指定されているときは ':'、それ以外は '.' です。
 
+        .PARAMETER Hex
+            入力文字列が 16進数で表現されているときに指定します。
+            文字列の解析は System.Convert.ToInt32 メソッドにより行われます。
 
-    .PARAMETER Count
+            このパラメーターが指定されていないときは、10進数で表現されているものと解釈します。
 
+        .INPUTS
+            System.String
+            パイプを使用して、InputObject パラメーターを ConvertTo-ByteArray コマンドレットに渡すことができます。
 
-    .INPUTS
-        System.String[]
+        .OUTPUTS
+            System.Object[]
+            ConvertFrom-ByteArray コマンドレットは System.Object[] を返します。
 
+        .NOTES
+            出力は System.Object[] ですが、各要素は System.Byte です。
 
-    .OUTPUTS
-        System.String
+        .EXAMPLE
+            [byte[]]$bin = ConvertTo-ByteArray -InputObject '1.3.6.1.2.1.1.5'
+            文字列 '1.3.6.1.2.1.1.5' をバイト配列に変換して、変数 bin に格納します。
 
-
-    .NOTES
-        (None)
-
-
-    .EXAMPLE
-        (None)
-
-
-    .LINK
-        (None)
+        .LINK
+            Convert.ToInt32 メソッド (System)
+            http://msdn.microsoft.com/ja-jp/library/system.convert.toint32.aspx
     #>
 
     [CmdletBinding()]

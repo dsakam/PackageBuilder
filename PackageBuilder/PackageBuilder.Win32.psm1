@@ -35,6 +35,7 @@
  #  2014/04/07  Version 0.9.0.0
  #  2014/04/17  Version 0.10.0.0
  #  2014/04/20  Version 0.11.0.0
+ #  2014/04/30  Version 0.12.0.0
  #
  #>
 #####################################################################################################################################################
@@ -167,35 +168,39 @@ Add-Type -TypeDefinition $Script:LoadLibraryEx_dwFlags_Signature
 Function Invoke-LoadLibraryEx
 {
     <#
-    .SYNOPSIS
-        LoadLibraryEx()
+        .SYNOPSIS
+            LoadLibraryEx() を使用して、ライブラリーファイルをロードします。
+
+        .DESCRIPTION
+            LoadLibraryEx() を使用して、ライブラリーファイルをロードします。
+
+        .PARAMETER lpLibFileName
 
 
-    .DESCRIPTION
+        .PARAMETER dwFlags
+
+            デフォルトは [LoadLibraryEx_dwFlags]::LOAD_LIBRARY_AS_DATAFILE        
+
+        .INPUTS
+            None
 
 
-    .PARAMETER Path
+        .OUTPUTS
+            System.String
 
 
-    .INPUTS
-        None
+        .NOTES
+
+            $Global:Win32Namespace = 'BUILDLet.PowerShell.PackageBuilder.Win32'
 
 
-    .OUTPUTS
-        System.String
+        .EXAMPLE
+            (None)
 
 
-    .NOTES
-        (None)
-
-
-    .EXAMPLE
-        (None)
-
-
-    .LINK
-        LoadLibraryEx function (Windows)
-        http://msdn.microsoft.com/en-us/library/windows/desktop/ms684179.aspx
+        .LINK
+            LoadLibraryEx function (Windows)
+            http://msdn.microsoft.com/en-us/library/windows/desktop/ms684179.aspx
     #>
 
     [CmdletBinding()]

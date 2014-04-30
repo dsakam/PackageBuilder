@@ -36,6 +36,7 @@
  #  2014/04/07  Version 0.9.0.0
  #  2014/04/17  Version 0.10.0.0
  #  2014/04/20  Version 0.11.0.0
+ #  2014/04/30  Version 0.12.0.0
  #
  #>
 #####################################################################################################################################################
@@ -44,57 +45,43 @@
 Function Stop-Host
 {
     <#
-    .SYNOPSIS
-        PC をシャットダウンします。
+        .SYNOPSIS
+            ローカルとリモートのコンピューターを停止 (シャットダウン) します。
 
+        .DESCRIPTION
+            Stop-Computer コマンドレットのラッパーです。
+            資格情報をプレーンテキストで扱うので、使用する際は十分注意してください。
 
-    .DESCRIPTION
+        .PARAMETER ComputerName
+            指定されたコンピューターを停止します。既定値はローカル コンピューターです。
 
+        .PARAMETER UserName
+            この処理を実行するアクセス許可を持つユーザー アカウントのユーザー名を指定します。既定値は現在のユーザーです。
 
-    .PARAMETER ComputerName
-        Type: System.String
-        If omitted, this computer may be shut down.
+        .PARAMETER Password
+            この処理を実行するアクセス許可を持つユーザー アカウントのパスワードを指定します。既定値は 'なし' です。
 
+        .PARAMETER Silent
+            このパラメーターが指定されたときは、確認ダイアログによるユーザーへの確認を行わずに処理を実行します。
 
-    .PARAMETER UserName
-        Type: System.String
-        If omitted, shutdown is tryed by your privilege.
+        .PARAMETER Force
+            コンピューターの即時シャットダウンを強制します。
 
+        .INPUTS
+            System.String
+            パイプを使用して、ComputerName パラメーターを Stop-Host コマンドレットに渡すことができます。
 
-    .PARAMETER Password
-        Type: System.String
-        Password of those who tries to shut down the computer.
+        .OUTPUTS
+            None
+            このコマンドレットの出力はありません。
 
+        .EXAMPLE
+            Stop-Host -ComputerName 'PC1' -UserName 'Administrator' -Password '12345'
+            コンピューター名 'PC1' のコンピューターに対して、'Administrator' の権限でのシャットダウンを試みます。
 
-    .PARAMETER Silent
-
-
-    .PARAMETER Force
-
-
-    .INPUTS
-        System.String
-
-
-    .OUTPUTS
-        None
-
-
-    .NOTES
-        Shutdown Computer Cmdlet
-    
-        2013/08/17  Create
-        2013/09/02  Update
-        2013/09/04  Update
-        2013/10/23  Modify
-
-
-    .EXAMPLE
-    (None)
-
-
-    .LINK
-    (None)
+        .LINK
+            Stop-Computer
+            http://technet.microsoft.com/ja-JP/library/hh849839.aspx
     #>
 
     [CmdletBinding ()]
@@ -162,51 +149,43 @@ Function Stop-Host
 Function Restart-Host
 {
     <#
-    .SYNOPSIS
-        PC を再起動します。
+        .SYNOPSIS
+            ローカル コンピューターおよびリモート コンピューター上でオペレーティング システムを再起動 (リブート) します。
 
+        .DESCRIPTION
+            Restart-Computer コマンドレットのラッパーです。
+            資格情報をプレーンテキストで扱うので、使用する際は十分注意してください。
 
-    .DESCRIPTION
+        .PARAMETER ComputerName
+            指定されたコンピューターを再起動します。既定値はローカル コンピューターです。
 
+        .PARAMETER UserName
+            この処理を実行するアクセス許可を持つユーザー アカウントのユーザー名を指定します。既定値は現在のユーザーです。
 
-    .PARAMETER ComputerName
-        Type: System.String
-        If omitted, this computer may be shut down.
+        .PARAMETER Password
+            この処理を実行するアクセス許可を持つユーザー アカウントのパスワードを指定します。既定値は 'なし' です。
 
+        .PARAMETER Silent
+            このパラメーターが指定されたときは、確認ダイアログによるユーザーへの確認を行わずに処理を実行します。
 
-    .PARAMETER UserName
-        Type: System.String
-        If omitted, shutdown is tryed by your privilege.
+        .PARAMETER Force
+            コンピューターの即時再起動を強制します。
 
+        .INPUTS
+            System.String
+            パイプを使用して、ComputerName パラメーターを Restart-Host コマンドレットに渡すことができます。
 
-    .PARAMETER Password
-        Type: System.String
-        Password of those who tries to shut down the computer.
+        .OUTPUTS
+            None
+            このコマンドレットの出力はありません。
 
-    .PARAMETER Silent
+        .EXAMPLE
+            Restart-Host -ComputerName 'PC1' -UserName 'Administrator' -Password '12345'
+            コンピューター名 'PC1' のコンピューターに対して、'Administrator' の権限での再起動を試みます。
 
-
-    .PARAMETER Force
-
-
-    .INPUTS
-        System.String
-
-
-    .OUTPUTS
-        None
-
-
-    .NOTES
-        Shutdown Computer Cmdlet
-    
-
-    .EXAMPLE
-    (None)
-
-
-    .LINK
-    (None)
+        .LINK
+            Restart-Computer
+            http://technet.microsoft.com/ja-JP/library/hh849837.aspx
     #>
 
     [CmdletBinding ()]

@@ -35,6 +35,7 @@
  #  2014/04/07  Version 0.9.0.0
  #  2014/04/17  Version 0.10.0.0
  #  2014/04/20  Version 0.11.0.0
+ #  2014/04/27  Version 0.12.0.0
  #
  #>
 #####################################################################################################################################################
@@ -59,26 +60,36 @@
 
 #####################################################################################################################################################
 # Variables
-[string[]]$Script:BinPath_Cygwin = (
-    'C:\cygwin\bin',
-    'C:\cygwin64\bin'
-)
+$Global:BinPath = @{
 
-[string[]]$Script:BinPath_signtool = (
-    'C:\Program Files (x86)\Windows Kits\8.1\bin\x86',
-    'C:\Program Files (x86)\Windows Kits\8.1\bin\x64',
-    'C:\Program Files (x86)\Windows Kits\8.0\bin\x86',
-    'C:\Program Files (x86)\Windows Kits\8.0\bin\x64',
-    'C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin',
-    'C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Bin',
+    Cygwin = (
 
-    'C:\Program Files\Windows Kits\8.1\bin\x64',
-    'C:\Program Files\Windows Kits\8.1\bin\x86',
-    'C:\Program Files\Windows Kits\8.0\bin\x64',
-    'C:\Program Files\Windows Kits\8.0\bin\x86',
-    'C:\Program Files\Microsoft SDKs\Windows\v7.1A\Bin',
-    'C:\Program Files\Microsoft SDKs\Windows\v7.0A\Bin'
-)
+        # Cygwin
+        'C:\cygwin\bin',
+        'C:\cygwin64\bin'
+    )
+
+    WindowsKits = (
+
+        # Windows Kits (WOW64)
+        'C:\Program Files (x86)\Windows Kits\8.1\bin\x86',
+        'C:\Program Files (x86)\Windows Kits\8.0\bin\x86',
+        'C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin',
+        'C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Bin',
+
+        # Windows Kits (x86)
+        'C:\Program Files\Windows Kits\8.1\bin\x86',
+        'C:\Program Files\Windows Kits\8.0\bin\x86',
+        'C:\Program Files\Microsoft SDKs\Windows\v7.1A\Bin',
+        'C:\Program Files\Microsoft SDKs\Windows\v7.0A\Bin',
+
+        # Windows Kits (x64)
+        'C:\Program Files (x86)\Windows Kits\8.1\bin\x64',
+        'C:\Program Files (x86)\Windows Kits\8.0\bin\x64',
+        'C:\Program Files\Windows Kits\8.1\bin\x64',
+        'C:\Program Files\Windows Kits\8.0\bin\x64'
+    )
+}
 
 $Script:genisoimage_FileName = 'genisoimage.exe'
 $Script:signtool_FileName    = 'signtool.exe'
@@ -673,7 +684,7 @@ Function New-ISOImageFile
         [Parameter(Mandatory=$false, Position=4)][string]$ApplicationID,
 
         [Parameter(Mandatory=$false, Position=5)][string[]]$ArgumentList,
-        [Parameter(Mandatory=$false, Position=6)][string[]]$BinPath = $Script:BinPath_Cygwin,
+        [Parameter(Mandatory=$false, Position=6)][string[]]$BinPath = $Global:BinPath.Cygwin,
 
         [Parameter(Mandatory=$false)][switch]$RedirectStandardError,
         [Parameter(Mandatory=$false)][switch]$Recommended
@@ -793,95 +804,4 @@ Function New-ISOImageFile
     }
 }
 
-#####################################################################################################################################################
-Function Add-Signature
-{
-    <#
-        .SYNOPSIS
-            指定されたファイルにデジタル署名をします。
-
-        .DESCRIPTION
-            Microsoft 社の signtool.exe を使用して、指定されたファイルにデジタル署名をします。
-            コマンドラインは signtool sign [Options] <FileName> です。
-            signtool.exe の Options / <filename(s)> パラメーターには、Add-Signature コマンドレットの Options / FileName パラメーターが、
-            それぞれ割り当てられます。
-
-        .PARAMETER Options
-            signtool.exe の sign コマンドの options パラメーターに引き渡されます。
-
-        .PARAMETER FileName
-            デジタル署名をする対象となるファイルのパスを指定します。
-            signtool.exe の sign コマンドの <filename(s)> パラメーターに引き渡されます。
-
-        .PARAMETER BinPath
-            signtool.exe があるフォルダーへのパスを指定します。
-            いくつかのバージョンの Windows SDK や Windows Driver Kit のデフォルトのパスは組み込まれているので、通常、指定する必要はありません。
-
-        .INPUTS
-            System.String
-            パイプを使用して、FileName パラメーターを Add-Signature コマンドレットに渡すことができます。
-
-        .OUTPUTS
-            None
-
-        .NOTES
-            以下のパスに signtool.exe がある場合、BinPath パラメーターを指定する必要はありません。
-
-                C:\Program Files (x86)\Windows Kits\8.1\bin\x86
-                C:\Program Files (x86)\Windows Kits\8.1\bin\x64
-                C:\Program Files (x86)\Windows Kits\8.0\bin\x86
-                C:\Program Files (x86)\Windows Kits\8.0\bin\x64
-                C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin
-                C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Bin
-
-                C:\Program Files\Windows Kits\8.1\bin\x64
-                C:\Program Files\Windows Kits\8.1\bin\x86
-                C:\Program Files\Windows Kits\8.0\bin\x64
-                C:\Program Files\Windows Kits\8.0\bin\x86
-                C:\Program Files\Microsoft SDKs\Windows\v7.1A\Bin
-                C:\Program Files\Microsoft SDKs\Windows\v7.0A\Bin
-
-        .EXAMPLE
-            Add-Signature -Options "/t http://timestamp.verisign.com/scripts/timestamp.dll, /v" -FileName .\setup.exe
-
-            ★★★★★ signtool.exe のパラメーターを調査する。 ★★★★★
-
-
-        .LINK
-            SignTool.exe (署名ツール)
-            http://msdn.microsoft.com/ja-jp/library/8s9b9yaz.aspx
-    #>
-
-    [CmdletBinding()]
-    Param (
-        [Parameter(Mandatory=$true, Position=0)]
-        [string[]]$Options,
-
-        [Parameter(Mandatory=$true, Position=1, ValueFromPipeline=$true)]
-        [ValidateScript (
-            {
-                $_ | % { if (-not (Test-Path -Path $_ -PathType Leaf)) { throw New-Object System.IO.FileNotFoundException } }
-                return $true
-            }
-        )]
-        [string[]]$FileName,
-
-        [Parameter(Mandatory=$false, Position=2)][string[]]$BinPath = $Script:BinPath_signtool,
-
-        [Parameter(Mandatory=$false, Position=3)][int]$Retry = 5,
-        [Parameter(Mandatory=$false, Position=4)][int]$Interval = 10
-    )
-
-    Process
-    {
-        try
-        {
-            Start-Command `
-                -FilePath 'signtool.exe' -ArgumentList ('sign', $Options) `
-                -BinPath $BinPath `
-                -Retry $Retry -Interval $Interval
-        }
-        catch { throw }
-    }
-}
 #####################################################################################################################################################
