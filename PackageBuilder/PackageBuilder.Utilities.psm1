@@ -37,6 +37,8 @@
  #  2014/04/17  Version 0.10.0.0
  #  2014/04/20  Version 0.11.0.0
  #  2014/04/27  Version 0.12.0.0
+ #  2014/05/05  Version 0.13.0.0
+ #  2014/05/06  Version 1.0.0.0
  #
  #>
 #####################################################################################################################################################
@@ -223,6 +225,7 @@ Function Write-Title
 
         .OUTPUTS
             None
+            このコマンドレットの出力はありません。
 
         .NOTES
             Write-Boolean コマンドレットの出力先はコンソールなので、標準出力には、通常、何も出力されません。
@@ -361,6 +364,7 @@ Function Write-Boolean
 
         .OUTPUTS
             None
+            このコマンドレットの出力はありません。
 
         .NOTES
             Write-Boolean コマンドレットの出力先はコンソールなので、標準出力には、通常、何も出力されません。
@@ -400,8 +404,7 @@ Function Show-Message
             メッセージ ボックスを表示します。 
 
         .DESCRIPTION
-            Show-Message コマンドレットは、System.Windows.Forms (System.Windows.Forms.dll) のロードを試みます。
-            System.Windows.Forms のロードに成功すると、System.Windows.Forms.MessageBox.Show メソッドを使用して、メッセージ ボックスを表示します。 
+            System.Windows.Forms.MessageBox.Show メソッドを使用して、メッセージ ボックスを表示します。 
 
         .PARAMETER Text
             メッセージ ボックスに表示するテキストを指定します。
@@ -422,9 +425,13 @@ Function Show-Message
             System.Windows.Forms.DialogResult
             System.Windows.Forms.MessageBox.Show メソッドの戻り値を、コマンドレットの戻り値として返します。
 
+        .NOTES
+            Show-Message コマンドレットは、System.Windows.Forms (System.Windows.Forms.dll) のロードを試みます。
+            System.Windows.Forms のロードに成功すると、System.Windows.Forms.MessageBox.Show メソッドを使用して、メッセージ ボックスを表示します。 
+
         .EXAMPLE
             Show-Message hoge
-            メッセージ 'hoge' のメッセージ ボックスを表示します。
+            メッセージ 'hoge' と表示されたメッセージ ボックスを表示します。
 
         .LINK
             MessageBox クラス (System.Windows.Forms)

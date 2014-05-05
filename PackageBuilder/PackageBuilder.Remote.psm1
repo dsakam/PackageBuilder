@@ -37,6 +37,8 @@
  #  2014/04/17  Version 0.10.0.0
  #  2014/04/20  Version 0.11.0.0
  #  2014/04/30  Version 0.12.0.0
+ #  2014/05/05  Version 0.13.0.0
+ #  2014/05/06  Version 1.0.0.0
  #
  #>
 #####################################################################################################################################################
@@ -253,42 +255,42 @@ Function Restart-Host
 Function Start-Computer
 {
     <#
-    .SYNOPSIS
-        Wake on LAN
+        .SYNOPSIS
+            リモートコンピューターを開始 (起動) します。
 
+        .DESCRIPTION
+            Wake on LAN で、リモートコンピューターを開始 (起動) します。
 
-    .DESCRIPTION
+        .PARAMETER MacAddress
+            リモートコンピューターの MAC アドレスを文字列で指定します。
+            1 バイトずつコロン (':') で区切り、たとえば 'EE:EE:EE:00:00:01' のように指定します。
 
+        .PARAMETER Port
+            リモートコンピューターのポート番号を指定します。
+            デフォルトは 2304 です。
 
-    .PARAMETER MacAddress
+        .PARAMETER Retry
+            マジックパケットを送信する回数を指定します。
+            デフォルトは 3 [回] です。
 
+        .INPUTS
+            System.String
+            パイプを使用して、リモートコンピューターの MAC アドレス (MacAddress パラメーター) を Start-Computer コマンドレットに渡すことができます。
 
-    .PARAMETER Port
+        .OUTPUTS
+            None
+            このコマンドレットの出力はありません。
 
+        .EXAMPLE
+            Start-Computer -MacAddress 'EE:EE:EE:00:00:01' -Verbose
+            MAC アドレスが EE:EE:EE:00:00:01 であるリモートコンピューターの起動を試みます。
 
-    .PARAMETER Retry
+        .LINK
+            Wake-on-LAN - Wikipedia
+            http://ja.wikipedia.org/wiki/Wake-on-LAN
 
-
-    .INPUTS
-        System.String
-
-
-    .OUTPUTS
-        None
-
-
-    .NOTES
-        Shutdown Computer Cmdlet
-    
-
-    .EXAMPLE
-    (None)
-
-
-    .LINK
-
-        方法 16 進文字列と数値型の間で変換する (C# プログラミング ガイド)
-        http://msdn.microsoft.com/ja-jp/library/bb311038.aspx
+            方法 16 進文字列と数値型の間で変換する (C# プログラミング ガイド)
+            http://msdn.microsoft.com/ja-jp/library/bb311038.aspx
     #>
 
     [CmdletBinding ()]

@@ -36,6 +36,8 @@
  #  2014/04/17  Version 0.10.0.0
  #  2014/04/20  Version 0.11.0.0
  #  2014/04/30  Version 0.12.0.0
+ #  2014/05/05  Version 0.13.0.0
+ #  2014/05/06  Version 1.0.0.0
  #
  #>
 #####################################################################################################################################################
@@ -169,38 +171,64 @@ Function Invoke-LoadLibraryEx
 {
     <#
         .SYNOPSIS
-            LoadLibraryEx() を使用して、ライブラリーファイルをロードします。
+            LoadLibraryEx 関数を使用して、ライブラリーファイルをロードします。
 
         .DESCRIPTION
-            LoadLibraryEx() を使用して、ライブラリーファイルをロードします。
+            LoadLibraryEx 関数を使用して、指定された実行可能モジュールを呼び出し側プロセスのアドレス空間にマップします。
+            実行可能モジュールは .DLL ファイルまたは .EXE ファイルです。
 
         .PARAMETER lpLibFileName
-
+            Windows の実行可能モジュール (.DLL ファイルまたは .EXE ファイル) のパスを指定します。
+            このパラメーターは LoadLibraryEx 関数の lpLibFileName パラメーターとして使用されます。
 
         .PARAMETER dwFlags
+            モジュールをロードするときのアクションを指定します。デフォルトは LOAD_LIBRARY_AS_DATAFILE です。
+            LoadLibraryEx_dwFlags 列挙体として定義済みの値を指定することができます。
 
-            デフォルトは [LoadLibraryEx_dwFlags]::LOAD_LIBRARY_AS_DATAFILE        
+            このパラメーターは LoadLibraryEx 関数の dwFlags パラメーターとして使用されます。
+            詳細は LoadLibraryEx 関数の使用方法を参照ください。
 
         .INPUTS
             None
-
+            パイプを使用してこのコマンドレットに入力を渡すことはできません。
 
         .OUTPUTS
-            System.String
-
+            System.IntPtr
+            Invoke-LoadLibraryEx コマンドレットは、LoadLibraryEx 関数が成功すると、マップされた実行可能モジュールのハンドルを返します。
 
         .NOTES
+            PackageBuilder モジュールがインポートされると、P/Invoke を使用して、いくつかの Win32 API 関数が、
+            名前空間 BUILDLet.PowerShell.PackageBuilder.Win32 にロードされます。
+            (この名前空間は、PackageBuilder モジュールで $Global:Win32Namespace として定義されています。)
+            
+            ロードされる関数は
 
-            $Global:Win32Namespace = 'BUILDLet.PowerShell.PackageBuilder.Win32'
+                LoadLibraryEx 関数
+                FreeLibrary 関数
+                LoadString 関数
+                HtmlHelp 関数
 
+            です。
+
+            また、これらの関数で使用するいくつかの列挙体が同時に定義されます。
+
+            定義される列挙体は
+
+                HTMLHelpCommand 列挙体
+                LoadLibraryEx_dwFlags 列挙体
+
+            です。
 
         .EXAMPLE
-            (None)
-
+            Invoke-LoadLibraryEx .\Resource.dll
+            カレントディレクトリにある Resource.dll をライブラリーファイルとしてロードします。
 
         .LINK
             LoadLibraryEx function (Windows)
             http://msdn.microsoft.com/en-us/library/windows/desktop/ms684179.aspx
+
+            LoadLibraryEx 関数
+            http://msdn.microsoft.com/ja-jp/library/cc429243.aspx
     #>
 
     [CmdletBinding()]
@@ -214,7 +242,7 @@ Function Invoke-LoadLibraryEx
         )]
         [string]$lpLibFileName,
 
-        [Parameter(Mandatory=$false, Position=1)][UInt32]$dwFlags = [LoadLibraryEx_dwFlags]::LOAD_LIBRARY_AS_DATAFILE        
+        [Parameter(Mandatory=$false, Position=1)][UInt32]$dwFlags = [LoadLibraryEx_dwFlags]::LOAD_LIBRARY_AS_DATAFILE
     )
 
     Process
@@ -228,34 +256,32 @@ Function Invoke-LoadLibraryEx
 Function Invoke-FreeLibrary
 {
     <#
-    .SYNOPSIS
-        FreeLibrary()
+        .SYNOPSIS
+            FreeLibrary 関数を使用して、ライブラリーファイルを開放します。
 
+        .DESCRIPTION
+            FreeLibrary 関数を使用して、ロード済みのダイナミックリンクライブラリ (DLL) モジュールの参照カウントを 1 つ減らします。
+            参照カウントが 0 になると、モジュールは呼び出し側プロセスのアドレス空間からマップ解除され、そのモジュールのハンドルは無効になります。
 
-    .DESCRIPTION
+        .PARAMETER hModule
+            ロード済みの DLL モジュールのハンドルを指定します。
+            LoadLibrary 関数または GetModuleHandle 関数が、このハンドルを返します。 
+            このパラメーターは FreeLibrary 関数の hModule パラメーターとして使用されます。
 
+        .INPUTS
+            None
+            パイプを使用してこのコマンドレットに入力を渡すことはできません。
 
-    .PARAMETER Path
+        .OUTPUTS
+            System.Int32
+            LoadLibrary 関数が成功すると、0 以外の値を返します。
 
+        .LINK
+            FreeLibrary function (Windows)
+            http://msdn.microsoft.com/en-us/library/windows/desktop/ms683152.aspx
 
-    .INPUTS
-        None
-
-
-    .OUTPUTS
-        System.String
-
-
-    .NOTES
-        (None)
-
-
-    .EXAMPLE
-        (None)
-
-
-    .LINK
-        (None)
+            FreeLibrary 関数
+            http://msdn.microsoft.com/ja-jp/library/cc429103.aspx
     #>
 
     [CmdletBinding()]
@@ -276,34 +302,41 @@ Function Invoke-FreeLibrary
 Function Invoke-LoadString
 {
     <#
-    .SYNOPSIS
-        LoadString()
+        .SYNOPSIS
+            LoadString 関数を使用して、文字列リソースを取得します。
 
+        .DESCRIPTION
+            LoadString 関数を使用して、指定されたモジュールに関連付けられている実行可能ファイルから文字列リソースをロードし、
+            バッファへコピーして、最後に 1 つの NULL 文字を追加します。
 
-    .DESCRIPTION
+        .PARAMETER hInstance
+            モジュールインスタンスのハンドルを指定します。このモジュールの実行可能ファイルは、ロードするべき文字列のリソースを保持しています。
+            このパラメーターは LoadString 関数の hInstance パラメーターとして使用されます。
 
+        .PARAMETER uID
+            ロードするべき文字列の整数の識別子 (リソース ID) を指定します。
+            このパラメーターは LoadString 関数の nID パラメーターとして使用されます。
 
-    .PARAMETER Path
+        .PARAMETER nBufferMax
+            バッファのサイズを TCHAR 単位で指定します。デフォルトは 1024 です。
+            バッファのサイズが不足して、指定された文字列の一部を格納できない場合、文字列は途中で切り捨てられます。
+            このパラメーターは LoadString 関数の nBufferMax パラメーターとして使用されます。
 
+        .INPUTS
+            None
+            パイプを使用してこのコマンドレットに入力を渡すことはできません。
 
-    .INPUTS
-        None
+        .OUTPUTS
+            System.String
+            関数が成功すると、バッファにコピーされた文字の数が TCHAR 単位で返します (終端の NULL は含まない) 。
+            文字列リソースが存在しない場合は 0 を返します。
 
+        .LINK
+            LoadString function (Windows)
+            http://msdn.microsoft.com/en-us/library/windows/desktop/ms647486.aspx
 
-    .OUTPUTS
-        System.String
-
-
-    .NOTES
-        (None)
-
-
-    .EXAMPLE
-        (None)
-
-
-    .LINK
-        (None)
+            LoadString 関数
+            http://msdn.microsoft.com/ja-jp/library/cc410872.aspx
     #>
 
     [CmdletBinding()]
@@ -333,34 +366,37 @@ Function Invoke-LoadString
 Function Get-ResourceString
 {
     <#
-    .SYNOPSIS
-        文字列リソースを取得します。
+        .SYNOPSIS
+            Win32 API を使用して、文字列リソースを取得します。
 
+        .DESCRIPTION
+            Invoke-LoadLibraryEx コマンドレット、Invoke-LoadString コマンドレット、 および、Invoke-FreeLibrary コマンドレットを使用して、
+            ライブラリーファイルに格納されている文字列リソースを取得します。
 
-    .DESCRIPTION
+        .PARAMETER Path
+            ライブラリーファイルのパスを指定します。
+            ライブラリーファイルは、Windows の実行可能モジュール (.DLL ファイルまたは .EXE ファイル) です。
 
+        .PARAMETER uID
+            ロードするべき文字列の整数の識別子 (リソース ID) を指定します。
+            配列として複数の識別子を指定することができます。
 
-    .PARAMETER Path
+        .PARAMETER nBufferMax
+            バッファのサイズを TCHAR 単位で指定します。デフォルトは 1024 です。
+            バッファのサイズが不足して、指定された文字列の一部を格納できない場合、文字列は途中で切り捨てられます。
+            このパラメーターは LoadString 関数の nBufferMax パラメーターとして使用されます。
 
+        .INPUTS
+            None
+            パイプを使用してこのコマンドレットに入力を渡すことはできません。
 
-    .INPUTS
-        None
+        .OUTPUTS
+            System.String or System.String[]
+            Get-ResourceString コマンドレットは、System.String または System.String[] を返します。
 
-
-    .OUTPUTS
-        System.String
-
-
-    .NOTES
-        (None)
-
-
-    .EXAMPLE
-        (None)
-
-
-    .LINK
-        (None)
+        .EXAMPLE
+            Get-ResourceString -Path .\Resource.dll -uID (201..203) | Write-Host
+            カレントディレクトリにある Resource.dll から、リソース ID が 201、202 および 203 の文字列を取得し、コンソールに表示します。
     #>
 
     [CmdletBinding()]
@@ -383,7 +419,7 @@ Function Get-ResourceString
         try
         {
             # LoadLibraryEx
-            [IntPtr]$lib = Invoke-LoadLibraryEx -lpLibFileName $Path -dwFlags ($LOAD_LIBRARY_AS_DATAFILE = 2)
+            [IntPtr]$lib = Invoke-LoadLibraryEx -lpLibFileName $Path
 
             # LoadString
             foreach ($i in $uID)
@@ -404,60 +440,72 @@ Function Get-ResourceString
 Function Invoke-HtmlHelp
 {
     <#
-    .SYNOPSIS
-        HTML ヘルプを開きます。
+        .SYNOPSIS
+            HtmlHelp 関数を使用して、HTML ヘルプを開きます。
+
+        .DESCRIPTION
+            HtmlHelp 関数を使用して、HTML ヘルプを開きます。
+
+        .PARAMETER Path
+            HTML ヘルプファイルのパスを指定します。
+            このパラメーターは HtmlHelp 関数の pszFile パラメーターとして使用されます。
+
+        .PARAMETER uCommand
+            HTML Help API でサポートされているコマンドを指定します。デフォルトは HH_DISPLAY_TOC です。
+            HTMLHelpCommand 列挙体として定義済みの値を指定することができます。
+
+            このパラメーターは HtmlHelp 関数の uCommand パラメーターとして使用されます。
+            詳細は Microsoft の Web サイトを参照してください。
+
+        .PARAMETER hwndCaller
+            HtmlHelp 関数をコールするウィンドウのウィンドウ ハンドル (HWND) を指定します。
+            デフォルトは System.IntPtr.Zero です。
+            このパラメーターは HtmlHelp 関数の hwnCaller パラメーターとして使用されます。
+
+        .PARAMETER dwData
+            このパラメーターは HtmlHelp 関数の dwData パラメーターとして使用されます。
+            デフォルトは 0 です。
+
+        .INPUTS
+            System.String
+            パイプを使用して、HTML ヘルプファイルのパス (Path パラメーター) を Invoke-HtmlHelp コマンドレットに渡すことができます。
+
+        .OUTPUTS
+            None
+            このコマンドレットの出力はありません。
+
+        .EXAMPLE
+            Invoke-HtmlHelp -Path 'C:\Windows\Help\mui\0411\mmc.CHM' -hwndCaller (Get-WindowHandler)
+            指定された HTML ヘルプファイルを開きます。uCommand には、デフォルトである HH_DISPLAY_TOC が指定されます。
+            
+        .EXAMPLE
+            Invoke-HtmlHelp -uCommand ([HTMLHelpCommand]::HH_CLOSE_ALL)
+            現在のウィンドウから開かれた HTML ヘルプファイルを全て閉じます。
+
+        .LINK
+            Microsoft HTML Help とは
+            http://msdn.microsoft.com/ja-jp/library/cc344272.aspx
+
+            About the HTML Help API Function (Windows)
+            http://msdn.microsoft.com/en-us/library/windows/desktop/ms670172.aspx
+
+            About Commands (Windows)
+            http://msdn.microsoft.com/en-us/library/windows/desktop/ms644704.aspx
 
 
-    .DESCRIPTION
+            Microsoft HTML Help 1.4 (Windows)
+            http://msdn.microsoft.com/en-us/library/windows/desktop/ms670169.aspx
 
+            Microsoft HTML Help Downloads (Windows)
+            http://msdn.microsoft.com/en-us/library/windows/desktop/ms669985.aspx
 
-    .PARAMETER Path
-
-
-    .INPUTS
-        None
-
-
-    .OUTPUTS
-        System.String
-
-
-    .NOTES
-        (None)
-
-
-    .EXAMPLE
-        (None)
-
-
-    .LINK
-        Microsoft HTML Help とは
-        http://msdn.microsoft.com/ja-jp/library/cc344272.aspx
-
-        Microsoft HTML Help 1.4 (Windows)
-        http://msdn.microsoft.com/en-us/library/windows/desktop/ms670169.aspx
-
-        About the HTML Help API Function (Windows)
-        http://msdn.microsoft.com/en-us/library/windows/desktop/ms670172.aspx
-
-        Microsoft HTML Help Downloads (Windows)
-        http://msdn.microsoft.com/en-us/library/windows/desktop/ms669985.aspx
-
-        HTML Help End-User License Agreement (Windows)
-        http://msdn.microsoft.com/en-us/library/windows/desktop/ms669979.aspx
+            HTML Help End-User License Agreement (Windows)
+            http://msdn.microsoft.com/en-us/library/windows/desktop/ms669979.aspx
     #>
 
     [CmdletBinding()]
     Param (
-        [Parameter(Mandatory=$true, Position=0)]
-        [ValidateScript (
-            {
-                if (-not (Test-Path -Path $_ -PathType Leaf)) { throw New-Object System.IO.FileNotFoundException }
-                return $true
-            }
-        )]
-        [string]$Path,
-
+        [Parameter(Mandatory=$false, Position=0)][string]$Path,
         [Parameter(Mandatory=$false, Position=1)][UInt32]$uCommand,
         [Parameter(Mandatory=$false, Position=2)][IntPtr]$hwndCaller =[IntPtr]::Zero,
         [Parameter(Mandatory=$false, Position=3)][int]$dwData = 0

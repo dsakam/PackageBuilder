@@ -35,6 +35,9 @@
  #  2014/04/07  Version 0.9.0.0
  #  2014/04/17  Version 0.10.0.0
  #  2014/04/20  Version 0.11.0.0
+ #  2014/04/30  Version 0.12.0.0
+ #  2014/05/05  Version 0.13.0.0
+ #  2014/05/06  Version 1.0.0.0
  #
  #>
 #####################################################################################################################################################
@@ -44,34 +47,28 @@ Function Invoke-LoadLibrary
 {
     <#
         .SYNOPSIS
-            LoadLibrary()
-
+            LoadLibrary 関数を使用して、ライブラリーファイルをロードします。
 
         .DESCRIPTION
             使用しないでください。
 
-
         .PARAMETER Path
-
+            ライブラリーファイルのパスを指定します。
 
         .INPUTS
             None
-
+            パイプを使用してこのコマンドレットに入力を渡すことはできません。
 
         .OUTPUTS
-            System.String
-
-
-        .NOTES
-            (None)
-
-
-        .EXAMPLE
-            (None)
-
+            System.IntPtr
+            ロードに成功したライブラリーファイルのハンドルを返します。
 
         .LINK
-            (None)
+            LoadLibrary function (Windows)
+            http://msdn.microsoft.com/en-us/library/windows/desktop/ms684175.aspx
+
+            LoadLibrary 関数
+            http://msdn.microsoft.com/ja-jp/library/cc429241.aspx
     #>
 
     [CmdletBinding()]
@@ -107,14 +104,12 @@ Function Get-CheckSum
         .SYNOPSIS
             チェックサムを取得します。
 
-
         .DESCRIPTION
             Microsoft の FCIV (File Checksum Integrity Verifier / version 2.05) を実行します。
             FCIV は、別途用意してください。
 
-
         .PARAMETER InputObject
-
+            入力ファイルあるいはフォルダーのパスを指定します。
 
         .PARAMETER BinPath
             fciv.exe が保存されているフォルダーのパスを指定します。
@@ -122,28 +117,24 @@ Function Get-CheckSum
             あるいは、環境変数の PATH に保存されていても実行可能です。
 
         .PARAMETER MD5
-
+            MD5 (デフォルト)
 
         .PARAMETER SHA1
-
+            SHA1
 
         .INPUTS
             System.String
 
-
         .OUTPUTS
             System.String
 
-
         .NOTES
+            FCIV の出力である下記の 'ffffffffffffffffffffffffffffffff' の部分を出力します。
 
-            //
-            // File Checksum Integrity Verifier version 2.05.
-            //
-            ffffffffffffffffffffffffffffffff test.txt
-
-        .EXAMPLE
-
+                //
+                // File Checksum Integrity Verifier version 2.05.
+                //
+                ffffffffffffffffffffffffffffffff test.txt
 
         .LINK
             Availability and description of the File Checksum Integrity Verifier utility
@@ -200,43 +191,44 @@ Function Get-CheckSum
 Function Send-Mail
 {
     <#
-    .SYNOPSIS
-        E メールを送信します。
+        .SYNOPSIS
+            E メールを送信します。
 
+        .DESCRIPTION
+            Send-MailMessage コマンドレットを使用してください。
 
-    .DESCRIPTION
-        Send-MailMessage コマンドレットを使用してください。
+        .PARAMETER To
+            E メールの宛先 (To) を指定します。
 
+        .PARAMETER From
+            E メールの送信者 (From) を指定します。
 
-    .PARAMETER To
-    .PARAMETER From
-    .PARAMETER Host
-    .PARAMETER Subject
-    .PARAMETER Body
-    .PARAMETER UserName
-    .PARAMETER Password
-    .PARAMETER Domain
-    .PARAMETER Port
+        .PARAMETER Host
+            E メールを送信する SMTP サーバーを指定します。
 
+        .PARAMETER Subject
+            E メールの件名 (Subject) を指定します。
 
-    .INPUTS
-        System.String
+        .PARAMETER Body
+            E メールの本文 (Body) を指定します。
 
+        .PARAMETER UserName
+            E メールを送信する SMTP サーバーへのログインアカウントのユーザー名を指定します。
 
-    .OUTPUTS
-        System.String
+        .PARAMETER Password
+            E メールを送信する SMTP サーバーへのログインアカウントのパスワードを指定します。
 
+        .PARAMETER Domain
+            E メールを送信する SMTP サーバーへのログインアカウントのドメインを指定します。
 
-    .NOTES
-        (None)
+        .PARAMETER Port
+            E メールを送信する SMTP サーバーのポート番号を指定します。
 
+        .INPUTS
+            System.String
 
-    .EXAMPLE
-        (None)
-
-
-    .LINK
-        (None)
+        .OUTPUTS
+            None
     #>
 
     [CmdletBinding()]
