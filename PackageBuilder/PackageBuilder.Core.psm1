@@ -38,6 +38,8 @@
  #  2014/04/27  Version 0.12.0.0
  #  2014/05/05  Version 0.13.0.0
  #  2014/05/06  Version 1.0.0.0
+ #  2014/05/08  Version 1.0.3.0    Update help content of 'Start-Command' Cmdlet.
+ #                                 Add error (exception) handling procedure of 'Start-Command' Cmdlet.
  #
  #>
 #####################################################################################################################################################
@@ -308,6 +310,8 @@ Function Start-Command
 
         .PARAMETER ArgumentList
             実行時のパラメーターを文字列配列として指定します。
+            ファイルパスなど、文字列を引用符で括る必要がある場合は、シングルクォーテーション ['] ではなく、ダブルクォーテーション ["] を
+            使用してください。
 
         .PARAMETER WorkingDirectory
             作業フォルダーを指定します。
@@ -532,7 +536,13 @@ Function Start-Command
                 $proc = [System.Diagnostics.Process](Invoke-Expression -Command $commandline)
                 ####################################################################################################
             }
-            catch [System.Exception] { throw $_ }
+            catch [System.Exception]
+            {
+                # [+]V1.0.3.0 (2014/05/08)
+                $proc.Kill()
+
+                throw $_
+            }
             finally
             {
                 # Not Asynchronous (-Wait)

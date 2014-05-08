@@ -40,6 +40,9 @@
  #  2014/05/05  Version 0.13.0.0
  #  2014/05/06  Version 1.0.0.0
  #  2014/05/06  Version 1.0.1.0
+ #  2014/05/06  Version 1.0.2.0
+ #  2014/05/08  Version 1.0.3.0    Update help content of 'Get-PrivateProfileString' Cmdlet
+ #                                 Modify help content of 'Show-Message' Cmdlet
  #
  #>
 #####################################################################################################################################################
@@ -415,7 +418,7 @@ Function Show-Message
             デフォルトでは、ホストセッションの名前 ($PSSessionApplicationName) が表示されます。
 
         .PARAMETER Buttons
-            メッセージ ボックスに表示するボタンを [System.Windows.Forms.MessageBoxButtons] 型で指定します。
+            メッセージ ボックスに表示するボタンを System.Windows.Forms.MessageBoxButtons の値で指定します。
             デフォルトは、指定なしです。
 
         .INPUTS
@@ -443,7 +446,7 @@ Function Show-Message
     Param (
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)][string]$Text,
         [Parameter(Mandatory=$false, Position=1)][string]$Caption = $PSSessionApplicationName,
-        [Parameter(Mandatory=$false, Position=2)][System.Windows.Forms.MessageBoxButtons]$Buttons
+        [Parameter(Mandatory=$false, Position=2)][int]$Buttons
     )
 
     Process
@@ -456,7 +459,7 @@ Function Show-Message
             [void][System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms.dll')
         }
 
-        if ($Buttons) { return [System.Windows.Forms.MessageBox]::Show($Text, $Caption, $Buttons) }
+        if ($Buttons) { return [System.Windows.Forms.MessageBox]::Show($Text, $Caption, [System.Windows.Forms.MessageBoxButtons]$Buttons) }
         else { return [System.Windows.Forms.MessageBox]::Show($Text, $Caption) }
     }
 }
@@ -907,6 +910,7 @@ Function Get-PrivateProfileString
             INI ファイル (初期化ファイル) の指定されたセクションとキーの組み合わせに関連付けられている値を文字列として取得します。
 
             同じセクションとキーの組み合わせが存在した場合は、ファイルの先頭から検索し、最初に検出した値を取得します。
+            指定されたセクションとキーの組み合わせに関連付けられている値が検出されなかったときは System.String.Empty を返します。
 
         .PARAMETER Path
             INI ファイルのパスを指定します。
@@ -924,6 +928,7 @@ Function Get-PrivateProfileString
         .OUTPUTS
             System.String
             Get-PrivateProfileString コマンドレットは System.String を返します。
+            設定値が検出されなかった場合は System.String.Empty を返します。
 
         .EXAMPLE
             Get-PrivateProfileString -Path .\toastpkg.inf -Section Version -Key DriverVer
