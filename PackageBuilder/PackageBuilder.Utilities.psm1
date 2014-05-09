@@ -43,6 +43,7 @@
  #  2014/05/06  Version 1.0.2.0
  #  2014/05/08  Version 1.0.3.0    Update help content of 'Get-PrivateProfileString' Cmdlet
  #                                 Modify help content of 'Show-Message' Cmdlet
+ #  2014/05/09  Version 1.0.4.0    Modify empty string handling of 'Update-Content' Cmdlet
  #
  #>
 #####################################################################################################################################################
@@ -874,6 +875,9 @@ Function Get-HTMLString
             System.String or System.String[]
             Get-HTMLString コマンドレットは、System.String または System.String[] を返します。
 
+        .NOTES
+            コメント ('<!--' から '-->' の間) の中に '>' がある場合は正しく動作しません。
+
         .EXAMPLE
             Get-HtmlElement -Path .\sample.html -Tag h1
             カレントディレクトリにある sample.html から <H1> タグの要素を全て取得します。
@@ -1032,10 +1036,20 @@ Function Update-Content
 
     [CmdletBinding()]
     Param (
-        [Parameter(Mandatory=$true, Position=0, ParameterSetName='line')][int]$Line,
-        [Parameter(Mandatory=$true, Position=0, ParameterSetName='word')][string]$SearchText,
-        [Parameter(Mandatory=$true, Position=1)][string]$UpdateText,
-        [Parameter(Mandatory=$true, Position=2, ValueFromPipeline=$true)][string[]]$InputObject
+        [Parameter(Mandatory=$true, Position=0, ParameterSetName='line')]
+        [int]$Line,
+
+        [Parameter(Mandatory=$true, Position=0, ParameterSetName='word')]
+        [AllowEmptyString()] # [*]V1.0.4.0 (2014/05/09)
+        [string]$SearchText, 
+
+        [Parameter(Mandatory=$true, Position=1)]
+        [AllowEmptyString()] # [*]V1.0.4.0 (2014/05/09)
+        [string]$UpdateText,
+
+        [Parameter(Mandatory=$true, Position=2, ValueFromPipeline=$true)]
+        [AllowEmptyString()] # [*]V1.0.4.0 (2014/05/09)
+        [string[]]$InputObject
     )
 
     Begin
@@ -1056,7 +1070,15 @@ Function Update-Content
             }
             default #('Word')
             {
-                return ($InputObject -replace $SearchText, $UpdateText)
+                # [*]V1.0.4.0 (2014/05/09)
+                if (($InputObject -ne [string]::Empty) -and ($SearchText -ne [string]::Empty) -and ($UpdateText -ne [string]::Empty))
+                {
+                    return ($InputObject -replace $SearchText, $UpdateText)
+                }
+                else
+                {
+                    return $InputObject
+                }
             }
         }
     }

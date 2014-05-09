@@ -40,6 +40,7 @@
  #  2014/05/06  Version 1.0.0.0
  #  2014/05/08  Version 1.0.3.0    Update help content of 'Start-Command' Cmdlet.
  #                                 Add error (exception) handling procedure of 'Start-Command' Cmdlet.
+ #  2014/05/09  Version 1.0.4.0    Modify error (exception) handling procedure of 'Start-Command' Cmdlet.
  #
  #>
 #####################################################################################################################################################
@@ -538,8 +539,8 @@ Function Start-Command
             }
             catch [System.Exception]
             {
-                # [+]V1.0.3.0 (2014/05/08)
-                $proc.Kill()
+                # [+]V1.0.3.0 (2014/05/08) / [*]V1.0.4.0 (2014/05/09)
+                if ($proc -ne $null) { $proc.Kill() }
 
                 throw $_
             }
