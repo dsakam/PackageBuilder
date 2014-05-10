@@ -1,7 +1,7 @@
 PackageBuilder
 ==============
 
-Package Builder Toolkit for PowerShell Version **1.0.4.0**
+Package Builder Toolkit for PowerShell Version **1.0.5.0**
 
 概要
 ----
@@ -135,6 +135,10 @@ Send-MailMessage コマンドレットを使用してください。
 
 履歴
 ----
+
+**V1.0.5.0** (2014/05/10)  
+Update-Content コマンドレットの空文字 (String.Empty) の処理を再度修正。  
+Start-Command コマンドレットの標準出力および標準エラー出力の一時ファイル名を変更。
 
 **V1.0.4.0** (2014/05/09)  
 Update-Content コマンドレットの空文字 (String.Empty) の処理を修正。  
