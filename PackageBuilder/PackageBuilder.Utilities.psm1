@@ -44,6 +44,7 @@
  #  2014/05/08  Version 1.0.3.0    Update help content of 'Get-PrivateProfileString' Cmdlet
  #                                 Modify help content of 'Show-Message' Cmdlet
  #  2014/05/09  Version 1.0.4.0    Modify empty string handling of 'Update-Content' Cmdlet
+ #  2014/05/10  Version 1.0.5.0    Modify empty string handling of 'Update-Content' Cmdlet
  #
  #>
 #####################################################################################################################################################
@@ -1070,8 +1071,8 @@ Function Update-Content
             }
             default #('Word')
             {
-                # [*]V1.0.4.0 (2014/05/09)
-                if (($InputObject -ne [string]::Empty) -and ($SearchText -ne [string]::Empty) -and ($UpdateText -ne [string]::Empty))
+                # [*]V1.0.4.0 (2014/05/09) / [*]V1.0.5.0 (2014/05/10)
+                if (($InputObject -ne [string]::Empty) -and ($SearchText -ne [string]::Empty))
                 {
                     return ($InputObject -replace $SearchText, $UpdateText)
                 }
