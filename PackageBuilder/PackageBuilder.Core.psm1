@@ -41,7 +41,8 @@
  #  2014/05/08  Version 1.0.3.0    Update help content of 'Start-Command' Cmdlet.
  #                                 Add error (exception) handling procedure of 'Start-Command' Cmdlet.
  #  2014/05/09  Version 1.0.4.0    Modify error (exception) handling procedure of 'Start-Command' Cmdlet.
- #  2014/05/10  Version 1.0.5.0    Change temporal file name of standard output / standard error output of 'Start-Command' Cmdlet.
+ #  2014/05/10  Version 1.0.5.0    Change temporary file name of standard output / standard error output of 'Start-Command' Cmdlet.
+ #  2014/05/15  Version 1.0.6.0    Change temporary file name of standard output / standard error output of 'Start-Command' Cmdlet.
  #
  #>
 #####################################################################################################################################################
@@ -509,7 +510,7 @@ Function Start-Command
 
             # V1.0.5.0 (2014/05/10) : Change format of file name.
             $output_filepath = ($output_filepath | Join-Path -ChildPath (`
-                (Get-Date).ToString('yyyy-MM-dd_HHmmssFFFFFF') `
+                (Get-Date).ToString('yyyy-MM-dd_HHmmss.FFFFFF') `
                 + '_' + $MyInvocation.MyCommand.Name `
                 + '_' + (Split-Path -Path $FilePath -Leaf)))
         }
