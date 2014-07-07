@@ -1,7 +1,7 @@
 PackageBuilder
 ==============
 
-Package Builder Toolkit for PowerShell Version **1.0.6.0**
+Package Builder Toolkit for PowerShell Version **1.1.0.0**
 
 概要
 ----
@@ -23,7 +23,7 @@ MD5 ハッシュ値を取得します。
 
 * **New-ISOImageFile**  
 ISO イメージファイルを作成します。   
-  
+
   
 ### PackageBuilder.Utilities.psm1
 ソフトウェアをパッケージングする際に、あると便利なコマンドレット群を含みます。
@@ -39,9 +39,6 @@ ISO イメージファイルを作成します。
 
 * **Write-Boolean**  
 テスト結果の真偽に応じた色で、コンソールに出力します。  
-
-* **Show-Message**  
-メッセージボックスを表示します。  
 
 * **Get-DateString**  
 日付文字列を取得します。  
@@ -84,6 +81,17 @@ INI ファイル (初期化ファイル) から設定値を取得します。
 
 * **ConvertTo-ByteArray**  
 文字列をバイト配列へ変換します。  
+
+
+### PackageBuilder.Forms.psm1
+System.Windows.Forms 名前空間のクラスを使用して GUI を表示します。  
+(System.Windows.dll をロードします。)
+
+* **Show-Message**  
+メッセージボックスを表示します。(PackageBuilder.Ulilities.psm1 より移動)  
+
+* **Show-InputBox**  
+テキスト ボックスまたはコンボ ボックスのついたメッセージボックスを表示します。  
 
 
 ### PackageBuilder.Win32.psm1
@@ -135,6 +143,12 @@ Send-MailMessage コマンドレットを使用してください。
 
 履歴
 ----
+
+**V1.1.0.0** (2014/07/07)  
+PackageBuilder.Forms.psm1 を追加。  
+Show-Message コマンドレットを PackageBuilder.Utilities.psm1 から PackageBuilder.Forms.psm1 に移動。  
+Show-InputBox コマンドレットを追加。  
+Show-Message コマンドレットの Buttons を int 型から System.Windows.Forms.MessageBoxButtons 型に変更。
 
 **V1.0.6.0** (2014/05/15)  
 Start-Command コマンドレットの標準出力および標準エラー出力の一時ファイル名を再度変更。
