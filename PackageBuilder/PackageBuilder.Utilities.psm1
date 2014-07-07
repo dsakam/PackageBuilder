@@ -45,6 +45,7 @@
  #                                 Modify help content of 'Show-Message' Cmdlet
  #  2014/05/09  Version 1.0.4.0    Modify empty string handling of 'Update-Content' Cmdlet
  #  2014/05/10  Version 1.0.5.0    Modify empty string handling of 'Update-Content' Cmdlet
+ #  2014/06/22  Version 1.1.0.0    Saparate Show-Message Cmdlet to PackageBuilder.Forms.psm1
  #
  #>
 #####################################################################################################################################################
@@ -399,70 +400,6 @@ Function Write-Boolean
     {
         if ($TestObject) { Write-Host $Green -ForegroundColor Green -NoNewline }
         else { Write-Host $Red -ForegroundColor Red -NoNewline }
-    }
-}
-
-#####################################################################################################################################################
-Function Show-Message
-{
-    <#
-        .SYNOPSIS
-            メッセージ ボックスを表示します。 
-
-        .DESCRIPTION
-            System.Windows.Forms.MessageBox.Show メソッドを使用して、メッセージ ボックスを表示します。 
-
-        .PARAMETER Text
-            メッセージ ボックスに表示するテキストを指定します。
-
-        .PARAMETER Caption
-            メッセージ ボックスのタイトル バーに表示するテキストを指定します。
-            デフォルトでは、ホストセッションの名前 ($PSSessionApplicationName) が表示されます。
-
-        .PARAMETER Buttons
-            メッセージ ボックスに表示するボタンを System.Windows.Forms.MessageBoxButtons の値で指定します。
-            デフォルトは、指定なしです。
-
-        .INPUTS
-            System.String
-            パイプを使用して、Text パラメーターを Show-Message コマンドレットに渡すことができます。
-
-        .OUTPUTS
-            System.Windows.Forms.DialogResult
-            System.Windows.Forms.MessageBox.Show メソッドの戻り値を、コマンドレットの戻り値として返します。
-
-        .NOTES
-            Show-Message コマンドレットは、System.Windows.Forms (System.Windows.Forms.dll) のロードを試みます。
-            System.Windows.Forms のロードに成功すると、System.Windows.Forms.MessageBox.Show メソッドを使用して、メッセージ ボックスを表示します。 
-
-        .EXAMPLE
-            Show-Message hoge
-            メッセージ 'hoge' と表示されたメッセージ ボックスを表示します。
-
-        .LINK
-            MessageBox クラス (System.Windows.Forms)
-            http://msdn.microsoft.com/library/system.windows.forms.messagebox.aspx
-    #>
-
-    [CmdletBinding()]
-    Param (
-        [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)][string]$Text,
-        [Parameter(Mandatory=$false, Position=1)][string]$Caption = $PSSessionApplicationName,
-        [Parameter(Mandatory=$false, Position=2)][int]$Buttons
-    )
-
-    Process
-    {
-        # Load Assembly
-        try {
-            [void][System.Reflection.Assembly]::Load('System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089')
-        }
-        catch {
-            [void][System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms.dll')
-        }
-
-        if ($Buttons) { return [System.Windows.Forms.MessageBox]::Show($Text, $Caption, [System.Windows.Forms.MessageBoxButtons]$Buttons) }
-        else { return [System.Windows.Forms.MessageBox]::Show($Text, $Caption) }
     }
 }
 
